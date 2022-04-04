@@ -32,7 +32,7 @@ if __name__ == "__main__":
     #max_pt: maximum transverse momentum of final state jet
     max_pt=6500.
     #n_bind: number of bins for the pt of the transverse momentum of final state jet
-    n_bins=1
+    n_bins=20
     #mZ: mass of final state boson
     mZ=1
     #res_c: collinear resolution of initial-state jets
@@ -78,10 +78,11 @@ if __name__ == "__main__":
     # self.pg momentum of the final state jet
 
 
-
+    ######################################################################
     #It is possible to evaluate the integrand directly in momentum space, 
     #by providing a set [[kx,ky,kz],[lx,ly,lz],[qx,qy,qz]] of vectors,
     #and obtain an aoutput computed either with f64 or f128 precision
+    ######################################################################
 
     moms=[[1.0,1.2,0.17],[-0.56,0.33,0.17],[0.77,0.98,-1.54]]
     f64_res=integrand.sample_f64_mom(moms)
@@ -107,8 +108,9 @@ if __name__ == "__main__":
         print(r.spin2)
         print(r.pg)
 
-
+    ##########################################################################
     #It is also possible to evaluate with input given in x space, and result being subject to a safety mechanism
+    ##########################################################################
 
     xs=[0.1,0.2,0.1,0.17,0.44,0.11,0.17,0.6,0.21]
 
@@ -123,3 +125,49 @@ if __name__ == "__main__":
         print(r.j2)
         print(r.spin2)
         print(r.pg)
+
+    ##########################################################################
+    #Finally, there's a function that directly bins the distribution in the transverse momentum of the final-state jet.
+    #The output is a vector of values attached to each bin
+    ##########################################################################
+
+    xs=[0.1,0.2,0.5,0.17,0.14,0.11,0.17,0.6,0.21]
+
+    safe_res=integrand.safe_eval_bin(xs)
+
+    print(safe_res)
+
+    ##########################################################################
+    #Let's test this with some benchmarked number
+    ##########################################################################
+
+    my_integrand=NLO_integrands(91.18,13000,0.,0.,2,0.,10,2000,1,basis,tag="st",phase='real')
+
+    my_integrand.set_digits(6,2)
+
+    def f(x):
+
+        ap=10*math.tan(math.pi*(x[9]-1/2))
+        my_integrand.set_a(ap)
+
+        xs=[x[i] for i in range(0,9)]
+
+        bins=my_integrand.safe_eval_bin(xs)
+
+        res=[biny*10*math.pi/pow(math.sin(math.pi*x[9]),2) for biny in bins]
+
+        return res
+
+    integ = vegas.Integrator([[0.000,0.99], [0,1], [0,1], [0.000,0.99], [0,1], [0,1], [0.000,0.99], [0,1], [0,1],[0,1]]) #, [r3_min, r3_max], [th3_min, th3_max], [ph3_min, ph3_max]])
+
+    integ(f, nitn=n_iterations_learning, neval=n_points_iteration_learning)
+    result = integ(f, nitn=n_iterations, neval=n_points_iteration)
+    if integ.mpi_rank == 0:
+        print(result.summary())
+    if integ.mpi_rank == 0:
+        print('result = %s    Q = %.2f' % (result[0], result.Q))
+        for biny in result:
+            print(biny)
+
+    print(my_integrand.n_unstable_f64)
+    print(my_integrand.n_unstable_f128)
