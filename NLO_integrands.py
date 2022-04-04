@@ -105,6 +105,23 @@ class NLO_integrands:
         return totres
 
 
+    def sample_f64_mom(self, moms):
+        res=NLO(moms[0],moms[1],moms[2],self.a,self.tag,'f64',self.phase)
+        for r in res:
+            r.res=r.res*r.jac#r.res*r.jac)#*r.jac)#r.res*r.jac
+        #print(res)
+        return res
+
+    def sample_f128_mom(self, moms):
+
+        res=NLO(moms[0],moms[1],moms[2],self.a,self.tag,'f128',self.phase)
+    
+        for r in res:
+            r.res=r.res*r.jac
+
+        return res
+
+
     def f64_eval_bin(self, x, prec='f64'):
 
         res_inclusive=0
@@ -218,4 +235,68 @@ class NLO_integrands:
 
         return res_bin
 
+
+
+    def safe_eval(self, x):
+        [jacques, ks]=self.x_param(x)
+        
+        res_inclusive=0
+        res_bin=[0 for i in range(0, self.n_bins+1)]
+
+        ksnew=rotator(ks)
+
+        resf64=NLO(ks[0],ks[1],ks[2],self.a,self.tag,'f64',self.phase)
+        resnewf64=NLO(ksnew[0],ksnew[1],ksnew[2],self.a,self.tag,'f64',self.phase)
+
+        totresf64=0
+        totresnewf64=0
+        for (r,newr) in zip(resf64,resnewf64):
+            totresf64+=r.res*jacques
+            totresnewf64+=newr.res*jacques
+            
+        c=0
+        # print("distance")
+        # print(self.n_digits_f64)
+        # print(x)
+        # print(totresf64)
+        # print(totresnewf64)
+        # print(abs(totresf64-totresnewf64))
+        # print(pow(10.,-self.n_digits_f64)*(abs(totresf64)+abs(totresnewf64)))
+        if abs(totresf64-totresnewf64)>pow(10.,-self.n_digits_f64)*(abs(totresf64)+abs(totresnewf64)):
+            
+            self.n_unstable_f64+=1
+            self.unstablef64.append([self.x_param(x),x])
+
+            resf128=NLO(ks[0],ks[1],ks[2],self.a,self.tag,'f128',self.phase)
+            resnewf128=NLO(ksnew[0],ksnew[1],ksnew[2],self.a,self.tag,'f128',self.phase)
+
+            totresf128=0
+            totresnewf128=0
+            for (r,newr) in zip(resf128,resnewf128):
+                totresf128+=r.res*jacques
+                totresnewf128+=newr.res*jacques
+
+            if abs(totresf128-totresnewf128)<pow(10.,-self.n_digits_f128)*(abs(totresf128)+abs(totresnewf128)):
+                #print(x)
+                for r in resf128:
+                    r.jac=r.jac*jacques
+
+                return resf128
+
+            else:
+                self.unstablef128.append(self.x_param(x))
+                self.n_unstable_f128+=1
+        else:
+
+            for r in resf64:
+                r.jac=r.jac*jacques
+
+            return resf64
+
+
+        for r in resnewf64:
+            r.res=0
+            
+        return resnewf64
+        
 
