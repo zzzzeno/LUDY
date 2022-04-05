@@ -8,18 +8,9 @@ from NLO_integrands import NLO_integrands
 import time
 import matplotlib.pyplot as plt
 from integrand_wrapper import cut_res
+from integrand_wrapper import set_r, set_kin, set_sig, set_defo, set_MUV
 
 if __name__ == "__main__":
-
-    
-    #number of learning iterations for vegas
-    n_iterations_learning=10 
-    #size of learning iterations for vegas
-    n_points_iteration_learning=100000 
-    #number of refining iterations for vegas
-    n_iterations=10 
-    #size of refining iterations for vegas
-    n_points_iteration=100000 
 
     #loop integration basis
     basis=np.linalg.inv(np.array([[1,1,0],[0,1,0],[0,0,1]])) 
@@ -55,7 +46,7 @@ if __name__ == "__main__":
     integrand=NLO_integrands(mZ, eCM, res_c, res_s, sigma, a, min_pt, max_pt, n_bins, basis, tag=my_tag, debug=False, mode=my_mode,phase=my_phase)
 
 
-
+    ####################################################################
     #EVALUATE INTEGRAND
     #The output is a vector of structures. The single structure represents the evaluation of a single interference diagrams, 
     #and contains the following information
@@ -76,12 +67,13 @@ if __name__ == "__main__":
     # self.spin1 spin of the first jet
     # self.spin2 spin of the second jet
     # self.pg momentum of the final state jet
+    ####################################################################
 
 
     ######################################################################
     #It is possible to evaluate the integrand directly in momentum space, 
     #by providing a set [[kx,ky,kz],[lx,ly,lz],[qx,qy,qz]] of vectors,
-    #and obtain an aoutput computed either with f64 or f128 precision
+    #and obtain an output computed either with f64 or f128 precision
     ######################################################################
 
     moms=[[1.0,1.2,0.17],[-0.56,0.33,0.17],[0.77,0.98,-1.54]]
@@ -117,7 +109,6 @@ if __name__ == "__main__":
     safe_res=integrand.safe_eval(xs)
 
     for r in safe_res:
-        print("f64 result")
         print(r.res)
         print(r.jac)
         print(r.j1)
@@ -141,9 +132,35 @@ if __name__ == "__main__":
     #Let's test this with some benchmarked number
     ##########################################################################
 
-    my_integrand=NLO_integrands(91.18,13000,0.,0.,2,0.,10,2000,1,basis,tag="st",phase='real')
+    #number of learning iterations for vegas
+    n_iterations_learning=10 
+    #size of learning iterations for vegas
+    n_points_iteration_learning=1000000 
+    #number of refining iterations for vegas
+    n_iterations=10 
+    #size of refining iterations for vegas
+    n_points_iteration=1000000 
 
-    my_integrand.set_digits(6,2)
+    basis=np.linalg.inv(np.array([[1,0,0],[0,1,0],[0,0,1]]))
+
+
+    #Set kinematics and hyperparameters at the C++ level
+    set_kin(91.188,13000)
+    set_r(0.,0.)
+    set_sig(2.)
+
+    #Benchmark numbers to reproduce for given hyperparameters
+    benchmarks={"st":0.01199844/2.,
+                "tqg":0.13399,
+                "s":0.0068855,
+                "tqq":0.2875,
+                "u":0.20195
+        }
+
+    my_tag="tqq"
+
+    my_integrand=NLO_integrands(91.188,13000,0.,0.,2,0.,10,2000,1,basis,tag=my_tag,phase='real')
+    my_integrand.set_digits(8,4)
 
     def f(x):
 
@@ -158,7 +175,7 @@ if __name__ == "__main__":
 
         return res
 
-    integ = vegas.Integrator([[0.000,0.99], [0,1], [0,1], [0.000,0.99], [0,1], [0,1], [0.000,0.99], [0,1], [0,1],[0,1]]) #, [r3_min, r3_max], [th3_min, th3_max], [ph3_min, ph3_max]])
+    integ = vegas.Integrator([[0.000,1], [0,1], [0,1], [0.000,1], [0,1], [0,1], [0.000,1], [0,1], [0,1],[0,1]]) #, [r3_min, r3_max], [th3_min, th3_max], [ph3_min, ph3_max]])
 
     integ(f, nitn=n_iterations_learning, neval=n_points_iteration_learning)
     result = integ(f, nitn=n_iterations, neval=n_points_iteration)
@@ -169,5 +186,5 @@ if __name__ == "__main__":
         for biny in result:
             print(biny)
 
-    print(my_integrand.n_unstable_f64)
-    print(my_integrand.n_unstable_f128)
+    #print(my_integrand.n_unstable_f64)
+    #print(my_integrand.n_unstable_f128)

@@ -216,6 +216,19 @@ class cut_res:
         self.spin2 = spin2
         self.pg = pg
 
+    @classmethod
+    def set_equal(cls, cut_res_n):
+        res = cut_res_n.res
+        jac = cut_res_n.res
+        j1 = cut_res_n.res
+        spin1 = cut_res_n.res
+        j2 = cut_res_n.res
+        spin2 = cut_res_n.res
+        pg = cut_res_n.res
+
+        return cls(res,jac,j1,spin1,j2,spin2,pg)
+
+
 
 
 def LO(k,l,a,tag='dy',prec='f64'):

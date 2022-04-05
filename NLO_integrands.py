@@ -60,7 +60,7 @@ class NLO_integrands:
 
 
     def x_param(self, x):
-        eCMn=1#1300#self.eCM/
+        eCMn=self.eCM/10.
         dr1=eCMn*x[0]/(1-x[0])
         dth1=x[1]*2*math.pi
         dph1=x[2]*math.pi
