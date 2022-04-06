@@ -1,0 +1,1247 @@
+The system is: Linux - 5.4.0-81-generic - x86_64
+Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" succeeded.
+Compiler: /usr/bin/c++ 
+Build flags: 
+Id flags:  
+
+The output was:
+0
+
+
+Compilation of the CXX compiler identification source "CMakeCXXCompilerId.cpp" produced "a.out"
+
+The CXX compiler identification is GNU, found in "/scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/3.16.3/CompilerIdCXX/a.out"
+
+Compiling the C compiler identification source file "CMakeCCompilerId.c" succeeded.
+Compiler: /usr/bin/cc 
+Build flags: 
+Id flags:  
+
+The output was:
+0
+
+
+Compilation of the C compiler identification source "CMakeCCompilerId.c" produced "a.out"
+
+The C compiler identification is GNU, found in "/scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/3.16.3/CompilerIdC/a.out"
+
+Determining if the CXX compiler works passed with the following output:
+Change Dir: /scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/make cmTC_ee1bf/fast && /usr/bin/make -f CMakeFiles/cmTC_ee1bf.dir/build.make CMakeFiles/cmTC_ee1bf.dir/build
+make[1]: Entering directory '/scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_ee1bf.dir/testCXXCompiler.cxx.o
+/usr/bin/c++     -o CMakeFiles/cmTC_ee1bf.dir/testCXXCompiler.cxx.o -c /scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp/testCXXCompiler.cxx
+Linking CXX executable cmTC_ee1bf
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_ee1bf.dir/link.txt --verbose=1
+/usr/bin/c++       CMakeFiles/cmTC_ee1bf.dir/testCXXCompiler.cxx.o  -o cmTC_ee1bf 
+make[1]: Leaving directory '/scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp'
+
+
+
+Detecting CXX compiler ABI info compiled with the following output:
+Change Dir: /scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/make cmTC_98101/fast && /usr/bin/make -f CMakeFiles/cmTC_98101.dir/build.make CMakeFiles/cmTC_98101.dir/build
+make[1]: Entering directory '/scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_98101.dir/CMakeCXXCompilerABI.cpp.o
+/usr/bin/c++    -v -o CMakeFiles/cmTC_98101.dir/CMakeCXXCompilerABI.cpp.o -c /usr/share/cmake-3.16/Modules/CMakeCXXCompilerABI.cpp
+Using built-in specs.
+COLLECT_GCC=/usr/bin/c++
+OFFLOAD_TARGET_NAMES=nvptx-none:hsa
+OFFLOAD_TARGET_DEFAULT=1
+Target: x86_64-linux-gnu
+Configured with: ../src/configure -v --with-pkgversion='Ubuntu 9.3.0-17ubuntu1~20.04' --with-bugurl=file:///usr/share/doc/gcc-9/README.Bugs --enable-languages=c,ada,c++,go,brig,d,fortran,objc,obj-c++,gm2 --prefix=/usr --with-gcc-major-version-only --program-suffix=-9 --program-prefix=x86_64-linux-gnu- --enable-shared --enable-linker-build-id --libexecdir=/usr/lib --without-included-gettext --enable-threads=posix --libdir=/usr/lib --enable-nls --enable-clocale=gnu --enable-libstdcxx-debug --enable-libstdcxx-time=yes --with-default-libstdcxx-abi=new --enable-gnu-unique-object --disable-vtable-verify --enable-plugin --enable-default-pie --with-system-zlib --with-target-system-zlib=auto --enable-objc-gc=auto --enable-multiarch --disable-werror --with-arch-32=i686 --with-abi=m64 --with-multilib-list=m32,m64,mx32 --enable-multilib --with-tune=generic --enable-offload-targets=nvptx-none=/build/gcc-9-HskZEa/gcc-9-9.3.0/debian/tmp-nvptx/usr,hsa --without-cuda-driver --enable-checking=release --build=x86_64-linux-gnu --host=x86_64-linux-gnu --target=x86_64-linux-gnu
+Thread model: posix
+gcc version 9.3.0 (Ubuntu 9.3.0-17ubuntu1~20.04) 
+COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_98101.dir/CMakeCXXCompilerABI.cpp.o' '-c' '-shared-libgcc' '-mtune=generic' '-march=x86-64'
+ /usr/lib/gcc/x86_64-linux-gnu/9/cc1plus -quiet -v -imultiarch x86_64-linux-gnu -D_GNU_SOURCE /usr/share/cmake-3.16/Modules/CMakeCXXCompilerABI.cpp -quiet -dumpbase CMakeCXXCompilerABI.cpp -mtune=generic -march=x86-64 -auxbase-strip CMakeFiles/cmTC_98101.dir/CMakeCXXCompilerABI.cpp.o -version -fasynchronous-unwind-tables -fstack-protector-strong -Wformat -Wformat-security -fstack-clash-protection -fcf-protection -o /tmp/ccObJSbq.s
+GNU C++14 (Ubuntu 9.3.0-17ubuntu1~20.04) version 9.3.0 (x86_64-linux-gnu)
+	compiled by GNU C version 9.3.0, GMP version 6.2.0, MPFR version 4.0.2, MPC version 1.1.0, isl version isl-0.22.1-GMP
+
+GGC heuristics: --param ggc-min-expand=100 --param ggc-min-heapsize=131072
+ignoring duplicate directory "/usr/include/x86_64-linux-gnu/c++/9"
+ignoring nonexistent directory "/usr/local/include/x86_64-linux-gnu"
+ignoring nonexistent directory "/usr/lib/gcc/x86_64-linux-gnu/9/include-fixed"
+ignoring nonexistent directory "/usr/lib/gcc/x86_64-linux-gnu/9/../../../../x86_64-linux-gnu/include"
+#include "..." search starts here:
+#include <...> search starts here:
+ /usr/include/c++/9
+ /usr/include/x86_64-linux-gnu/c++/9
+ /usr/include/c++/9/backward
+ /usr/lib/gcc/x86_64-linux-gnu/9/include
+ /usr/local/include
+ /usr/include/x86_64-linux-gnu
+ /usr/include
+End of search list.
+GNU C++14 (Ubuntu 9.3.0-17ubuntu1~20.04) version 9.3.0 (x86_64-linux-gnu)
+	compiled by GNU C version 9.3.0, GMP version 6.2.0, MPFR version 4.0.2, MPC version 1.1.0, isl version isl-0.22.1-GMP
+
+GGC heuristics: --param ggc-min-expand=100 --param ggc-min-heapsize=131072
+Compiler executable checksum: 466f818abe2f30ba03783f22bd12d815
+COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_98101.dir/CMakeCXXCompilerABI.cpp.o' '-c' '-shared-libgcc' '-mtune=generic' '-march=x86-64'
+ as -v --64 -o CMakeFiles/cmTC_98101.dir/CMakeCXXCompilerABI.cpp.o /tmp/ccObJSbq.s
+GNU assembler version 2.34 (x86_64-linux-gnu) using BFD version (GNU Binutils for Ubuntu) 2.34
+COMPILER_PATH=/usr/lib/gcc/x86_64-linux-gnu/9/:/usr/lib/gcc/x86_64-linux-gnu/9/:/usr/lib/gcc/x86_64-linux-gnu/:/usr/lib/gcc/x86_64-linux-gnu/9/:/usr/lib/gcc/x86_64-linux-gnu/
+LIBRARY_PATH=/usr/lib/gcc/x86_64-linux-gnu/9/:/usr/lib/gcc/x86_64-linux-gnu/9/../../../x86_64-linux-gnu/:/usr/lib/gcc/x86_64-linux-gnu/9/../../../../lib/:/lib/x86_64-linux-gnu/:/lib/../lib/:/usr/lib/x86_64-linux-gnu/:/usr/lib/../lib/:/scratch/zcapatti/MG5_aMC_v3_0_2_py3/PLUGIN/alphaloop/libraries/scs/out/:/scratch/zcapatti/MG5_aMC_v3_0_2_py3/PLUGIN/alphaloop/libraries/ecos/:/scratch/zcapatti/Cuba-4.2.1/:./:/usr/lib/gcc/x86_64-linux-gnu/9/../../../:/lib/:/usr/lib/
+COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_98101.dir/CMakeCXXCompilerABI.cpp.o' '-c' '-shared-libgcc' '-mtune=generic' '-march=x86-64'
+Linking CXX executable cmTC_98101
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_98101.dir/link.txt --verbose=1
+/usr/bin/c++      -v CMakeFiles/cmTC_98101.dir/CMakeCXXCompilerABI.cpp.o  -o cmTC_98101 
+Using built-in specs.
+COLLECT_GCC=/usr/bin/c++
+COLLECT_LTO_WRAPPER=/usr/lib/gcc/x86_64-linux-gnu/9/lto-wrapper
+OFFLOAD_TARGET_NAMES=nvptx-none:hsa
+OFFLOAD_TARGET_DEFAULT=1
+Target: x86_64-linux-gnu
+Configured with: ../src/configure -v --with-pkgversion='Ubuntu 9.3.0-17ubuntu1~20.04' --with-bugurl=file:///usr/share/doc/gcc-9/README.Bugs --enable-languages=c,ada,c++,go,brig,d,fortran,objc,obj-c++,gm2 --prefix=/usr --with-gcc-major-version-only --program-suffix=-9 --program-prefix=x86_64-linux-gnu- --enable-shared --enable-linker-build-id --libexecdir=/usr/lib --without-included-gettext --enable-threads=posix --libdir=/usr/lib --enable-nls --enable-clocale=gnu --enable-libstdcxx-debug --enable-libstdcxx-time=yes --with-default-libstdcxx-abi=new --enable-gnu-unique-object --disable-vtable-verify --enable-plugin --enable-default-pie --with-system-zlib --with-target-system-zlib=auto --enable-objc-gc=auto --enable-multiarch --disable-werror --with-arch-32=i686 --with-abi=m64 --with-multilib-list=m32,m64,mx32 --enable-multilib --with-tune=generic --enable-offload-targets=nvptx-none=/build/gcc-9-HskZEa/gcc-9-9.3.0/debian/tmp-nvptx/usr,hsa --without-cuda-driver --enable-checking=release --build=x86_64-linux-gnu --host=x86_64-linux-gnu --target=x86_64-linux-gnu
+Thread model: posix
+gcc version 9.3.0 (Ubuntu 9.3.0-17ubuntu1~20.04) 
+COMPILER_PATH=/usr/lib/gcc/x86_64-linux-gnu/9/:/usr/lib/gcc/x86_64-linux-gnu/9/:/usr/lib/gcc/x86_64-linux-gnu/:/usr/lib/gcc/x86_64-linux-gnu/9/:/usr/lib/gcc/x86_64-linux-gnu/
+LIBRARY_PATH=/usr/lib/gcc/x86_64-linux-gnu/9/:/usr/lib/gcc/x86_64-linux-gnu/9/../../../x86_64-linux-gnu/:/usr/lib/gcc/x86_64-linux-gnu/9/../../../../lib/:/lib/x86_64-linux-gnu/:/lib/../lib/:/usr/lib/x86_64-linux-gnu/:/usr/lib/../lib/:/scratch/zcapatti/MG5_aMC_v3_0_2_py3/PLUGIN/alphaloop/libraries/scs/out/:/scratch/zcapatti/MG5_aMC_v3_0_2_py3/PLUGIN/alphaloop/libraries/ecos/:/scratch/zcapatti/Cuba-4.2.1/:./:/usr/lib/gcc/x86_64-linux-gnu/9/../../../:/lib/:/usr/lib/
+COLLECT_GCC_OPTIONS='-v' '-o' 'cmTC_98101' '-shared-libgcc' '-mtune=generic' '-march=x86-64'
+ /usr/lib/gcc/x86_64-linux-gnu/9/collect2 -plugin /usr/lib/gcc/x86_64-linux-gnu/9/liblto_plugin.so -plugin-opt=/usr/lib/gcc/x86_64-linux-gnu/9/lto-wrapper -plugin-opt=-fresolution=/tmp/ccJKRHLU.res -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lc -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lgcc --build-id --eh-frame-hdr -m elf_x86_64 --hash-style=gnu --as-needed -dynamic-linker /lib64/ld-linux-x86-64.so.2 -pie -z now -z relro -o cmTC_98101 /usr/lib/gcc/x86_64-linux-gnu/9/../../../x86_64-linux-gnu/Scrt1.o /usr/lib/gcc/x86_64-linux-gnu/9/../../../x86_64-linux-gnu/crti.o /usr/lib/gcc/x86_64-linux-gnu/9/crtbeginS.o -L/usr/lib/gcc/x86_64-linux-gnu/9 -L/usr/lib/gcc/x86_64-linux-gnu/9/../../../x86_64-linux-gnu -L/usr/lib/gcc/x86_64-linux-gnu/9/../../../../lib -L/lib/x86_64-linux-gnu -L/lib/../lib -L/usr/lib/x86_64-linux-gnu -L/usr/lib/../lib -L/scratch/zcapatti/MG5_aMC_v3_0_2_py3/PLUGIN/alphaloop/libraries/scs/out -L/scratch/zcapatti/MG5_aMC_v3_0_2_py3/PLUGIN/alphaloop/libraries/ecos -L/scratch/zcapatti/Cuba-4.2.1 -L. -L/usr/lib/gcc/x86_64-linux-gnu/9/../../.. CMakeFiles/cmTC_98101.dir/CMakeCXXCompilerABI.cpp.o -lstdc++ -lm -lgcc_s -lgcc -lc -lgcc_s -lgcc /usr/lib/gcc/x86_64-linux-gnu/9/crtendS.o /usr/lib/gcc/x86_64-linux-gnu/9/../../../x86_64-linux-gnu/crtn.o
+COLLECT_GCC_OPTIONS='-v' '-o' 'cmTC_98101' '-shared-libgcc' '-mtune=generic' '-march=x86-64'
+make[1]: Leaving directory '/scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp'
+
+
+
+Parsed CXX implicit include dir info from above output: rv=done
+  found start of include info
+  found start of implicit include info
+    add: [/usr/include/c++/9]
+    add: [/usr/include/x86_64-linux-gnu/c++/9]
+    add: [/usr/include/c++/9/backward]
+    add: [/usr/lib/gcc/x86_64-linux-gnu/9/include]
+    add: [/usr/local/include]
+    add: [/usr/include/x86_64-linux-gnu]
+    add: [/usr/include]
+  end of search list found
+  collapse include dir [/usr/include/c++/9] ==> [/usr/include/c++/9]
+  collapse include dir [/usr/include/x86_64-linux-gnu/c++/9] ==> [/usr/include/x86_64-linux-gnu/c++/9]
+  collapse include dir [/usr/include/c++/9/backward] ==> [/usr/include/c++/9/backward]
+  collapse include dir [/usr/lib/gcc/x86_64-linux-gnu/9/include] ==> [/usr/lib/gcc/x86_64-linux-gnu/9/include]
+  collapse include dir [/usr/local/include] ==> [/usr/local/include]
+  collapse include dir [/usr/include/x86_64-linux-gnu] ==> [/usr/include/x86_64-linux-gnu]
+  collapse include dir [/usr/include] ==> [/usr/include]
+  implicit include dirs: [/usr/include/c++/9;/usr/include/x86_64-linux-gnu/c++/9;/usr/include/c++/9/backward;/usr/lib/gcc/x86_64-linux-gnu/9/include;/usr/local/include;/usr/include/x86_64-linux-gnu;/usr/include]
+
+
+Parsed CXX implicit link information from above output:
+  link line regex: [^( *|.*[/\])(ld|CMAKE_LINK_STARTFILE-NOTFOUND|([^/\]+-)?ld|collect2)[^/\]*( |$)]
+  ignore line: [Change Dir: /scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp]
+  ignore line: []
+  ignore line: [Run Build Command(s):/usr/bin/make cmTC_98101/fast && /usr/bin/make -f CMakeFiles/cmTC_98101.dir/build.make CMakeFiles/cmTC_98101.dir/build]
+  ignore line: [make[1]: Entering directory '/scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp']
+  ignore line: [Building CXX object CMakeFiles/cmTC_98101.dir/CMakeCXXCompilerABI.cpp.o]
+  ignore line: [/usr/bin/c++    -v -o CMakeFiles/cmTC_98101.dir/CMakeCXXCompilerABI.cpp.o -c /usr/share/cmake-3.16/Modules/CMakeCXXCompilerABI.cpp]
+  ignore line: [Using built-in specs.]
+  ignore line: [COLLECT_GCC=/usr/bin/c++]
+  ignore line: [OFFLOAD_TARGET_NAMES=nvptx-none:hsa]
+  ignore line: [OFFLOAD_TARGET_DEFAULT=1]
+  ignore line: [Target: x86_64-linux-gnu]
+  ignore line: [Configured with: ../src/configure -v --with-pkgversion='Ubuntu 9.3.0-17ubuntu1~20.04' --with-bugurl=file:///usr/share/doc/gcc-9/README.Bugs --enable-languages=c ada c++ go brig d fortran objc obj-c++ gm2 --prefix=/usr --with-gcc-major-version-only --program-suffix=-9 --program-prefix=x86_64-linux-gnu- --enable-shared --enable-linker-build-id --libexecdir=/usr/lib --without-included-gettext --enable-threads=posix --libdir=/usr/lib --enable-nls --enable-clocale=gnu --enable-libstdcxx-debug --enable-libstdcxx-time=yes --with-default-libstdcxx-abi=new --enable-gnu-unique-object --disable-vtable-verify --enable-plugin --enable-default-pie --with-system-zlib --with-target-system-zlib=auto --enable-objc-gc=auto --enable-multiarch --disable-werror --with-arch-32=i686 --with-abi=m64 --with-multilib-list=m32 m64 mx32 --enable-multilib --with-tune=generic --enable-offload-targets=nvptx-none=/build/gcc-9-HskZEa/gcc-9-9.3.0/debian/tmp-nvptx/usr hsa --without-cuda-driver --enable-checking=release --build=x86_64-linux-gnu --host=x86_64-linux-gnu --target=x86_64-linux-gnu]
+  ignore line: [Thread model: posix]
+  ignore line: [gcc version 9.3.0 (Ubuntu 9.3.0-17ubuntu1~20.04) ]
+  ignore line: [COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_98101.dir/CMakeCXXCompilerABI.cpp.o' '-c' '-shared-libgcc' '-mtune=generic' '-march=x86-64']
+  ignore line: [ /usr/lib/gcc/x86_64-linux-gnu/9/cc1plus -quiet -v -imultiarch x86_64-linux-gnu -D_GNU_SOURCE /usr/share/cmake-3.16/Modules/CMakeCXXCompilerABI.cpp -quiet -dumpbase CMakeCXXCompilerABI.cpp -mtune=generic -march=x86-64 -auxbase-strip CMakeFiles/cmTC_98101.dir/CMakeCXXCompilerABI.cpp.o -version -fasynchronous-unwind-tables -fstack-protector-strong -Wformat -Wformat-security -fstack-clash-protection -fcf-protection -o /tmp/ccObJSbq.s]
+  ignore line: [GNU C++14 (Ubuntu 9.3.0-17ubuntu1~20.04) version 9.3.0 (x86_64-linux-gnu)]
+  ignore line: [	compiled by GNU C version 9.3.0  GMP version 6.2.0  MPFR version 4.0.2  MPC version 1.1.0  isl version isl-0.22.1-GMP]
+  ignore line: []
+  ignore line: [GGC heuristics: --param ggc-min-expand=100 --param ggc-min-heapsize=131072]
+  ignore line: [ignoring duplicate directory "/usr/include/x86_64-linux-gnu/c++/9"]
+  ignore line: [ignoring nonexistent directory "/usr/local/include/x86_64-linux-gnu"]
+  ignore line: [ignoring nonexistent directory "/usr/lib/gcc/x86_64-linux-gnu/9/include-fixed"]
+  ignore line: [ignoring nonexistent directory "/usr/lib/gcc/x86_64-linux-gnu/9/../../../../x86_64-linux-gnu/include"]
+  ignore line: [#include "..." search starts here:]
+  ignore line: [#include <...> search starts here:]
+  ignore line: [ /usr/include/c++/9]
+  ignore line: [ /usr/include/x86_64-linux-gnu/c++/9]
+  ignore line: [ /usr/include/c++/9/backward]
+  ignore line: [ /usr/lib/gcc/x86_64-linux-gnu/9/include]
+  ignore line: [ /usr/local/include]
+  ignore line: [ /usr/include/x86_64-linux-gnu]
+  ignore line: [ /usr/include]
+  ignore line: [End of search list.]
+  ignore line: [GNU C++14 (Ubuntu 9.3.0-17ubuntu1~20.04) version 9.3.0 (x86_64-linux-gnu)]
+  ignore line: [	compiled by GNU C version 9.3.0  GMP version 6.2.0  MPFR version 4.0.2  MPC version 1.1.0  isl version isl-0.22.1-GMP]
+  ignore line: []
+  ignore line: [GGC heuristics: --param ggc-min-expand=100 --param ggc-min-heapsize=131072]
+  ignore line: [Compiler executable checksum: 466f818abe2f30ba03783f22bd12d815]
+  ignore line: [COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_98101.dir/CMakeCXXCompilerABI.cpp.o' '-c' '-shared-libgcc' '-mtune=generic' '-march=x86-64']
+  ignore line: [ as -v --64 -o CMakeFiles/cmTC_98101.dir/CMakeCXXCompilerABI.cpp.o /tmp/ccObJSbq.s]
+  ignore line: [GNU assembler version 2.34 (x86_64-linux-gnu) using BFD version (GNU Binutils for Ubuntu) 2.34]
+  ignore line: [COMPILER_PATH=/usr/lib/gcc/x86_64-linux-gnu/9/:/usr/lib/gcc/x86_64-linux-gnu/9/:/usr/lib/gcc/x86_64-linux-gnu/:/usr/lib/gcc/x86_64-linux-gnu/9/:/usr/lib/gcc/x86_64-linux-gnu/]
+  ignore line: [LIBRARY_PATH=/usr/lib/gcc/x86_64-linux-gnu/9/:/usr/lib/gcc/x86_64-linux-gnu/9/../../../x86_64-linux-gnu/:/usr/lib/gcc/x86_64-linux-gnu/9/../../../../lib/:/lib/x86_64-linux-gnu/:/lib/../lib/:/usr/lib/x86_64-linux-gnu/:/usr/lib/../lib/:/scratch/zcapatti/MG5_aMC_v3_0_2_py3/PLUGIN/alphaloop/libraries/scs/out/:/scratch/zcapatti/MG5_aMC_v3_0_2_py3/PLUGIN/alphaloop/libraries/ecos/:/scratch/zcapatti/Cuba-4.2.1/:./:/usr/lib/gcc/x86_64-linux-gnu/9/../../../:/lib/:/usr/lib/]
+  ignore line: [COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_98101.dir/CMakeCXXCompilerABI.cpp.o' '-c' '-shared-libgcc' '-mtune=generic' '-march=x86-64']
+  ignore line: [Linking CXX executable cmTC_98101]
+  ignore line: [/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_98101.dir/link.txt --verbose=1]
+  ignore line: [/usr/bin/c++      -v CMakeFiles/cmTC_98101.dir/CMakeCXXCompilerABI.cpp.o  -o cmTC_98101 ]
+  ignore line: [Using built-in specs.]
+  ignore line: [COLLECT_GCC=/usr/bin/c++]
+  ignore line: [COLLECT_LTO_WRAPPER=/usr/lib/gcc/x86_64-linux-gnu/9/lto-wrapper]
+  ignore line: [OFFLOAD_TARGET_NAMES=nvptx-none:hsa]
+  ignore line: [OFFLOAD_TARGET_DEFAULT=1]
+  ignore line: [Target: x86_64-linux-gnu]
+  ignore line: [Configured with: ../src/configure -v --with-pkgversion='Ubuntu 9.3.0-17ubuntu1~20.04' --with-bugurl=file:///usr/share/doc/gcc-9/README.Bugs --enable-languages=c ada c++ go brig d fortran objc obj-c++ gm2 --prefix=/usr --with-gcc-major-version-only --program-suffix=-9 --program-prefix=x86_64-linux-gnu- --enable-shared --enable-linker-build-id --libexecdir=/usr/lib --without-included-gettext --enable-threads=posix --libdir=/usr/lib --enable-nls --enable-clocale=gnu --enable-libstdcxx-debug --enable-libstdcxx-time=yes --with-default-libstdcxx-abi=new --enable-gnu-unique-object --disable-vtable-verify --enable-plugin --enable-default-pie --with-system-zlib --with-target-system-zlib=auto --enable-objc-gc=auto --enable-multiarch --disable-werror --with-arch-32=i686 --with-abi=m64 --with-multilib-list=m32 m64 mx32 --enable-multilib --with-tune=generic --enable-offload-targets=nvptx-none=/build/gcc-9-HskZEa/gcc-9-9.3.0/debian/tmp-nvptx/usr hsa --without-cuda-driver --enable-checking=release --build=x86_64-linux-gnu --host=x86_64-linux-gnu --target=x86_64-linux-gnu]
+  ignore line: [Thread model: posix]
+  ignore line: [gcc version 9.3.0 (Ubuntu 9.3.0-17ubuntu1~20.04) ]
+  ignore line: [COMPILER_PATH=/usr/lib/gcc/x86_64-linux-gnu/9/:/usr/lib/gcc/x86_64-linux-gnu/9/:/usr/lib/gcc/x86_64-linux-gnu/:/usr/lib/gcc/x86_64-linux-gnu/9/:/usr/lib/gcc/x86_64-linux-gnu/]
+  ignore line: [LIBRARY_PATH=/usr/lib/gcc/x86_64-linux-gnu/9/:/usr/lib/gcc/x86_64-linux-gnu/9/../../../x86_64-linux-gnu/:/usr/lib/gcc/x86_64-linux-gnu/9/../../../../lib/:/lib/x86_64-linux-gnu/:/lib/../lib/:/usr/lib/x86_64-linux-gnu/:/usr/lib/../lib/:/scratch/zcapatti/MG5_aMC_v3_0_2_py3/PLUGIN/alphaloop/libraries/scs/out/:/scratch/zcapatti/MG5_aMC_v3_0_2_py3/PLUGIN/alphaloop/libraries/ecos/:/scratch/zcapatti/Cuba-4.2.1/:./:/usr/lib/gcc/x86_64-linux-gnu/9/../../../:/lib/:/usr/lib/]
+  ignore line: [COLLECT_GCC_OPTIONS='-v' '-o' 'cmTC_98101' '-shared-libgcc' '-mtune=generic' '-march=x86-64']
+  link line: [ /usr/lib/gcc/x86_64-linux-gnu/9/collect2 -plugin /usr/lib/gcc/x86_64-linux-gnu/9/liblto_plugin.so -plugin-opt=/usr/lib/gcc/x86_64-linux-gnu/9/lto-wrapper -plugin-opt=-fresolution=/tmp/ccJKRHLU.res -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lc -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lgcc --build-id --eh-frame-hdr -m elf_x86_64 --hash-style=gnu --as-needed -dynamic-linker /lib64/ld-linux-x86-64.so.2 -pie -z now -z relro -o cmTC_98101 /usr/lib/gcc/x86_64-linux-gnu/9/../../../x86_64-linux-gnu/Scrt1.o /usr/lib/gcc/x86_64-linux-gnu/9/../../../x86_64-linux-gnu/crti.o /usr/lib/gcc/x86_64-linux-gnu/9/crtbeginS.o -L/usr/lib/gcc/x86_64-linux-gnu/9 -L/usr/lib/gcc/x86_64-linux-gnu/9/../../../x86_64-linux-gnu -L/usr/lib/gcc/x86_64-linux-gnu/9/../../../../lib -L/lib/x86_64-linux-gnu -L/lib/../lib -L/usr/lib/x86_64-linux-gnu -L/usr/lib/../lib -L/scratch/zcapatti/MG5_aMC_v3_0_2_py3/PLUGIN/alphaloop/libraries/scs/out -L/scratch/zcapatti/MG5_aMC_v3_0_2_py3/PLUGIN/alphaloop/libraries/ecos -L/scratch/zcapatti/Cuba-4.2.1 -L. -L/usr/lib/gcc/x86_64-linux-gnu/9/../../.. CMakeFiles/cmTC_98101.dir/CMakeCXXCompilerABI.cpp.o -lstdc++ -lm -lgcc_s -lgcc -lc -lgcc_s -lgcc /usr/lib/gcc/x86_64-linux-gnu/9/crtendS.o /usr/lib/gcc/x86_64-linux-gnu/9/../../../x86_64-linux-gnu/crtn.o]
+    arg [/usr/lib/gcc/x86_64-linux-gnu/9/collect2] ==> ignore
+    arg [-plugin] ==> ignore
+    arg [/usr/lib/gcc/x86_64-linux-gnu/9/liblto_plugin.so] ==> ignore
+    arg [-plugin-opt=/usr/lib/gcc/x86_64-linux-gnu/9/lto-wrapper] ==> ignore
+    arg [-plugin-opt=-fresolution=/tmp/ccJKRHLU.res] ==> ignore
+    arg [-plugin-opt=-pass-through=-lgcc_s] ==> ignore
+    arg [-plugin-opt=-pass-through=-lgcc] ==> ignore
+    arg [-plugin-opt=-pass-through=-lc] ==> ignore
+    arg [-plugin-opt=-pass-through=-lgcc_s] ==> ignore
+    arg [-plugin-opt=-pass-through=-lgcc] ==> ignore
+    arg [--build-id] ==> ignore
+    arg [--eh-frame-hdr] ==> ignore
+    arg [-m] ==> ignore
+    arg [elf_x86_64] ==> ignore
+    arg [--hash-style=gnu] ==> ignore
+    arg [--as-needed] ==> ignore
+    arg [-dynamic-linker] ==> ignore
+    arg [/lib64/ld-linux-x86-64.so.2] ==> ignore
+    arg [-pie] ==> ignore
+    arg [-znow] ==> ignore
+    arg [-zrelro] ==> ignore
+    arg [-o] ==> ignore
+    arg [cmTC_98101] ==> ignore
+    arg [/usr/lib/gcc/x86_64-linux-gnu/9/../../../x86_64-linux-gnu/Scrt1.o] ==> ignore
+    arg [/usr/lib/gcc/x86_64-linux-gnu/9/../../../x86_64-linux-gnu/crti.o] ==> ignore
+    arg [/usr/lib/gcc/x86_64-linux-gnu/9/crtbeginS.o] ==> ignore
+    arg [-L/usr/lib/gcc/x86_64-linux-gnu/9] ==> dir [/usr/lib/gcc/x86_64-linux-gnu/9]
+    arg [-L/usr/lib/gcc/x86_64-linux-gnu/9/../../../x86_64-linux-gnu] ==> dir [/usr/lib/gcc/x86_64-linux-gnu/9/../../../x86_64-linux-gnu]
+    arg [-L/usr/lib/gcc/x86_64-linux-gnu/9/../../../../lib] ==> dir [/usr/lib/gcc/x86_64-linux-gnu/9/../../../../lib]
+    arg [-L/lib/x86_64-linux-gnu] ==> dir [/lib/x86_64-linux-gnu]
+    arg [-L/lib/../lib] ==> dir [/lib/../lib]
+    arg [-L/usr/lib/x86_64-linux-gnu] ==> dir [/usr/lib/x86_64-linux-gnu]
+    arg [-L/usr/lib/../lib] ==> dir [/usr/lib/../lib]
+    arg [-L/scratch/zcapatti/MG5_aMC_v3_0_2_py3/PLUGIN/alphaloop/libraries/scs/out] ==> dir [/scratch/zcapatti/MG5_aMC_v3_0_2_py3/PLUGIN/alphaloop/libraries/scs/out]
+    arg [-L/scratch/zcapatti/MG5_aMC_v3_0_2_py3/PLUGIN/alphaloop/libraries/ecos] ==> dir [/scratch/zcapatti/MG5_aMC_v3_0_2_py3/PLUGIN/alphaloop/libraries/ecos]
+    arg [-L/scratch/zcapatti/Cuba-4.2.1] ==> dir [/scratch/zcapatti/Cuba-4.2.1]
+    arg [-L.] ==> ignore
+    arg [-L/usr/lib/gcc/x86_64-linux-gnu/9/../../..] ==> dir [/usr/lib/gcc/x86_64-linux-gnu/9/../../..]
+    arg [CMakeFiles/cmTC_98101.dir/CMakeCXXCompilerABI.cpp.o] ==> ignore
+    arg [-lstdc++] ==> lib [stdc++]
+    arg [-lm] ==> lib [m]
+    arg [-lgcc_s] ==> lib [gcc_s]
+    arg [-lgcc] ==> lib [gcc]
+    arg [-lc] ==> lib [c]
+    arg [-lgcc_s] ==> lib [gcc_s]
+    arg [-lgcc] ==> lib [gcc]
+    arg [/usr/lib/gcc/x86_64-linux-gnu/9/crtendS.o] ==> ignore
+    arg [/usr/lib/gcc/x86_64-linux-gnu/9/../../../x86_64-linux-gnu/crtn.o] ==> ignore
+  collapse library dir [/usr/lib/gcc/x86_64-linux-gnu/9] ==> [/usr/lib/gcc/x86_64-linux-gnu/9]
+  collapse library dir [/usr/lib/gcc/x86_64-linux-gnu/9/../../../x86_64-linux-gnu] ==> [/usr/lib/x86_64-linux-gnu]
+  collapse library dir [/usr/lib/gcc/x86_64-linux-gnu/9/../../../../lib] ==> [/usr/lib]
+  collapse library dir [/lib/x86_64-linux-gnu] ==> [/lib/x86_64-linux-gnu]
+  collapse library dir [/lib/../lib] ==> [/lib]
+  collapse library dir [/usr/lib/x86_64-linux-gnu] ==> [/usr/lib/x86_64-linux-gnu]
+  collapse library dir [/usr/lib/../lib] ==> [/usr/lib]
+  collapse library dir [/scratch/zcapatti/MG5_aMC_v3_0_2_py3/PLUGIN/alphaloop/libraries/scs/out] ==> [/scratch/zcapatti/MG5_aMC_v3_0_2_py3/PLUGIN/alphaloop/libraries/scs/out]
+  collapse library dir [/scratch/zcapatti/MG5_aMC_v3_0_2_py3/PLUGIN/alphaloop/libraries/ecos] ==> [/scratch/zcapatti/MG5_aMC_v3_0_2_py3/PLUGIN/alphaloop/libraries/ecos]
+  collapse library dir [/scratch/zcapatti/Cuba-4.2.1] ==> [/scratch/zcapatti/Cuba-4.2.1]
+  collapse library dir [/usr/lib/gcc/x86_64-linux-gnu/9/../../..] ==> [/usr/lib]
+  implicit libs: [stdc++;m;gcc_s;gcc;c;gcc_s;gcc]
+  implicit dirs: [/usr/lib/gcc/x86_64-linux-gnu/9;/usr/lib/x86_64-linux-gnu;/usr/lib;/lib/x86_64-linux-gnu;/lib;/scratch/zcapatti/MG5_aMC_v3_0_2_py3/PLUGIN/alphaloop/libraries/scs/out;/scratch/zcapatti/MG5_aMC_v3_0_2_py3/PLUGIN/alphaloop/libraries/ecos;/scratch/zcapatti/Cuba-4.2.1]
+  implicit fwks: []
+
+
+Determining if the C compiler works passed with the following output:
+Change Dir: /scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/make cmTC_4e215/fast && /usr/bin/make -f CMakeFiles/cmTC_4e215.dir/build.make CMakeFiles/cmTC_4e215.dir/build
+make[1]: Entering directory '/scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_4e215.dir/testCCompiler.c.o
+/usr/bin/cc    -o CMakeFiles/cmTC_4e215.dir/testCCompiler.c.o   -c /scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp/testCCompiler.c
+Linking C executable cmTC_4e215
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_4e215.dir/link.txt --verbose=1
+/usr/bin/cc      CMakeFiles/cmTC_4e215.dir/testCCompiler.c.o  -o cmTC_4e215 
+make[1]: Leaving directory '/scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp'
+
+
+
+Detecting C compiler ABI info compiled with the following output:
+Change Dir: /scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/make cmTC_f27ce/fast && /usr/bin/make -f CMakeFiles/cmTC_f27ce.dir/build.make CMakeFiles/cmTC_f27ce.dir/build
+make[1]: Entering directory '/scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_f27ce.dir/CMakeCCompilerABI.c.o
+/usr/bin/cc   -v -o CMakeFiles/cmTC_f27ce.dir/CMakeCCompilerABI.c.o   -c /usr/share/cmake-3.16/Modules/CMakeCCompilerABI.c
+Using built-in specs.
+COLLECT_GCC=/usr/bin/cc
+OFFLOAD_TARGET_NAMES=nvptx-none:hsa
+OFFLOAD_TARGET_DEFAULT=1
+Target: x86_64-linux-gnu
+Configured with: ../src/configure -v --with-pkgversion='Ubuntu 9.3.0-17ubuntu1~20.04' --with-bugurl=file:///usr/share/doc/gcc-9/README.Bugs --enable-languages=c,ada,c++,go,brig,d,fortran,objc,obj-c++,gm2 --prefix=/usr --with-gcc-major-version-only --program-suffix=-9 --program-prefix=x86_64-linux-gnu- --enable-shared --enable-linker-build-id --libexecdir=/usr/lib --without-included-gettext --enable-threads=posix --libdir=/usr/lib --enable-nls --enable-clocale=gnu --enable-libstdcxx-debug --enable-libstdcxx-time=yes --with-default-libstdcxx-abi=new --enable-gnu-unique-object --disable-vtable-verify --enable-plugin --enable-default-pie --with-system-zlib --with-target-system-zlib=auto --enable-objc-gc=auto --enable-multiarch --disable-werror --with-arch-32=i686 --with-abi=m64 --with-multilib-list=m32,m64,mx32 --enable-multilib --with-tune=generic --enable-offload-targets=nvptx-none=/build/gcc-9-HskZEa/gcc-9-9.3.0/debian/tmp-nvptx/usr,hsa --without-cuda-driver --enable-checking=release --build=x86_64-linux-gnu --host=x86_64-linux-gnu --target=x86_64-linux-gnu
+Thread model: posix
+gcc version 9.3.0 (Ubuntu 9.3.0-17ubuntu1~20.04) 
+COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_f27ce.dir/CMakeCCompilerABI.c.o' '-c' '-mtune=generic' '-march=x86-64'
+ /usr/lib/gcc/x86_64-linux-gnu/9/cc1 -quiet -v -imultiarch x86_64-linux-gnu /usr/share/cmake-3.16/Modules/CMakeCCompilerABI.c -quiet -dumpbase CMakeCCompilerABI.c -mtune=generic -march=x86-64 -auxbase-strip CMakeFiles/cmTC_f27ce.dir/CMakeCCompilerABI.c.o -version -fasynchronous-unwind-tables -fstack-protector-strong -Wformat -Wformat-security -fstack-clash-protection -fcf-protection -o /tmp/ccTa3Pdo.s
+GNU C17 (Ubuntu 9.3.0-17ubuntu1~20.04) version 9.3.0 (x86_64-linux-gnu)
+	compiled by GNU C version 9.3.0, GMP version 6.2.0, MPFR version 4.0.2, MPC version 1.1.0, isl version isl-0.22.1-GMP
+
+GGC heuristics: --param ggc-min-expand=100 --param ggc-min-heapsize=131072
+ignoring nonexistent directory "/usr/local/include/x86_64-linux-gnu"
+ignoring nonexistent directory "/usr/lib/gcc/x86_64-linux-gnu/9/include-fixed"
+ignoring nonexistent directory "/usr/lib/gcc/x86_64-linux-gnu/9/../../../../x86_64-linux-gnu/include"
+#include "..." search starts here:
+#include <...> search starts here:
+ /usr/lib/gcc/x86_64-linux-gnu/9/include
+ /usr/local/include
+ /usr/include/x86_64-linux-gnu
+ /usr/include
+End of search list.
+GNU C17 (Ubuntu 9.3.0-17ubuntu1~20.04) version 9.3.0 (x86_64-linux-gnu)
+	compiled by GNU C version 9.3.0, GMP version 6.2.0, MPFR version 4.0.2, MPC version 1.1.0, isl version isl-0.22.1-GMP
+
+GGC heuristics: --param ggc-min-expand=100 --param ggc-min-heapsize=131072
+Compiler executable checksum: bbf13931d8de1abe14040c9909cb6969
+COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_f27ce.dir/CMakeCCompilerABI.c.o' '-c' '-mtune=generic' '-march=x86-64'
+ as -v --64 -o CMakeFiles/cmTC_f27ce.dir/CMakeCCompilerABI.c.o /tmp/ccTa3Pdo.s
+GNU assembler version 2.34 (x86_64-linux-gnu) using BFD version (GNU Binutils for Ubuntu) 2.34
+COMPILER_PATH=/usr/lib/gcc/x86_64-linux-gnu/9/:/usr/lib/gcc/x86_64-linux-gnu/9/:/usr/lib/gcc/x86_64-linux-gnu/:/usr/lib/gcc/x86_64-linux-gnu/9/:/usr/lib/gcc/x86_64-linux-gnu/
+LIBRARY_PATH=/usr/lib/gcc/x86_64-linux-gnu/9/:/usr/lib/gcc/x86_64-linux-gnu/9/../../../x86_64-linux-gnu/:/usr/lib/gcc/x86_64-linux-gnu/9/../../../../lib/:/lib/x86_64-linux-gnu/:/lib/../lib/:/usr/lib/x86_64-linux-gnu/:/usr/lib/../lib/:/scratch/zcapatti/MG5_aMC_v3_0_2_py3/PLUGIN/alphaloop/libraries/scs/out/:/scratch/zcapatti/MG5_aMC_v3_0_2_py3/PLUGIN/alphaloop/libraries/ecos/:/scratch/zcapatti/Cuba-4.2.1/:./:/usr/lib/gcc/x86_64-linux-gnu/9/../../../:/lib/:/usr/lib/
+COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_f27ce.dir/CMakeCCompilerABI.c.o' '-c' '-mtune=generic' '-march=x86-64'
+Linking C executable cmTC_f27ce
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_f27ce.dir/link.txt --verbose=1
+/usr/bin/cc     -v CMakeFiles/cmTC_f27ce.dir/CMakeCCompilerABI.c.o  -o cmTC_f27ce 
+Using built-in specs.
+COLLECT_GCC=/usr/bin/cc
+COLLECT_LTO_WRAPPER=/usr/lib/gcc/x86_64-linux-gnu/9/lto-wrapper
+OFFLOAD_TARGET_NAMES=nvptx-none:hsa
+OFFLOAD_TARGET_DEFAULT=1
+Target: x86_64-linux-gnu
+Configured with: ../src/configure -v --with-pkgversion='Ubuntu 9.3.0-17ubuntu1~20.04' --with-bugurl=file:///usr/share/doc/gcc-9/README.Bugs --enable-languages=c,ada,c++,go,brig,d,fortran,objc,obj-c++,gm2 --prefix=/usr --with-gcc-major-version-only --program-suffix=-9 --program-prefix=x86_64-linux-gnu- --enable-shared --enable-linker-build-id --libexecdir=/usr/lib --without-included-gettext --enable-threads=posix --libdir=/usr/lib --enable-nls --enable-clocale=gnu --enable-libstdcxx-debug --enable-libstdcxx-time=yes --with-default-libstdcxx-abi=new --enable-gnu-unique-object --disable-vtable-verify --enable-plugin --enable-default-pie --with-system-zlib --with-target-system-zlib=auto --enable-objc-gc=auto --enable-multiarch --disable-werror --with-arch-32=i686 --with-abi=m64 --with-multilib-list=m32,m64,mx32 --enable-multilib --with-tune=generic --enable-offload-targets=nvptx-none=/build/gcc-9-HskZEa/gcc-9-9.3.0/debian/tmp-nvptx/usr,hsa --without-cuda-driver --enable-checking=release --build=x86_64-linux-gnu --host=x86_64-linux-gnu --target=x86_64-linux-gnu
+Thread model: posix
+gcc version 9.3.0 (Ubuntu 9.3.0-17ubuntu1~20.04) 
+COMPILER_PATH=/usr/lib/gcc/x86_64-linux-gnu/9/:/usr/lib/gcc/x86_64-linux-gnu/9/:/usr/lib/gcc/x86_64-linux-gnu/:/usr/lib/gcc/x86_64-linux-gnu/9/:/usr/lib/gcc/x86_64-linux-gnu/
+LIBRARY_PATH=/usr/lib/gcc/x86_64-linux-gnu/9/:/usr/lib/gcc/x86_64-linux-gnu/9/../../../x86_64-linux-gnu/:/usr/lib/gcc/x86_64-linux-gnu/9/../../../../lib/:/lib/x86_64-linux-gnu/:/lib/../lib/:/usr/lib/x86_64-linux-gnu/:/usr/lib/../lib/:/scratch/zcapatti/MG5_aMC_v3_0_2_py3/PLUGIN/alphaloop/libraries/scs/out/:/scratch/zcapatti/MG5_aMC_v3_0_2_py3/PLUGIN/alphaloop/libraries/ecos/:/scratch/zcapatti/Cuba-4.2.1/:./:/usr/lib/gcc/x86_64-linux-gnu/9/../../../:/lib/:/usr/lib/
+COLLECT_GCC_OPTIONS='-v' '-o' 'cmTC_f27ce' '-mtune=generic' '-march=x86-64'
+ /usr/lib/gcc/x86_64-linux-gnu/9/collect2 -plugin /usr/lib/gcc/x86_64-linux-gnu/9/liblto_plugin.so -plugin-opt=/usr/lib/gcc/x86_64-linux-gnu/9/lto-wrapper -plugin-opt=-fresolution=/tmp/ccpLMPKS.res -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lc -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lgcc_s --build-id --eh-frame-hdr -m elf_x86_64 --hash-style=gnu --as-needed -dynamic-linker /lib64/ld-linux-x86-64.so.2 -pie -z now -z relro -o cmTC_f27ce /usr/lib/gcc/x86_64-linux-gnu/9/../../../x86_64-linux-gnu/Scrt1.o /usr/lib/gcc/x86_64-linux-gnu/9/../../../x86_64-linux-gnu/crti.o /usr/lib/gcc/x86_64-linux-gnu/9/crtbeginS.o -L/usr/lib/gcc/x86_64-linux-gnu/9 -L/usr/lib/gcc/x86_64-linux-gnu/9/../../../x86_64-linux-gnu -L/usr/lib/gcc/x86_64-linux-gnu/9/../../../../lib -L/lib/x86_64-linux-gnu -L/lib/../lib -L/usr/lib/x86_64-linux-gnu -L/usr/lib/../lib -L/scratch/zcapatti/MG5_aMC_v3_0_2_py3/PLUGIN/alphaloop/libraries/scs/out -L/scratch/zcapatti/MG5_aMC_v3_0_2_py3/PLUGIN/alphaloop/libraries/ecos -L/scratch/zcapatti/Cuba-4.2.1 -L. -L/usr/lib/gcc/x86_64-linux-gnu/9/../../.. CMakeFiles/cmTC_f27ce.dir/CMakeCCompilerABI.c.o -lgcc --push-state --as-needed -lgcc_s --pop-state -lc -lgcc --push-state --as-needed -lgcc_s --pop-state /usr/lib/gcc/x86_64-linux-gnu/9/crtendS.o /usr/lib/gcc/x86_64-linux-gnu/9/../../../x86_64-linux-gnu/crtn.o
+COLLECT_GCC_OPTIONS='-v' '-o' 'cmTC_f27ce' '-mtune=generic' '-march=x86-64'
+make[1]: Leaving directory '/scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp'
+
+
+
+Parsed C implicit include dir info from above output: rv=done
+  found start of include info
+  found start of implicit include info
+    add: [/usr/lib/gcc/x86_64-linux-gnu/9/include]
+    add: [/usr/local/include]
+    add: [/usr/include/x86_64-linux-gnu]
+    add: [/usr/include]
+  end of search list found
+  collapse include dir [/usr/lib/gcc/x86_64-linux-gnu/9/include] ==> [/usr/lib/gcc/x86_64-linux-gnu/9/include]
+  collapse include dir [/usr/local/include] ==> [/usr/local/include]
+  collapse include dir [/usr/include/x86_64-linux-gnu] ==> [/usr/include/x86_64-linux-gnu]
+  collapse include dir [/usr/include] ==> [/usr/include]
+  implicit include dirs: [/usr/lib/gcc/x86_64-linux-gnu/9/include;/usr/local/include;/usr/include/x86_64-linux-gnu;/usr/include]
+
+
+Parsed C implicit link information from above output:
+  link line regex: [^( *|.*[/\])(ld|CMAKE_LINK_STARTFILE-NOTFOUND|([^/\]+-)?ld|collect2)[^/\]*( |$)]
+  ignore line: [Change Dir: /scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp]
+  ignore line: []
+  ignore line: [Run Build Command(s):/usr/bin/make cmTC_f27ce/fast && /usr/bin/make -f CMakeFiles/cmTC_f27ce.dir/build.make CMakeFiles/cmTC_f27ce.dir/build]
+  ignore line: [make[1]: Entering directory '/scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp']
+  ignore line: [Building C object CMakeFiles/cmTC_f27ce.dir/CMakeCCompilerABI.c.o]
+  ignore line: [/usr/bin/cc   -v -o CMakeFiles/cmTC_f27ce.dir/CMakeCCompilerABI.c.o   -c /usr/share/cmake-3.16/Modules/CMakeCCompilerABI.c]
+  ignore line: [Using built-in specs.]
+  ignore line: [COLLECT_GCC=/usr/bin/cc]
+  ignore line: [OFFLOAD_TARGET_NAMES=nvptx-none:hsa]
+  ignore line: [OFFLOAD_TARGET_DEFAULT=1]
+  ignore line: [Target: x86_64-linux-gnu]
+  ignore line: [Configured with: ../src/configure -v --with-pkgversion='Ubuntu 9.3.0-17ubuntu1~20.04' --with-bugurl=file:///usr/share/doc/gcc-9/README.Bugs --enable-languages=c ada c++ go brig d fortran objc obj-c++ gm2 --prefix=/usr --with-gcc-major-version-only --program-suffix=-9 --program-prefix=x86_64-linux-gnu- --enable-shared --enable-linker-build-id --libexecdir=/usr/lib --without-included-gettext --enable-threads=posix --libdir=/usr/lib --enable-nls --enable-clocale=gnu --enable-libstdcxx-debug --enable-libstdcxx-time=yes --with-default-libstdcxx-abi=new --enable-gnu-unique-object --disable-vtable-verify --enable-plugin --enable-default-pie --with-system-zlib --with-target-system-zlib=auto --enable-objc-gc=auto --enable-multiarch --disable-werror --with-arch-32=i686 --with-abi=m64 --with-multilib-list=m32 m64 mx32 --enable-multilib --with-tune=generic --enable-offload-targets=nvptx-none=/build/gcc-9-HskZEa/gcc-9-9.3.0/debian/tmp-nvptx/usr hsa --without-cuda-driver --enable-checking=release --build=x86_64-linux-gnu --host=x86_64-linux-gnu --target=x86_64-linux-gnu]
+  ignore line: [Thread model: posix]
+  ignore line: [gcc version 9.3.0 (Ubuntu 9.3.0-17ubuntu1~20.04) ]
+  ignore line: [COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_f27ce.dir/CMakeCCompilerABI.c.o' '-c' '-mtune=generic' '-march=x86-64']
+  ignore line: [ /usr/lib/gcc/x86_64-linux-gnu/9/cc1 -quiet -v -imultiarch x86_64-linux-gnu /usr/share/cmake-3.16/Modules/CMakeCCompilerABI.c -quiet -dumpbase CMakeCCompilerABI.c -mtune=generic -march=x86-64 -auxbase-strip CMakeFiles/cmTC_f27ce.dir/CMakeCCompilerABI.c.o -version -fasynchronous-unwind-tables -fstack-protector-strong -Wformat -Wformat-security -fstack-clash-protection -fcf-protection -o /tmp/ccTa3Pdo.s]
+  ignore line: [GNU C17 (Ubuntu 9.3.0-17ubuntu1~20.04) version 9.3.0 (x86_64-linux-gnu)]
+  ignore line: [	compiled by GNU C version 9.3.0  GMP version 6.2.0  MPFR version 4.0.2  MPC version 1.1.0  isl version isl-0.22.1-GMP]
+  ignore line: []
+  ignore line: [GGC heuristics: --param ggc-min-expand=100 --param ggc-min-heapsize=131072]
+  ignore line: [ignoring nonexistent directory "/usr/local/include/x86_64-linux-gnu"]
+  ignore line: [ignoring nonexistent directory "/usr/lib/gcc/x86_64-linux-gnu/9/include-fixed"]
+  ignore line: [ignoring nonexistent directory "/usr/lib/gcc/x86_64-linux-gnu/9/../../../../x86_64-linux-gnu/include"]
+  ignore line: [#include "..." search starts here:]
+  ignore line: [#include <...> search starts here:]
+  ignore line: [ /usr/lib/gcc/x86_64-linux-gnu/9/include]
+  ignore line: [ /usr/local/include]
+  ignore line: [ /usr/include/x86_64-linux-gnu]
+  ignore line: [ /usr/include]
+  ignore line: [End of search list.]
+  ignore line: [GNU C17 (Ubuntu 9.3.0-17ubuntu1~20.04) version 9.3.0 (x86_64-linux-gnu)]
+  ignore line: [	compiled by GNU C version 9.3.0  GMP version 6.2.0  MPFR version 4.0.2  MPC version 1.1.0  isl version isl-0.22.1-GMP]
+  ignore line: []
+  ignore line: [GGC heuristics: --param ggc-min-expand=100 --param ggc-min-heapsize=131072]
+  ignore line: [Compiler executable checksum: bbf13931d8de1abe14040c9909cb6969]
+  ignore line: [COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_f27ce.dir/CMakeCCompilerABI.c.o' '-c' '-mtune=generic' '-march=x86-64']
+  ignore line: [ as -v --64 -o CMakeFiles/cmTC_f27ce.dir/CMakeCCompilerABI.c.o /tmp/ccTa3Pdo.s]
+  ignore line: [GNU assembler version 2.34 (x86_64-linux-gnu) using BFD version (GNU Binutils for Ubuntu) 2.34]
+  ignore line: [COMPILER_PATH=/usr/lib/gcc/x86_64-linux-gnu/9/:/usr/lib/gcc/x86_64-linux-gnu/9/:/usr/lib/gcc/x86_64-linux-gnu/:/usr/lib/gcc/x86_64-linux-gnu/9/:/usr/lib/gcc/x86_64-linux-gnu/]
+  ignore line: [LIBRARY_PATH=/usr/lib/gcc/x86_64-linux-gnu/9/:/usr/lib/gcc/x86_64-linux-gnu/9/../../../x86_64-linux-gnu/:/usr/lib/gcc/x86_64-linux-gnu/9/../../../../lib/:/lib/x86_64-linux-gnu/:/lib/../lib/:/usr/lib/x86_64-linux-gnu/:/usr/lib/../lib/:/scratch/zcapatti/MG5_aMC_v3_0_2_py3/PLUGIN/alphaloop/libraries/scs/out/:/scratch/zcapatti/MG5_aMC_v3_0_2_py3/PLUGIN/alphaloop/libraries/ecos/:/scratch/zcapatti/Cuba-4.2.1/:./:/usr/lib/gcc/x86_64-linux-gnu/9/../../../:/lib/:/usr/lib/]
+  ignore line: [COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_f27ce.dir/CMakeCCompilerABI.c.o' '-c' '-mtune=generic' '-march=x86-64']
+  ignore line: [Linking C executable cmTC_f27ce]
+  ignore line: [/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_f27ce.dir/link.txt --verbose=1]
+  ignore line: [/usr/bin/cc     -v CMakeFiles/cmTC_f27ce.dir/CMakeCCompilerABI.c.o  -o cmTC_f27ce ]
+  ignore line: [Using built-in specs.]
+  ignore line: [COLLECT_GCC=/usr/bin/cc]
+  ignore line: [COLLECT_LTO_WRAPPER=/usr/lib/gcc/x86_64-linux-gnu/9/lto-wrapper]
+  ignore line: [OFFLOAD_TARGET_NAMES=nvptx-none:hsa]
+  ignore line: [OFFLOAD_TARGET_DEFAULT=1]
+  ignore line: [Target: x86_64-linux-gnu]
+  ignore line: [Configured with: ../src/configure -v --with-pkgversion='Ubuntu 9.3.0-17ubuntu1~20.04' --with-bugurl=file:///usr/share/doc/gcc-9/README.Bugs --enable-languages=c ada c++ go brig d fortran objc obj-c++ gm2 --prefix=/usr --with-gcc-major-version-only --program-suffix=-9 --program-prefix=x86_64-linux-gnu- --enable-shared --enable-linker-build-id --libexecdir=/usr/lib --without-included-gettext --enable-threads=posix --libdir=/usr/lib --enable-nls --enable-clocale=gnu --enable-libstdcxx-debug --enable-libstdcxx-time=yes --with-default-libstdcxx-abi=new --enable-gnu-unique-object --disable-vtable-verify --enable-plugin --enable-default-pie --with-system-zlib --with-target-system-zlib=auto --enable-objc-gc=auto --enable-multiarch --disable-werror --with-arch-32=i686 --with-abi=m64 --with-multilib-list=m32 m64 mx32 --enable-multilib --with-tune=generic --enable-offload-targets=nvptx-none=/build/gcc-9-HskZEa/gcc-9-9.3.0/debian/tmp-nvptx/usr hsa --without-cuda-driver --enable-checking=release --build=x86_64-linux-gnu --host=x86_64-linux-gnu --target=x86_64-linux-gnu]
+  ignore line: [Thread model: posix]
+  ignore line: [gcc version 9.3.0 (Ubuntu 9.3.0-17ubuntu1~20.04) ]
+  ignore line: [COMPILER_PATH=/usr/lib/gcc/x86_64-linux-gnu/9/:/usr/lib/gcc/x86_64-linux-gnu/9/:/usr/lib/gcc/x86_64-linux-gnu/:/usr/lib/gcc/x86_64-linux-gnu/9/:/usr/lib/gcc/x86_64-linux-gnu/]
+  ignore line: [LIBRARY_PATH=/usr/lib/gcc/x86_64-linux-gnu/9/:/usr/lib/gcc/x86_64-linux-gnu/9/../../../x86_64-linux-gnu/:/usr/lib/gcc/x86_64-linux-gnu/9/../../../../lib/:/lib/x86_64-linux-gnu/:/lib/../lib/:/usr/lib/x86_64-linux-gnu/:/usr/lib/../lib/:/scratch/zcapatti/MG5_aMC_v3_0_2_py3/PLUGIN/alphaloop/libraries/scs/out/:/scratch/zcapatti/MG5_aMC_v3_0_2_py3/PLUGIN/alphaloop/libraries/ecos/:/scratch/zcapatti/Cuba-4.2.1/:./:/usr/lib/gcc/x86_64-linux-gnu/9/../../../:/lib/:/usr/lib/]
+  ignore line: [COLLECT_GCC_OPTIONS='-v' '-o' 'cmTC_f27ce' '-mtune=generic' '-march=x86-64']
+  link line: [ /usr/lib/gcc/x86_64-linux-gnu/9/collect2 -plugin /usr/lib/gcc/x86_64-linux-gnu/9/liblto_plugin.so -plugin-opt=/usr/lib/gcc/x86_64-linux-gnu/9/lto-wrapper -plugin-opt=-fresolution=/tmp/ccpLMPKS.res -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lc -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lgcc_s --build-id --eh-frame-hdr -m elf_x86_64 --hash-style=gnu --as-needed -dynamic-linker /lib64/ld-linux-x86-64.so.2 -pie -z now -z relro -o cmTC_f27ce /usr/lib/gcc/x86_64-linux-gnu/9/../../../x86_64-linux-gnu/Scrt1.o /usr/lib/gcc/x86_64-linux-gnu/9/../../../x86_64-linux-gnu/crti.o /usr/lib/gcc/x86_64-linux-gnu/9/crtbeginS.o -L/usr/lib/gcc/x86_64-linux-gnu/9 -L/usr/lib/gcc/x86_64-linux-gnu/9/../../../x86_64-linux-gnu -L/usr/lib/gcc/x86_64-linux-gnu/9/../../../../lib -L/lib/x86_64-linux-gnu -L/lib/../lib -L/usr/lib/x86_64-linux-gnu -L/usr/lib/../lib -L/scratch/zcapatti/MG5_aMC_v3_0_2_py3/PLUGIN/alphaloop/libraries/scs/out -L/scratch/zcapatti/MG5_aMC_v3_0_2_py3/PLUGIN/alphaloop/libraries/ecos -L/scratch/zcapatti/Cuba-4.2.1 -L. -L/usr/lib/gcc/x86_64-linux-gnu/9/../../.. CMakeFiles/cmTC_f27ce.dir/CMakeCCompilerABI.c.o -lgcc --push-state --as-needed -lgcc_s --pop-state -lc -lgcc --push-state --as-needed -lgcc_s --pop-state /usr/lib/gcc/x86_64-linux-gnu/9/crtendS.o /usr/lib/gcc/x86_64-linux-gnu/9/../../../x86_64-linux-gnu/crtn.o]
+    arg [/usr/lib/gcc/x86_64-linux-gnu/9/collect2] ==> ignore
+    arg [-plugin] ==> ignore
+    arg [/usr/lib/gcc/x86_64-linux-gnu/9/liblto_plugin.so] ==> ignore
+    arg [-plugin-opt=/usr/lib/gcc/x86_64-linux-gnu/9/lto-wrapper] ==> ignore
+    arg [-plugin-opt=-fresolution=/tmp/ccpLMPKS.res] ==> ignore
+    arg [-plugin-opt=-pass-through=-lgcc] ==> ignore
+    arg [-plugin-opt=-pass-through=-lgcc_s] ==> ignore
+    arg [-plugin-opt=-pass-through=-lc] ==> ignore
+    arg [-plugin-opt=-pass-through=-lgcc] ==> ignore
+    arg [-plugin-opt=-pass-through=-lgcc_s] ==> ignore
+    arg [--build-id] ==> ignore
+    arg [--eh-frame-hdr] ==> ignore
+    arg [-m] ==> ignore
+    arg [elf_x86_64] ==> ignore
+    arg [--hash-style=gnu] ==> ignore
+    arg [--as-needed] ==> ignore
+    arg [-dynamic-linker] ==> ignore
+    arg [/lib64/ld-linux-x86-64.so.2] ==> ignore
+    arg [-pie] ==> ignore
+    arg [-znow] ==> ignore
+    arg [-zrelro] ==> ignore
+    arg [-o] ==> ignore
+    arg [cmTC_f27ce] ==> ignore
+    arg [/usr/lib/gcc/x86_64-linux-gnu/9/../../../x86_64-linux-gnu/Scrt1.o] ==> ignore
+    arg [/usr/lib/gcc/x86_64-linux-gnu/9/../../../x86_64-linux-gnu/crti.o] ==> ignore
+    arg [/usr/lib/gcc/x86_64-linux-gnu/9/crtbeginS.o] ==> ignore
+    arg [-L/usr/lib/gcc/x86_64-linux-gnu/9] ==> dir [/usr/lib/gcc/x86_64-linux-gnu/9]
+    arg [-L/usr/lib/gcc/x86_64-linux-gnu/9/../../../x86_64-linux-gnu] ==> dir [/usr/lib/gcc/x86_64-linux-gnu/9/../../../x86_64-linux-gnu]
+    arg [-L/usr/lib/gcc/x86_64-linux-gnu/9/../../../../lib] ==> dir [/usr/lib/gcc/x86_64-linux-gnu/9/../../../../lib]
+    arg [-L/lib/x86_64-linux-gnu] ==> dir [/lib/x86_64-linux-gnu]
+    arg [-L/lib/../lib] ==> dir [/lib/../lib]
+    arg [-L/usr/lib/x86_64-linux-gnu] ==> dir [/usr/lib/x86_64-linux-gnu]
+    arg [-L/usr/lib/../lib] ==> dir [/usr/lib/../lib]
+    arg [-L/scratch/zcapatti/MG5_aMC_v3_0_2_py3/PLUGIN/alphaloop/libraries/scs/out] ==> dir [/scratch/zcapatti/MG5_aMC_v3_0_2_py3/PLUGIN/alphaloop/libraries/scs/out]
+    arg [-L/scratch/zcapatti/MG5_aMC_v3_0_2_py3/PLUGIN/alphaloop/libraries/ecos] ==> dir [/scratch/zcapatti/MG5_aMC_v3_0_2_py3/PLUGIN/alphaloop/libraries/ecos]
+    arg [-L/scratch/zcapatti/Cuba-4.2.1] ==> dir [/scratch/zcapatti/Cuba-4.2.1]
+    arg [-L.] ==> ignore
+    arg [-L/usr/lib/gcc/x86_64-linux-gnu/9/../../..] ==> dir [/usr/lib/gcc/x86_64-linux-gnu/9/../../..]
+    arg [CMakeFiles/cmTC_f27ce.dir/CMakeCCompilerABI.c.o] ==> ignore
+    arg [-lgcc] ==> lib [gcc]
+    arg [--push-state] ==> ignore
+    arg [--as-needed] ==> ignore
+    arg [-lgcc_s] ==> lib [gcc_s]
+    arg [--pop-state] ==> ignore
+    arg [-lc] ==> lib [c]
+    arg [-lgcc] ==> lib [gcc]
+    arg [--push-state] ==> ignore
+    arg [--as-needed] ==> ignore
+    arg [-lgcc_s] ==> lib [gcc_s]
+    arg [--pop-state] ==> ignore
+    arg [/usr/lib/gcc/x86_64-linux-gnu/9/crtendS.o] ==> ignore
+    arg [/usr/lib/gcc/x86_64-linux-gnu/9/../../../x86_64-linux-gnu/crtn.o] ==> ignore
+  collapse library dir [/usr/lib/gcc/x86_64-linux-gnu/9] ==> [/usr/lib/gcc/x86_64-linux-gnu/9]
+  collapse library dir [/usr/lib/gcc/x86_64-linux-gnu/9/../../../x86_64-linux-gnu] ==> [/usr/lib/x86_64-linux-gnu]
+  collapse library dir [/usr/lib/gcc/x86_64-linux-gnu/9/../../../../lib] ==> [/usr/lib]
+  collapse library dir [/lib/x86_64-linux-gnu] ==> [/lib/x86_64-linux-gnu]
+  collapse library dir [/lib/../lib] ==> [/lib]
+  collapse library dir [/usr/lib/x86_64-linux-gnu] ==> [/usr/lib/x86_64-linux-gnu]
+  collapse library dir [/usr/lib/../lib] ==> [/usr/lib]
+  collapse library dir [/scratch/zcapatti/MG5_aMC_v3_0_2_py3/PLUGIN/alphaloop/libraries/scs/out] ==> [/scratch/zcapatti/MG5_aMC_v3_0_2_py3/PLUGIN/alphaloop/libraries/scs/out]
+  collapse library dir [/scratch/zcapatti/MG5_aMC_v3_0_2_py3/PLUGIN/alphaloop/libraries/ecos] ==> [/scratch/zcapatti/MG5_aMC_v3_0_2_py3/PLUGIN/alphaloop/libraries/ecos]
+  collapse library dir [/scratch/zcapatti/Cuba-4.2.1] ==> [/scratch/zcapatti/Cuba-4.2.1]
+  collapse library dir [/usr/lib/gcc/x86_64-linux-gnu/9/../../..] ==> [/usr/lib]
+  implicit libs: [gcc;gcc_s;c;gcc;gcc_s]
+  implicit dirs: [/usr/lib/gcc/x86_64-linux-gnu/9;/usr/lib/x86_64-linux-gnu;/usr/lib;/lib/x86_64-linux-gnu;/lib;/scratch/zcapatti/MG5_aMC_v3_0_2_py3/PLUGIN/alphaloop/libraries/scs/out;/scratch/zcapatti/MG5_aMC_v3_0_2_py3/PLUGIN/alphaloop/libraries/ecos;/scratch/zcapatti/Cuba-4.2.1]
+  implicit fwks: []
+
+
+Performing C++ SOURCE FILE Test YACMA_CHECK_CXX_FLAG::-fdiagnostics-color=auto succeeded with the following output:
+Change Dir: /scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/make cmTC_383d6/fast && /usr/bin/make -f CMakeFiles/cmTC_383d6.dir/build.make CMakeFiles/cmTC_383d6.dir/build
+make[1]: Entering directory '/scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_383d6.dir/src.cxx.o
+/usr/bin/c++    -DYACMA_CHECK_CXX_FLAG::-fdiagnostics-color=auto   -fdiagnostics-color=auto -o CMakeFiles/cmTC_383d6.dir/src.cxx.o -c /scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp/src.cxx
+<command-line>: warning: ISO C++11 requires whitespace after the macro name
+Linking CXX executable cmTC_383d6
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_383d6.dir/link.txt --verbose=1
+/usr/bin/c++   -DYACMA_CHECK_CXX_FLAG::-fdiagnostics-color=auto    CMakeFiles/cmTC_383d6.dir/src.cxx.o  -o cmTC_383d6 
+make[1]: Leaving directory '/scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp'
+
+
+Source file was:
+int main() { return 0; }
+Performing C++ SOURCE FILE Test YACMA_CHECK_DEBUG_CXX_FLAG::-Waddress-of-packed-member succeeded with the following output:
+Change Dir: /scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/make cmTC_7fb94/fast && /usr/bin/make -f CMakeFiles/cmTC_7fb94.dir/build.make CMakeFiles/cmTC_7fb94.dir/build
+make[1]: Entering directory '/scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_7fb94.dir/src.cxx.o
+/usr/bin/c++    -DYACMA_CHECK_DEBUG_CXX_FLAG::-Waddress-of-packed-member   -Waddress-of-packed-member -o CMakeFiles/cmTC_7fb94.dir/src.cxx.o -c /scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp/src.cxx
+<command-line>: warning: ISO C++11 requires whitespace after the macro name
+Linking CXX executable cmTC_7fb94
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_7fb94.dir/link.txt --verbose=1
+/usr/bin/c++   -DYACMA_CHECK_DEBUG_CXX_FLAG::-Waddress-of-packed-member    CMakeFiles/cmTC_7fb94.dir/src.cxx.o  -o cmTC_7fb94 
+make[1]: Leaving directory '/scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp'
+
+
+Source file was:
+int main() { return 0; }
+Performing C++ SOURCE FILE Test YACMA_CHECK_DEBUG_CXX_FLAG::-Wall succeeded with the following output:
+Change Dir: /scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/make cmTC_b8310/fast && /usr/bin/make -f CMakeFiles/cmTC_b8310.dir/build.make CMakeFiles/cmTC_b8310.dir/build
+make[1]: Entering directory '/scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_b8310.dir/src.cxx.o
+/usr/bin/c++    -DYACMA_CHECK_DEBUG_CXX_FLAG::-Wall   -Wall -o CMakeFiles/cmTC_b8310.dir/src.cxx.o -c /scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp/src.cxx
+<command-line>: warning: ISO C++11 requires whitespace after the macro name
+Linking CXX executable cmTC_b8310
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_b8310.dir/link.txt --verbose=1
+/usr/bin/c++   -DYACMA_CHECK_DEBUG_CXX_FLAG::-Wall    CMakeFiles/cmTC_b8310.dir/src.cxx.o  -o cmTC_b8310 
+make[1]: Leaving directory '/scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp'
+
+
+Source file was:
+int main() { return 0; }
+Performing C++ SOURCE FILE Test YACMA_CHECK_DEBUG_CXX_FLAG::-Wextra succeeded with the following output:
+Change Dir: /scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/make cmTC_279d9/fast && /usr/bin/make -f CMakeFiles/cmTC_279d9.dir/build.make CMakeFiles/cmTC_279d9.dir/build
+make[1]: Entering directory '/scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_279d9.dir/src.cxx.o
+/usr/bin/c++    -DYACMA_CHECK_DEBUG_CXX_FLAG::-Wextra   -Wextra -o CMakeFiles/cmTC_279d9.dir/src.cxx.o -c /scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp/src.cxx
+<command-line>: warning: ISO C++11 requires whitespace after the macro name
+Linking CXX executable cmTC_279d9
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_279d9.dir/link.txt --verbose=1
+/usr/bin/c++   -DYACMA_CHECK_DEBUG_CXX_FLAG::-Wextra    CMakeFiles/cmTC_279d9.dir/src.cxx.o  -o cmTC_279d9 
+make[1]: Leaving directory '/scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp'
+
+
+Source file was:
+int main() { return 0; }
+Performing C++ SOURCE FILE Test YACMA_CHECK_DEBUG_CXX_FLAG::-Wnon-virtual-dtor succeeded with the following output:
+Change Dir: /scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/make cmTC_6f9f5/fast && /usr/bin/make -f CMakeFiles/cmTC_6f9f5.dir/build.make CMakeFiles/cmTC_6f9f5.dir/build
+make[1]: Entering directory '/scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_6f9f5.dir/src.cxx.o
+/usr/bin/c++    -DYACMA_CHECK_DEBUG_CXX_FLAG::-Wnon-virtual-dtor   -Wnon-virtual-dtor -o CMakeFiles/cmTC_6f9f5.dir/src.cxx.o -c /scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp/src.cxx
+<command-line>: warning: ISO C++11 requires whitespace after the macro name
+Linking CXX executable cmTC_6f9f5
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_6f9f5.dir/link.txt --verbose=1
+/usr/bin/c++   -DYACMA_CHECK_DEBUG_CXX_FLAG::-Wnon-virtual-dtor    CMakeFiles/cmTC_6f9f5.dir/src.cxx.o  -o cmTC_6f9f5 
+make[1]: Leaving directory '/scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp'
+
+
+Source file was:
+int main() { return 0; }
+Performing C++ SOURCE FILE Test YACMA_CHECK_DEBUG_CXX_FLAG::-Wlogical-op succeeded with the following output:
+Change Dir: /scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/make cmTC_8d39a/fast && /usr/bin/make -f CMakeFiles/cmTC_8d39a.dir/build.make CMakeFiles/cmTC_8d39a.dir/build
+make[1]: Entering directory '/scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_8d39a.dir/src.cxx.o
+/usr/bin/c++    -DYACMA_CHECK_DEBUG_CXX_FLAG::-Wlogical-op   -Wlogical-op -o CMakeFiles/cmTC_8d39a.dir/src.cxx.o -c /scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp/src.cxx
+<command-line>: warning: ISO C++11 requires whitespace after the macro name
+Linking CXX executable cmTC_8d39a
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_8d39a.dir/link.txt --verbose=1
+/usr/bin/c++   -DYACMA_CHECK_DEBUG_CXX_FLAG::-Wlogical-op    CMakeFiles/cmTC_8d39a.dir/src.cxx.o  -o cmTC_8d39a 
+make[1]: Leaving directory '/scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp'
+
+
+Source file was:
+int main() { return 0; }
+Performing C++ SOURCE FILE Test YACMA_CHECK_DEBUG_CXX_FLAG::-Wconversion succeeded with the following output:
+Change Dir: /scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/make cmTC_d24f0/fast && /usr/bin/make -f CMakeFiles/cmTC_d24f0.dir/build.make CMakeFiles/cmTC_d24f0.dir/build
+make[1]: Entering directory '/scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_d24f0.dir/src.cxx.o
+/usr/bin/c++    -DYACMA_CHECK_DEBUG_CXX_FLAG::-Wconversion   -Wconversion -o CMakeFiles/cmTC_d24f0.dir/src.cxx.o -c /scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp/src.cxx
+<command-line>: warning: ISO C++11 requires whitespace after the macro name
+Linking CXX executable cmTC_d24f0
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_d24f0.dir/link.txt --verbose=1
+/usr/bin/c++   -DYACMA_CHECK_DEBUG_CXX_FLAG::-Wconversion    CMakeFiles/cmTC_d24f0.dir/src.cxx.o  -o cmTC_d24f0 
+make[1]: Leaving directory '/scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp'
+
+
+Source file was:
+int main() { return 0; }
+Performing C++ SOURCE FILE Test YACMA_CHECK_DEBUG_CXX_FLAG::-Wdeprecated succeeded with the following output:
+Change Dir: /scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/make cmTC_4138f/fast && /usr/bin/make -f CMakeFiles/cmTC_4138f.dir/build.make CMakeFiles/cmTC_4138f.dir/build
+make[1]: Entering directory '/scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_4138f.dir/src.cxx.o
+/usr/bin/c++    -DYACMA_CHECK_DEBUG_CXX_FLAG::-Wdeprecated   -Wdeprecated -o CMakeFiles/cmTC_4138f.dir/src.cxx.o -c /scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp/src.cxx
+<command-line>: warning: ISO C++11 requires whitespace after the macro name
+Linking CXX executable cmTC_4138f
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_4138f.dir/link.txt --verbose=1
+/usr/bin/c++   -DYACMA_CHECK_DEBUG_CXX_FLAG::-Wdeprecated    CMakeFiles/cmTC_4138f.dir/src.cxx.o  -o cmTC_4138f 
+make[1]: Leaving directory '/scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp'
+
+
+Source file was:
+int main() { return 0; }
+Performing C++ SOURCE FILE Test YACMA_CHECK_CXX_FLAG::-ftemplate-depth=1024 succeeded with the following output:
+Change Dir: /scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/make cmTC_337dd/fast && /usr/bin/make -f CMakeFiles/cmTC_337dd.dir/build.make CMakeFiles/cmTC_337dd.dir/build
+make[1]: Entering directory '/scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_337dd.dir/src.cxx.o
+/usr/bin/c++    -DYACMA_CHECK_CXX_FLAG::-ftemplate-depth=1024   -ftemplate-depth=1024 -o CMakeFiles/cmTC_337dd.dir/src.cxx.o -c /scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp/src.cxx
+<command-line>: warning: ISO C++11 requires whitespace after the macro name
+Linking CXX executable cmTC_337dd
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_337dd.dir/link.txt --verbose=1
+/usr/bin/c++   -DYACMA_CHECK_CXX_FLAG::-ftemplate-depth=1024    CMakeFiles/cmTC_337dd.dir/src.cxx.o  -o cmTC_337dd 
+make[1]: Leaving directory '/scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp'
+
+
+Source file was:
+int main() { return 0; }
+Performing C++ SOURCE FILE Test YACMA_CHECK_DEBUG_CXX_FLAG::-Wold-style-cast succeeded with the following output:
+Change Dir: /scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/make cmTC_43c1f/fast && /usr/bin/make -f CMakeFiles/cmTC_43c1f.dir/build.make CMakeFiles/cmTC_43c1f.dir/build
+make[1]: Entering directory '/scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_43c1f.dir/src.cxx.o
+/usr/bin/c++    -DYACMA_CHECK_DEBUG_CXX_FLAG::-Wold-style-cast   -Wold-style-cast -o CMakeFiles/cmTC_43c1f.dir/src.cxx.o -c /scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp/src.cxx
+<command-line>: warning: ISO C++11 requires whitespace after the macro name
+Linking CXX executable cmTC_43c1f
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_43c1f.dir/link.txt --verbose=1
+/usr/bin/c++   -DYACMA_CHECK_DEBUG_CXX_FLAG::-Wold-style-cast    CMakeFiles/cmTC_43c1f.dir/src.cxx.o  -o cmTC_43c1f 
+make[1]: Leaving directory '/scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp'
+
+
+Source file was:
+int main() { return 0; }
+Performing C++ SOURCE FILE Test YACMA_CHECK_DEBUG_CXX_FLAG::-Wdisabled-optimization succeeded with the following output:
+Change Dir: /scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/make cmTC_a3075/fast && /usr/bin/make -f CMakeFiles/cmTC_a3075.dir/build.make CMakeFiles/cmTC_a3075.dir/build
+make[1]: Entering directory '/scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_a3075.dir/src.cxx.o
+/usr/bin/c++    -DYACMA_CHECK_DEBUG_CXX_FLAG::-Wdisabled-optimization   -Wdisabled-optimization -o CMakeFiles/cmTC_a3075.dir/src.cxx.o -c /scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp/src.cxx
+<command-line>: warning: ISO C++11 requires whitespace after the macro name
+Linking CXX executable cmTC_a3075
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_a3075.dir/link.txt --verbose=1
+/usr/bin/c++   -DYACMA_CHECK_DEBUG_CXX_FLAG::-Wdisabled-optimization    CMakeFiles/cmTC_a3075.dir/src.cxx.o  -o cmTC_a3075 
+make[1]: Leaving directory '/scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp'
+
+
+Source file was:
+int main() { return 0; }
+Performing C++ SOURCE FILE Test YACMA_CHECK_DEBUG_CXX_FLAG::-ftemplate-backtrace-limit=0 succeeded with the following output:
+Change Dir: /scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/make cmTC_32710/fast && /usr/bin/make -f CMakeFiles/cmTC_32710.dir/build.make CMakeFiles/cmTC_32710.dir/build
+make[1]: Entering directory '/scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_32710.dir/src.cxx.o
+/usr/bin/c++    -DYACMA_CHECK_DEBUG_CXX_FLAG::-ftemplate-backtrace-limit=0   -ftemplate-backtrace-limit=0 -o CMakeFiles/cmTC_32710.dir/src.cxx.o -c /scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp/src.cxx
+<command-line>: warning: ISO C++11 requires whitespace after the macro name
+Linking CXX executable cmTC_32710
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_32710.dir/link.txt --verbose=1
+/usr/bin/c++   -DYACMA_CHECK_DEBUG_CXX_FLAG::-ftemplate-backtrace-limit=0    CMakeFiles/cmTC_32710.dir/src.cxx.o  -o cmTC_32710 
+make[1]: Leaving directory '/scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp'
+
+
+Source file was:
+int main() { return 0; }
+Performing C++ SOURCE FILE Test YACMA_CHECK_DEBUG_CXX_FLAG::-fstack-protector-all succeeded with the following output:
+Change Dir: /scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/make cmTC_d2e90/fast && /usr/bin/make -f CMakeFiles/cmTC_d2e90.dir/build.make CMakeFiles/cmTC_d2e90.dir/build
+make[1]: Entering directory '/scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_d2e90.dir/src.cxx.o
+/usr/bin/c++    -DYACMA_CHECK_DEBUG_CXX_FLAG::-fstack-protector-all   -fstack-protector-all -o CMakeFiles/cmTC_d2e90.dir/src.cxx.o -c /scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp/src.cxx
+<command-line>: warning: ISO C++11 requires whitespace after the macro name
+Linking CXX executable cmTC_d2e90
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_d2e90.dir/link.txt --verbose=1
+/usr/bin/c++   -DYACMA_CHECK_DEBUG_CXX_FLAG::-fstack-protector-all    CMakeFiles/cmTC_d2e90.dir/src.cxx.o  -o cmTC_d2e90 
+make[1]: Leaving directory '/scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp'
+
+
+Source file was:
+int main() { return 0; }
+Performing C++ SOURCE FILE Test YACMA_CHECK_DEBUG_CXX_FLAG::-Wsuggest-attribute=pure succeeded with the following output:
+Change Dir: /scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/make cmTC_471fd/fast && /usr/bin/make -f CMakeFiles/cmTC_471fd.dir/build.make CMakeFiles/cmTC_471fd.dir/build
+make[1]: Entering directory '/scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_471fd.dir/src.cxx.o
+/usr/bin/c++    -DYACMA_CHECK_DEBUG_CXX_FLAG::-Wsuggest-attribute=pure   -Wsuggest-attribute=pure -o CMakeFiles/cmTC_471fd.dir/src.cxx.o -c /scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp/src.cxx
+<command-line>: warning: ISO C++11 requires whitespace after the macro name
+Linking CXX executable cmTC_471fd
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_471fd.dir/link.txt --verbose=1
+/usr/bin/c++   -DYACMA_CHECK_DEBUG_CXX_FLAG::-Wsuggest-attribute=pure    CMakeFiles/cmTC_471fd.dir/src.cxx.o  -o cmTC_471fd 
+make[1]: Leaving directory '/scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp'
+
+
+Source file was:
+int main() { return 0; }
+Performing C++ SOURCE FILE Test YACMA_CHECK_DEBUG_CXX_FLAG::-Wsuggest-attribute=const succeeded with the following output:
+Change Dir: /scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/make cmTC_9eea2/fast && /usr/bin/make -f CMakeFiles/cmTC_9eea2.dir/build.make CMakeFiles/cmTC_9eea2.dir/build
+make[1]: Entering directory '/scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_9eea2.dir/src.cxx.o
+/usr/bin/c++    -DYACMA_CHECK_DEBUG_CXX_FLAG::-Wsuggest-attribute=const   -Wsuggest-attribute=const -o CMakeFiles/cmTC_9eea2.dir/src.cxx.o -c /scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp/src.cxx
+<command-line>: warning: ISO C++11 requires whitespace after the macro name
+Linking CXX executable cmTC_9eea2
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_9eea2.dir/link.txt --verbose=1
+/usr/bin/c++   -DYACMA_CHECK_DEBUG_CXX_FLAG::-Wsuggest-attribute=const    CMakeFiles/cmTC_9eea2.dir/src.cxx.o  -o cmTC_9eea2 
+make[1]: Leaving directory '/scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp'
+
+
+Source file was:
+int main() { return 0; }
+Performing C++ SOURCE FILE Test YACMA_CHECK_DEBUG_CXX_FLAG::-Wsuggest-attribute=noreturn succeeded with the following output:
+Change Dir: /scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/make cmTC_955dd/fast && /usr/bin/make -f CMakeFiles/cmTC_955dd.dir/build.make CMakeFiles/cmTC_955dd.dir/build
+make[1]: Entering directory '/scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_955dd.dir/src.cxx.o
+/usr/bin/c++    -DYACMA_CHECK_DEBUG_CXX_FLAG::-Wsuggest-attribute=noreturn   -Wsuggest-attribute=noreturn -o CMakeFiles/cmTC_955dd.dir/src.cxx.o -c /scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp/src.cxx
+<command-line>: warning: ISO C++11 requires whitespace after the macro name
+Linking CXX executable cmTC_955dd
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_955dd.dir/link.txt --verbose=1
+/usr/bin/c++   -DYACMA_CHECK_DEBUG_CXX_FLAG::-Wsuggest-attribute=noreturn    CMakeFiles/cmTC_955dd.dir/src.cxx.o  -o cmTC_955dd 
+make[1]: Leaving directory '/scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp'
+
+
+Source file was:
+int main() { return 0; }
+Performing C++ SOURCE FILE Test YACMA_CHECK_DEBUG_CXX_FLAG::-Wsuggest-attribute=format succeeded with the following output:
+Change Dir: /scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/make cmTC_1317d/fast && /usr/bin/make -f CMakeFiles/cmTC_1317d.dir/build.make CMakeFiles/cmTC_1317d.dir/build
+make[1]: Entering directory '/scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_1317d.dir/src.cxx.o
+/usr/bin/c++    -DYACMA_CHECK_DEBUG_CXX_FLAG::-Wsuggest-attribute=format   -Wsuggest-attribute=format -o CMakeFiles/cmTC_1317d.dir/src.cxx.o -c /scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp/src.cxx
+<command-line>: warning: ISO C++11 requires whitespace after the macro name
+Linking CXX executable cmTC_1317d
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_1317d.dir/link.txt --verbose=1
+/usr/bin/c++   -DYACMA_CHECK_DEBUG_CXX_FLAG::-Wsuggest-attribute=format    CMakeFiles/cmTC_1317d.dir/src.cxx.o  -o cmTC_1317d 
+make[1]: Leaving directory '/scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp'
+
+
+Source file was:
+int main() { return 0; }
+Performing C++ SOURCE FILE Test YACMA_CHECK_DEBUG_CXX_FLAG::-Wodr succeeded with the following output:
+Change Dir: /scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/make cmTC_06f40/fast && /usr/bin/make -f CMakeFiles/cmTC_06f40.dir/build.make CMakeFiles/cmTC_06f40.dir/build
+make[1]: Entering directory '/scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_06f40.dir/src.cxx.o
+/usr/bin/c++    -DYACMA_CHECK_DEBUG_CXX_FLAG::-Wodr   -Wodr -o CMakeFiles/cmTC_06f40.dir/src.cxx.o -c /scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp/src.cxx
+<command-line>: warning: ISO C++11 requires whitespace after the macro name
+Linking CXX executable cmTC_06f40
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_06f40.dir/link.txt --verbose=1
+/usr/bin/c++   -DYACMA_CHECK_DEBUG_CXX_FLAG::-Wodr    CMakeFiles/cmTC_06f40.dir/src.cxx.o  -o cmTC_06f40 
+make[1]: Leaving directory '/scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp'
+
+
+Source file was:
+int main() { return 0; }
+Performing C++ SOURCE FILE Test YACMA_CHECK_DEBUG_CXX_FLAG::-Wsuggest-final-types succeeded with the following output:
+Change Dir: /scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/make cmTC_50a62/fast && /usr/bin/make -f CMakeFiles/cmTC_50a62.dir/build.make CMakeFiles/cmTC_50a62.dir/build
+make[1]: Entering directory '/scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_50a62.dir/src.cxx.o
+/usr/bin/c++    -DYACMA_CHECK_DEBUG_CXX_FLAG::-Wsuggest-final-types   -Wsuggest-final-types -o CMakeFiles/cmTC_50a62.dir/src.cxx.o -c /scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp/src.cxx
+<command-line>: warning: ISO C++11 requires whitespace after the macro name
+Linking CXX executable cmTC_50a62
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_50a62.dir/link.txt --verbose=1
+/usr/bin/c++   -DYACMA_CHECK_DEBUG_CXX_FLAG::-Wsuggest-final-types    CMakeFiles/cmTC_50a62.dir/src.cxx.o  -o cmTC_50a62 
+make[1]: Leaving directory '/scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp'
+
+
+Source file was:
+int main() { return 0; }
+Performing C++ SOURCE FILE Test YACMA_CHECK_DEBUG_CXX_FLAG::-Wsuggest-final-methods succeeded with the following output:
+Change Dir: /scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/make cmTC_80a1f/fast && /usr/bin/make -f CMakeFiles/cmTC_80a1f.dir/build.make CMakeFiles/cmTC_80a1f.dir/build
+make[1]: Entering directory '/scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_80a1f.dir/src.cxx.o
+/usr/bin/c++    -DYACMA_CHECK_DEBUG_CXX_FLAG::-Wsuggest-final-methods   -Wsuggest-final-methods -o CMakeFiles/cmTC_80a1f.dir/src.cxx.o -c /scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp/src.cxx
+<command-line>: warning: ISO C++11 requires whitespace after the macro name
+Linking CXX executable cmTC_80a1f
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_80a1f.dir/link.txt --verbose=1
+/usr/bin/c++   -DYACMA_CHECK_DEBUG_CXX_FLAG::-Wsuggest-final-methods    CMakeFiles/cmTC_80a1f.dir/src.cxx.o  -o cmTC_80a1f 
+make[1]: Leaving directory '/scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp'
+
+
+Source file was:
+int main() { return 0; }
+Performing C++ SOURCE FILE Test YACMA_CHECK_DEBUG_CXX_FLAG::-Wsuggest-override succeeded with the following output:
+Change Dir: /scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/make cmTC_47b13/fast && /usr/bin/make -f CMakeFiles/cmTC_47b13.dir/build.make CMakeFiles/cmTC_47b13.dir/build
+make[1]: Entering directory '/scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_47b13.dir/src.cxx.o
+/usr/bin/c++    -DYACMA_CHECK_DEBUG_CXX_FLAG::-Wsuggest-override   -Wsuggest-override -o CMakeFiles/cmTC_47b13.dir/src.cxx.o -c /scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp/src.cxx
+<command-line>: warning: ISO C++11 requires whitespace after the macro name
+Linking CXX executable cmTC_47b13
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_47b13.dir/link.txt --verbose=1
+/usr/bin/c++   -DYACMA_CHECK_DEBUG_CXX_FLAG::-Wsuggest-override    CMakeFiles/cmTC_47b13.dir/src.cxx.o  -o cmTC_47b13 
+make[1]: Leaving directory '/scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp'
+
+
+Source file was:
+int main() { return 0; }
+Performing C++ SOURCE FILE Test YACMA_CHECK_DEBUG_CXX_FLAG::-Wshift-negative-value succeeded with the following output:
+Change Dir: /scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/make cmTC_54dec/fast && /usr/bin/make -f CMakeFiles/cmTC_54dec.dir/build.make CMakeFiles/cmTC_54dec.dir/build
+make[1]: Entering directory '/scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_54dec.dir/src.cxx.o
+/usr/bin/c++    -DYACMA_CHECK_DEBUG_CXX_FLAG::-Wshift-negative-value   -Wshift-negative-value -o CMakeFiles/cmTC_54dec.dir/src.cxx.o -c /scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp/src.cxx
+<command-line>: warning: ISO C++11 requires whitespace after the macro name
+Linking CXX executable cmTC_54dec
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_54dec.dir/link.txt --verbose=1
+/usr/bin/c++   -DYACMA_CHECK_DEBUG_CXX_FLAG::-Wshift-negative-value    CMakeFiles/cmTC_54dec.dir/src.cxx.o  -o cmTC_54dec 
+make[1]: Leaving directory '/scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp'
+
+
+Source file was:
+int main() { return 0; }
+Performing C++ SOURCE FILE Test YACMA_CHECK_DEBUG_CXX_FLAG::-Wshift-overflow=2 succeeded with the following output:
+Change Dir: /scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/make cmTC_37d57/fast && /usr/bin/make -f CMakeFiles/cmTC_37d57.dir/build.make CMakeFiles/cmTC_37d57.dir/build
+make[1]: Entering directory '/scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_37d57.dir/src.cxx.o
+/usr/bin/c++    -DYACMA_CHECK_DEBUG_CXX_FLAG::-Wshift-overflow=2   -Wshift-overflow=2 -o CMakeFiles/cmTC_37d57.dir/src.cxx.o -c /scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp/src.cxx
+<command-line>: warning: ISO C++11 requires whitespace after the macro name
+Linking CXX executable cmTC_37d57
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_37d57.dir/link.txt --verbose=1
+/usr/bin/c++   -DYACMA_CHECK_DEBUG_CXX_FLAG::-Wshift-overflow=2    CMakeFiles/cmTC_37d57.dir/src.cxx.o  -o cmTC_37d57 
+make[1]: Leaving directory '/scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp'
+
+
+Source file was:
+int main() { return 0; }
+Performing C++ SOURCE FILE Test YACMA_CHECK_DEBUG_CXX_FLAG::-Wduplicated-cond succeeded with the following output:
+Change Dir: /scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/make cmTC_96965/fast && /usr/bin/make -f CMakeFiles/cmTC_96965.dir/build.make CMakeFiles/cmTC_96965.dir/build
+make[1]: Entering directory '/scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_96965.dir/src.cxx.o
+/usr/bin/c++    -DYACMA_CHECK_DEBUG_CXX_FLAG::-Wduplicated-cond   -Wduplicated-cond -o CMakeFiles/cmTC_96965.dir/src.cxx.o -c /scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp/src.cxx
+<command-line>: warning: ISO C++11 requires whitespace after the macro name
+Linking CXX executable cmTC_96965
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_96965.dir/link.txt --verbose=1
+/usr/bin/c++   -DYACMA_CHECK_DEBUG_CXX_FLAG::-Wduplicated-cond    CMakeFiles/cmTC_96965.dir/src.cxx.o  -o cmTC_96965 
+make[1]: Leaving directory '/scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp'
+
+
+Source file was:
+int main() { return 0; }
+Performing C++ SOURCE FILE Test YACMA_CHECK_DEBUG_CXX_FLAG::-Wnull-dereference succeeded with the following output:
+Change Dir: /scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/make cmTC_0300f/fast && /usr/bin/make -f CMakeFiles/cmTC_0300f.dir/build.make CMakeFiles/cmTC_0300f.dir/build
+make[1]: Entering directory '/scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_0300f.dir/src.cxx.o
+/usr/bin/c++    -DYACMA_CHECK_DEBUG_CXX_FLAG::-Wnull-dereference   -Wnull-dereference -o CMakeFiles/cmTC_0300f.dir/src.cxx.o -c /scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp/src.cxx
+<command-line>: warning: ISO C++11 requires whitespace after the macro name
+Linking CXX executable cmTC_0300f
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_0300f.dir/link.txt --verbose=1
+/usr/bin/c++   -DYACMA_CHECK_DEBUG_CXX_FLAG::-Wnull-dereference    CMakeFiles/cmTC_0300f.dir/src.cxx.o  -o cmTC_0300f 
+make[1]: Leaving directory '/scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp'
+
+
+Source file was:
+int main() { return 0; }
+Performing C++ SOURCE FILE Test YACMA_CHECK_DEBUG_CXX_FLAG::-Wrestrict succeeded with the following output:
+Change Dir: /scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/make cmTC_d1349/fast && /usr/bin/make -f CMakeFiles/cmTC_d1349.dir/build.make CMakeFiles/cmTC_d1349.dir/build
+make[1]: Entering directory '/scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_d1349.dir/src.cxx.o
+/usr/bin/c++    -DYACMA_CHECK_DEBUG_CXX_FLAG::-Wrestrict   -Wrestrict -o CMakeFiles/cmTC_d1349.dir/src.cxx.o -c /scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp/src.cxx
+<command-line>: warning: ISO C++11 requires whitespace after the macro name
+Linking CXX executable cmTC_d1349
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_d1349.dir/link.txt --verbose=1
+/usr/bin/c++   -DYACMA_CHECK_DEBUG_CXX_FLAG::-Wrestrict    CMakeFiles/cmTC_d1349.dir/src.cxx.o  -o cmTC_d1349 
+make[1]: Leaving directory '/scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp'
+
+
+Source file was:
+int main() { return 0; }
+Performing C++ SOURCE FILE Test YACMA_CHECK_DEBUG_CXX_FLAG::-Waligned-new succeeded with the following output:
+Change Dir: /scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/make cmTC_7e7c6/fast && /usr/bin/make -f CMakeFiles/cmTC_7e7c6.dir/build.make CMakeFiles/cmTC_7e7c6.dir/build
+make[1]: Entering directory '/scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_7e7c6.dir/src.cxx.o
+/usr/bin/c++    -DYACMA_CHECK_DEBUG_CXX_FLAG::-Waligned-new   -Waligned-new -o CMakeFiles/cmTC_7e7c6.dir/src.cxx.o -c /scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp/src.cxx
+<command-line>: warning: ISO C++11 requires whitespace after the macro name
+Linking CXX executable cmTC_7e7c6
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_7e7c6.dir/link.txt --verbose=1
+/usr/bin/c++   -DYACMA_CHECK_DEBUG_CXX_FLAG::-Waligned-new    CMakeFiles/cmTC_7e7c6.dir/src.cxx.o  -o cmTC_7e7c6 
+make[1]: Leaving directory '/scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp'
+
+
+Source file was:
+int main() { return 0; }
+Performing C++ SOURCE FILE Test YACMA_CHECK_DEBUG_CXX_FLAG::-Wcast-align=strict succeeded with the following output:
+Change Dir: /scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/make cmTC_a5419/fast && /usr/bin/make -f CMakeFiles/cmTC_a5419.dir/build.make CMakeFiles/cmTC_a5419.dir/build
+make[1]: Entering directory '/scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_a5419.dir/src.cxx.o
+/usr/bin/c++    -DYACMA_CHECK_DEBUG_CXX_FLAG::-Wcast-align=strict   -Wcast-align=strict -o CMakeFiles/cmTC_a5419.dir/src.cxx.o -c /scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp/src.cxx
+<command-line>: warning: ISO C++11 requires whitespace after the macro name
+Linking CXX executable cmTC_a5419
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_a5419.dir/link.txt --verbose=1
+/usr/bin/c++   -DYACMA_CHECK_DEBUG_CXX_FLAG::-Wcast-align=strict    CMakeFiles/cmTC_a5419.dir/src.cxx.o  -o cmTC_a5419 
+make[1]: Leaving directory '/scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp'
+
+
+Source file was:
+int main() { return 0; }
+Performing C++ SOURCE FILE Test YACMA_CHECK_CXX_FLAG::-fdiagnostics-show-template-tree succeeded with the following output:
+Change Dir: /scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/make cmTC_21b6d/fast && /usr/bin/make -f CMakeFiles/cmTC_21b6d.dir/build.make CMakeFiles/cmTC_21b6d.dir/build
+make[1]: Entering directory '/scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_21b6d.dir/src.cxx.o
+/usr/bin/c++    -DYACMA_CHECK_CXX_FLAG::-fdiagnostics-show-template-tree   -fdiagnostics-show-template-tree -o CMakeFiles/cmTC_21b6d.dir/src.cxx.o -c /scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp/src.cxx
+<command-line>: warning: ISO C++11 requires whitespace after the macro name
+Linking CXX executable cmTC_21b6d
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_21b6d.dir/link.txt --verbose=1
+/usr/bin/c++   -DYACMA_CHECK_CXX_FLAG::-fdiagnostics-show-template-tree    CMakeFiles/cmTC_21b6d.dir/src.cxx.o  -o cmTC_21b6d 
+make[1]: Leaving directory '/scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp'
+
+
+Source file was:
+int main() { return 0; }
+Performing C++ SOURCE FILE Test YACMA_CHECK_CXX_FLAG::-Wno-attributes succeeded with the following output:
+Change Dir: /scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/make cmTC_24b1a/fast && /usr/bin/make -f CMakeFiles/cmTC_24b1a.dir/build.make CMakeFiles/cmTC_24b1a.dir/build
+make[1]: Entering directory '/scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_24b1a.dir/src.cxx.o
+/usr/bin/c++    -DYACMA_CHECK_CXX_FLAG::-Wno-attributes   -Wno-attributes -o CMakeFiles/cmTC_24b1a.dir/src.cxx.o -c /scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp/src.cxx
+<command-line>: warning: ISO C++11 requires whitespace after the macro name
+Linking CXX executable cmTC_24b1a
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_24b1a.dir/link.txt --verbose=1
+/usr/bin/c++   -DYACMA_CHECK_CXX_FLAG::-Wno-attributes    CMakeFiles/cmTC_24b1a.dir/src.cxx.o  -o cmTC_24b1a 
+make[1]: Leaving directory '/scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp'
+
+
+Source file was:
+int main() { return 0; }
+Performing C++ SOURCE FILE Test YACMA_CHECK_DEBUG_CXX_FLAG::-Wno-maybe-uninitialized succeeded with the following output:
+Change Dir: /scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/make cmTC_6e8f9/fast && /usr/bin/make -f CMakeFiles/cmTC_6e8f9.dir/build.make CMakeFiles/cmTC_6e8f9.dir/build
+make[1]: Entering directory '/scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_6e8f9.dir/src.cxx.o
+/usr/bin/c++    -DYACMA_CHECK_DEBUG_CXX_FLAG::-Wno-maybe-uninitialized   -Wno-maybe-uninitialized -o CMakeFiles/cmTC_6e8f9.dir/src.cxx.o -c /scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp/src.cxx
+<command-line>: warning: ISO C++11 requires whitespace after the macro name
+Linking CXX executable cmTC_6e8f9
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_6e8f9.dir/link.txt --verbose=1
+/usr/bin/c++   -DYACMA_CHECK_DEBUG_CXX_FLAG::-Wno-maybe-uninitialized    CMakeFiles/cmTC_6e8f9.dir/src.cxx.o  -o cmTC_6e8f9 
+make[1]: Leaving directory '/scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp'
+
+
+Source file was:
+int main() { return 0; }
+Determining if the mpn_divexact_1 exist passed with the following output:
+Change Dir: /scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/make cmTC_0936e/fast && /usr/bin/make -f CMakeFiles/cmTC_0936e.dir/build.make CMakeFiles/cmTC_0936e.dir/build
+make[1]: Entering directory '/scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_0936e.dir/CheckSymbolExists.c.o
+/usr/bin/cc    -o CMakeFiles/cmTC_0936e.dir/CheckSymbolExists.c.o   -c /scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp/CheckSymbolExists.c
+Linking C executable cmTC_0936e
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_0936e.dir/link.txt --verbose=1
+/usr/bin/cc      CMakeFiles/cmTC_0936e.dir/CheckSymbolExists.c.o  -o cmTC_0936e  /usr/lib/x86_64-linux-gnu/libgmp.so 
+make[1]: Leaving directory '/scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp'
+
+
+File /scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp/CheckSymbolExists.c:
+/* */
+#include <gmp.h>
+
+int main(int argc, char** argv)
+{
+  (void)argv;
+#ifndef mpn_divexact_1
+  return ((int*)(&mpn_divexact_1))[argc];
+#else
+  (void)argc;
+  return 0;
+#endif
+}
+Determining if the mpfr_get_q exist passed with the following output:
+Change Dir: /scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/make cmTC_ec3d4/fast && /usr/bin/make -f CMakeFiles/cmTC_ec3d4.dir/build.make CMakeFiles/cmTC_ec3d4.dir/build
+make[1]: Entering directory '/scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_ec3d4.dir/CheckSymbolExists.c.o
+/usr/bin/cc    -o CMakeFiles/cmTC_ec3d4.dir/CheckSymbolExists.c.o   -c /scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp/CheckSymbolExists.c
+Linking C executable cmTC_ec3d4
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_ec3d4.dir/link.txt --verbose=1
+/usr/bin/cc      CMakeFiles/cmTC_ec3d4.dir/CheckSymbolExists.c.o  -o cmTC_ec3d4  /usr/lib/x86_64-linux-gnu/libmpfr.so 
+make[1]: Leaving directory '/scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp'
+
+
+File /scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp/CheckSymbolExists.c:
+/* */
+#include <mpfr.h>
+
+int main(int argc, char** argv)
+{
+  (void)argv;
+#ifndef mpfr_get_q
+  return ((int*)(&mpfr_get_q))[argc];
+#else
+  (void)argc;
+  return 0;
+#endif
+}
+Determining if the mpfr_rootn_ui exist passed with the following output:
+Change Dir: /scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/make cmTC_7097f/fast && /usr/bin/make -f CMakeFiles/cmTC_7097f.dir/build.make CMakeFiles/cmTC_7097f.dir/build
+make[1]: Entering directory '/scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_7097f.dir/CheckSymbolExists.c.o
+/usr/bin/cc    -o CMakeFiles/cmTC_7097f.dir/CheckSymbolExists.c.o   -c /scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp/CheckSymbolExists.c
+Linking C executable cmTC_7097f
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_7097f.dir/link.txt --verbose=1
+/usr/bin/cc      CMakeFiles/cmTC_7097f.dir/CheckSymbolExists.c.o  -o cmTC_7097f  /usr/lib/x86_64-linux-gnu/libmpfr.so 
+make[1]: Leaving directory '/scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp'
+
+
+File /scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp/CheckSymbolExists.c:
+/* */
+#include <mpfr.h>
+
+int main(int argc, char** argv)
+{
+  (void)argv;
+#ifndef mpfr_rootn_ui
+  return ((int*)(&mpfr_rootn_ui))[argc];
+#else
+  (void)argc;
+  return 0;
+#endif
+}
+Determining if the mpfr_gamma_inc exist passed with the following output:
+Change Dir: /scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/make cmTC_97cfe/fast && /usr/bin/make -f CMakeFiles/cmTC_97cfe.dir/build.make CMakeFiles/cmTC_97cfe.dir/build
+make[1]: Entering directory '/scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_97cfe.dir/CheckSymbolExists.c.o
+/usr/bin/cc    -o CMakeFiles/cmTC_97cfe.dir/CheckSymbolExists.c.o   -c /scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp/CheckSymbolExists.c
+Linking C executable cmTC_97cfe
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_97cfe.dir/link.txt --verbose=1
+/usr/bin/cc      CMakeFiles/cmTC_97cfe.dir/CheckSymbolExists.c.o  -o cmTC_97cfe  /usr/lib/x86_64-linux-gnu/libmpfr.so 
+make[1]: Leaving directory '/scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp'
+
+
+File /scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp/CheckSymbolExists.c:
+/* */
+#include <mpfr.h>
+
+int main(int argc, char** argv)
+{
+  (void)argv;
+#ifndef mpfr_gamma_inc
+  return ((int*)(&mpfr_gamma_inc))[argc];
+#else
+  (void)argc;
+  return 0;
+#endif
+}
+Determining if the mpfr_beta exist passed with the following output:
+Change Dir: /scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/make cmTC_b4336/fast && /usr/bin/make -f CMakeFiles/cmTC_b4336.dir/build.make CMakeFiles/cmTC_b4336.dir/build
+make[1]: Entering directory '/scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_b4336.dir/CheckSymbolExists.c.o
+/usr/bin/cc    -o CMakeFiles/cmTC_b4336.dir/CheckSymbolExists.c.o   -c /scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp/CheckSymbolExists.c
+Linking C executable cmTC_b4336
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_b4336.dir/link.txt --verbose=1
+/usr/bin/cc      CMakeFiles/cmTC_b4336.dir/CheckSymbolExists.c.o  -o cmTC_b4336  /usr/lib/x86_64-linux-gnu/libmpfr.so 
+make[1]: Leaving directory '/scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp'
+
+
+File /scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp/CheckSymbolExists.c:
+/* */
+#include <mpfr.h>
+
+int main(int argc, char** argv)
+{
+  (void)argv;
+#ifndef mpfr_beta
+  return ((int*)(&mpfr_beta))[argc];
+#else
+  (void)argc;
+  return 0;
+#endif
+}
+Determining if the mpfr_roundeven exist passed with the following output:
+Change Dir: /scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/make cmTC_01afa/fast && /usr/bin/make -f CMakeFiles/cmTC_01afa.dir/build.make CMakeFiles/cmTC_01afa.dir/build
+make[1]: Entering directory '/scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_01afa.dir/CheckSymbolExists.c.o
+/usr/bin/cc    -o CMakeFiles/cmTC_01afa.dir/CheckSymbolExists.c.o   -c /scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp/CheckSymbolExists.c
+Linking C executable cmTC_01afa
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_01afa.dir/link.txt --verbose=1
+/usr/bin/cc      CMakeFiles/cmTC_01afa.dir/CheckSymbolExists.c.o  -o cmTC_01afa  /usr/lib/x86_64-linux-gnu/libmpfr.so 
+make[1]: Leaving directory '/scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp'
+
+
+File /scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp/CheckSymbolExists.c:
+/* */
+#include <mpfr.h>
+
+int main(int argc, char** argv)
+{
+  (void)argv;
+#ifndef mpfr_roundeven
+  return ((int*)(&mpfr_roundeven))[argc];
+#else
+  (void)argc;
+  return 0;
+#endif
+}
+Determining if the mpfr_fmodquo exist passed with the following output:
+Change Dir: /scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/make cmTC_3cee1/fast && /usr/bin/make -f CMakeFiles/cmTC_3cee1.dir/build.make CMakeFiles/cmTC_3cee1.dir/build
+make[1]: Entering directory '/scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_3cee1.dir/CheckSymbolExists.c.o
+/usr/bin/cc    -o CMakeFiles/cmTC_3cee1.dir/CheckSymbolExists.c.o   -c /scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp/CheckSymbolExists.c
+Linking C executable cmTC_3cee1
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_3cee1.dir/link.txt --verbose=1
+/usr/bin/cc      CMakeFiles/cmTC_3cee1.dir/CheckSymbolExists.c.o  -o cmTC_3cee1  /usr/lib/x86_64-linux-gnu/libmpfr.so 
+make[1]: Leaving directory '/scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp'
+
+
+File /scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp/CheckSymbolExists.c:
+/* */
+#include <mpfr.h>
+
+int main(int argc, char** argv)
+{
+  (void)argv;
+#ifndef mpfr_fmodquo
+  return ((int*)(&mpfr_fmodquo))[argc];
+#else
+  (void)argc;
+  return 0;
+#endif
+}
+Determining size of __float128 passed with the following output:
+Change Dir: /scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/make cmTC_47dc1/fast && /usr/bin/make -f CMakeFiles/cmTC_47dc1.dir/build.make CMakeFiles/cmTC_47dc1.dir/build
+make[1]: Entering directory '/scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_47dc1.dir/_MPPP_FLOAT128_EXISTS.cpp.o
+/usr/bin/c++     -o CMakeFiles/cmTC_47dc1.dir/_MPPP_FLOAT128_EXISTS.cpp.o -c /scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CheckTypeSize/_MPPP_FLOAT128_EXISTS.cpp
+Linking CXX executable cmTC_47dc1
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_47dc1.dir/link.txt --verbose=1
+/usr/bin/c++       CMakeFiles/cmTC_47dc1.dir/_MPPP_FLOAT128_EXISTS.cpp.o  -o cmTC_47dc1 
+make[1]: Leaving directory '/scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp'
+
+
+
+Performing C++ SOURCE FILE Test MPPP_QUADMATH_USE_DIRECTLY succeeded with the following output:
+Change Dir: /scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/make cmTC_5336d/fast && /usr/bin/make -f CMakeFiles/cmTC_5336d.dir/build.make CMakeFiles/cmTC_5336d.dir/build
+make[1]: Entering directory '/scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_5336d.dir/src.cxx.o
+/usr/bin/c++    -DMPPP_QUADMATH_USE_DIRECTLY   -o CMakeFiles/cmTC_5336d.dir/src.cxx.o -c /scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp/src.cxx
+Linking CXX executable cmTC_5336d
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_5336d.dir/link.txt --verbose=1
+/usr/bin/c++   -DMPPP_QUADMATH_USE_DIRECTLY    CMakeFiles/cmTC_5336d.dir/src.cxx.o  -o cmTC_5336d  -lquadmath 
+make[1]: Leaving directory '/scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp'
+
+
+Source file was:
+
+        #include <quadmath.h>
+        int main(void){
+            __float128 foo = ::sqrtq(123.456);
+        }
+Determining if the exp2q exist passed with the following output:
+Change Dir: /scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/make cmTC_813bd/fast && /usr/bin/make -f CMakeFiles/cmTC_813bd.dir/build.make CMakeFiles/cmTC_813bd.dir/build
+make[1]: Entering directory '/scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_813bd.dir/CheckSymbolExists.c.o
+/usr/bin/cc    -o CMakeFiles/cmTC_813bd.dir/CheckSymbolExists.c.o   -c /scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp/CheckSymbolExists.c
+Linking C executable cmTC_813bd
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_813bd.dir/link.txt --verbose=1
+/usr/bin/cc      CMakeFiles/cmTC_813bd.dir/CheckSymbolExists.c.o  -o cmTC_813bd  -lquadmath 
+make[1]: Leaving directory '/scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp'
+
+
+File /scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp/CheckSymbolExists.c:
+/* */
+#include <quadmath.h>
+
+int main(int argc, char** argv)
+{
+  (void)argv;
+#ifndef exp2q
+  return ((int*)(&exp2q))[argc];
+#else
+  (void)argc;
+  return 0;
+#endif
+}
+Determining if the logbq exist passed with the following output:
+Change Dir: /scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/make cmTC_b3201/fast && /usr/bin/make -f CMakeFiles/cmTC_b3201.dir/build.make CMakeFiles/cmTC_b3201.dir/build
+make[1]: Entering directory '/scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_b3201.dir/CheckSymbolExists.c.o
+/usr/bin/cc    -o CMakeFiles/cmTC_b3201.dir/CheckSymbolExists.c.o   -c /scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp/CheckSymbolExists.c
+Linking C executable cmTC_b3201
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_b3201.dir/link.txt --verbose=1
+/usr/bin/cc      CMakeFiles/cmTC_b3201.dir/CheckSymbolExists.c.o  -o cmTC_b3201  -lquadmath 
+make[1]: Leaving directory '/scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp'
+
+
+File /scratch/zcapatti/drell_yan_2/mppp-0.26/CMakeFiles/CMakeTmp/CheckSymbolExists.c:
+/* */
+#include <quadmath.h>
+
+int main(int argc, char** argv)
+{
+  (void)argv;
+#ifndef logbq
+  return ((int*)(&logbq))[argc];
+#else
+  (void)argc;
+  return 0;
+#endif
+}

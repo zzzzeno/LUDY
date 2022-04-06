@@ -1,0 +1,256 @@
+// Copyright 2016-2021 Francesco Biscani (bluescarni@gmail.com)
+//
+// This file is part of the mp++ library.
+//
+// This Source Code Form is subject to the terms of the Mozilla
+// Public License v. 2.0. If a copy of the MPL was not distributed
+// with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+#ifndef MPPP_CONFIG_HPP
+#define MPPP_CONFIG_HPP
+
+// Start of defines instantiated by CMake.
+// clang-format off
+#define MPPP_VERSION_STRING "@mp++_VERSION@"
+#define MPPP_VERSION_MAJOR @mp++_VERSION_MAJOR@
+#define MPPP_VERSION_MINOR @mp++_VERSION_MINOR@
+#cmakedefine MPPP_GMP_HAVE_MPN_DIVEXACT_1
+@MPPP_ENABLE_MPFR@
+#cmakedefine MPPP_MPFR_HAVE_MPFR_GET_Q
+#cmakedefine MPPP_MPFR_HAVE_MPFR_ROOTN_UI
+#cmakedefine MPPP_MPFR_HAVE_MPFR_GAMMA_INC
+#cmakedefine MPPP_MPFR_HAVE_MPFR_BETA
+#cmakedefine MPPP_MPFR_HAVE_MPFR_ROUNDEVEN
+#cmakedefine MPPP_MPFR_HAVE_MPFR_FMODQUO
+#cmakedefine MPPP_MPFR_HAVE_MPFR_GET_STR_NDIGITS
+@MPPP_ENABLE_ARB@
+#cmakedefine MPPP_ARB_HAVE_ACB_AGM
+@MPPP_ENABLE_MPC@
+@MPPP_ENABLE_QUADMATH@
+#cmakedefine MPPP_QUADMATH_HAVE_EXP2Q
+#cmakedefine MPPP_QUADMATH_HAVE_LOGBQ
+@MPPP_STATIC_BUILD@
+#cmakedefine MPPP_WITH_BOOST_S11N
+// clang-format on
+// End of defines instantiated by CMake.
+
+// Compiler configuration.
+
+#if defined(__clang__) || defined(__GNUC__) || defined(__INTEL_COMPILER)
+
+// NOTE: GCC, clang (including clang-cl) and the Intel compiler support
+// __builtin_expect() and __restrict.
+#define mppp_likely(x) __builtin_expect(static_cast<bool>(x), 1)
+#define mppp_unlikely(x) __builtin_expect(static_cast<bool>(x), 0)
+#define MPPP_RESTRICT __restrict
+
+#elif defined(_MSC_VER)
+
+// NOTE: MSVC (without clang-cl) only supports __restrict.
+#define mppp_likely(x) (x)
+#define mppp_unlikely(x) (x)
+#define MPPP_RESTRICT __restrict
+
+#else
+
+// Otherwise, disable both __builtin_expect() and __restrict.
+#define mppp_likely(x) (x)
+#define mppp_unlikely(x) (x)
+#define MPPP_RESTRICT
+
+#endif
+
+// thread_local configuration:
+// - on clang/osx, this seems to be supported since xcode 8:
+//   https://stackoverflow.com/questions/28094794/why-does-apple-clang-disallow-c11-thread-local-when-official-clang-supports
+//   Note that additional conditions might be needed for iOS, if it ever comes
+//   to that. Regarding the versioning, it seems the clang version macros are set
+//   to the xcode version:
+//   https://stackoverflow.com/questions/19387043/how-can-i-reliably-detect-the-version-of-clang-at-preprocessing-time
+//   xcode 8.x is appleclang 8.y:
+//   https://en.wikipedia.org/wiki/Xcode#8.x_series
+// - at least some MinGW versions have a buggy thread_local implementation. This is shown by testing,
+//   and reported in a bunch of places as well:
+//   https://sourceforge.net/p/mingw-w64/bugs/445/
+//   https://github.com/Alexpux/MINGW-packages/issues/2519
+//
+// NOTE: at least some early versions of the Intel compiler have a buggy implementation,
+// but recent versions seem ok.
+
+#if (defined(__APPLE__) && __clang_major__ < 8) || defined(__MINGW32__)
+
+#define MPPP_MAYBE_TLS
+
+#else
+
+// For the rest, we assume thread_local is available.
+#define MPPP_MAYBE_TLS static thread_local
+#define MPPP_HAVE_THREAD_LOCAL
+
+#endif
+
+// Concepts setup.
+#if defined(__cpp_concepts)
+
+#define MPPP_HAVE_CONCEPTS
+
+// NOTE: GCC < 9 uses the syntax of the concept TS.
+#if defined(__GNUC__) && !defined(__clang__) && __GNUC__ < 9
+
+#define MPPP_CONCEPT_DECL concept bool
+
+#else
+
+#define MPPP_CONCEPT_DECL concept
+
+#endif
+
+#endif
+
+// C++ standard setup.
+// NOTE: this is necessary because at this time MSVC does not set correctly the
+// __cplusplus macro.
+#if defined(_MSC_VER)
+
+#define MPPP_CPLUSPLUS _MSVC_LANG
+
+#else
+
+#define MPPP_CPLUSPLUS __cplusplus
+
+#endif
+
+// constexpr setup.
+#if MPPP_CPLUSPLUS >= 201402L
+
+#define MPPP_CONSTEXPR_14 constexpr
+
+#else
+
+#define MPPP_CONSTEXPR_14
+
+#endif
+
+#if MPPP_CPLUSPLUS >= 202002L
+
+#define MPPP_CONSTEXPR_20 constexpr
+
+#else
+
+#define MPPP_CONSTEXPR_20
+
+#endif
+
+// Detect if the compiler supports GCC-style 128-bit integers.
+// NOTE: we can check int128 on GCC/clang with __SIZEOF_INT128__ apparently:
+// http://stackoverflow.com/questions/21886985/what-gcc-versions-support-the-int128-intrinsic-type
+// NOTE: clang-cl supports the types, but not all the arithmetic operations on them. Let's disable it for now.
+#if ((defined(__clang__) && !defined(_MSC_VER)) || defined(__GNUC__) || defined(__INTEL_COMPILER))                     \
+    && defined(__SIZEOF_INT128__)
+
+#define MPPP_HAVE_GCC_INT128
+
+#endif
+
+// Check if we have std::string_view available.
+// Older compilers might advertise C++17 support
+// without implementing all the necessary library
+// components - this is the case with MSVC 2015
+// and std::string_view.
+#if MPPP_CPLUSPLUS >= 201703L
+
+#if __has_include(<string_view>)
+
+#define MPPP_HAVE_STRING_VIEW
+
+#endif
+
+#endif
+
+// Wrapper for the C++17 [[fallthrough]] attribute.
+#if MPPP_CPLUSPLUS >= 201703L
+
+#define MPPP_FALLTHROUGH [[fallthrough]]
+
+#elif !defined(__INTEL_COMPILER) && !defined(__clang__) && defined(__GNUC__) && __GNUC__ >= 7
+
+// On GCC>=7, if we are not using C++17 we can use
+// an alternative attribute:
+// https://developers.redhat.com/blog/2017/03/10/wimplicit-fallthrough-in-gcc-7/
+// This may be supported on some clang versions as well:
+// https://reviews.llvm.org/D63260
+#define MPPP_FALLTHROUGH [[gnu::fallthrough]]
+
+#else
+
+#define MPPP_FALLTHROUGH void(0)
+
+#endif
+
+// Wrapper for the C++17 [[nodiscard]] attribute.
+#if MPPP_CPLUSPLUS >= 201703L
+
+#define MPPP_NODISCARD [[nodiscard]]
+
+#else
+
+#define MPPP_NODISCARD
+
+#endif
+
+// C++20 constinit.
+#if defined(__cpp_constinit)
+
+#define MPPP_CONSTINIT constinit
+
+#else
+
+#define MPPP_CONSTINIT
+
+#endif
+
+#if defined(MPPP_WITH_QUADMATH)
+
+// Define the MPPP_FLOAT128_WITH_LONG_DOUBLE name
+// if __float128 can interact with long double.
+
+#if defined(__clang__)
+
+#if defined(__apple_build_version__)
+
+// NOTE: according to https://en.wikipedia.org/wiki/Xcode#Toolchain_versions,
+// clang 7 starts in Xcode 10.2.
+#if __clang_major__ > 10 || (__clang_major__ == 10 && __clang_minor__ >= 2)
+
+#define MPPP_FLOAT128_WITH_LONG_DOUBLE
+
+#endif
+
+#else
+
+// Vanilla clang.
+#if __clang_major__ >= 7
+
+#define MPPP_FLOAT128_WITH_LONG_DOUBLE
+
+#endif
+
+#endif
+
+#else
+
+// On non-clang, let's always assume that __float128
+// can interact with long double, *unless* we are on
+// PowerPC. On such a setup, GCC disables interaction
+// between __float128 and long double.
+#if !defined(__PPC__)
+
+#define MPPP_FLOAT128_WITH_LONG_DOUBLE
+
+#endif
+
+#endif
+
+#endif
+
+#endif
