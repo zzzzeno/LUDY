@@ -11,6 +11,7 @@ import vegas
 import pickle
 from NLO_integrands import NLO_integrands
 import time
+import copy
 
 from pprint import pprint, pformat
 
@@ -234,15 +235,13 @@ class LU_DY(object):
 
                     # Enable observables
                     self.observables = obs.ObservableList([ obs.CrossSection(), ])
-                    self.worker_observables = [obs.ObservableList([ obs.CrossSection(), ]) for _ in range(self.n_cores)]
                     if observables is not None:
                         for obs_string in observables:
                             if obs_string == 'x1':
                                 self.observables.append( obs.x1() )
-                                for w_obs in self.worker_observables:
-                                    w_obs.append( obs.x1() )
                             else:
                                 raise NotImplementedError("Observable %s not implemented yet."%obs_string)
+                    self.worker_observables = [copy.deepcopy(self.observables) for _ in range(self.n_cores)]
 
                     logger.info("Starting production run with %d sample points."%n_evals_production)
 
