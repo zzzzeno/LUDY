@@ -1364,7 +1364,6 @@ class integrands{
         void set_res(double nres_c, double nres_s){my_obs.set_res(nres_c,nres_s);};
 
         void set_sigma(double nsigma){
-            cout<<nsigma<<endl;
             my_flow.set_parameters(m, nsigma);};
 
         void set_deformation_hyperparameters(double nlambda, double nmij, double nbc_lambda){
