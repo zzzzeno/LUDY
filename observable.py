@@ -76,6 +76,19 @@ class Histogram(object):
             )
             a_bin.n_entries += sum(h.bins[i_bin].n_entries for h in histograms.values())
 
+    def format_to_HwU(self):
+        
+        #res = ['##& xmin & xmax & central value & dy']
+        res = ['<histogram> %(n_bins)d "%(title)s |X_AXIS@%(x_axis_type)s |Y_AXIS@%(y_axis_type)s |TYPE@%(histo_type)s"'%{
+            'n_bins': self.n_bins, 'title': self.title, 'x_axis_type' : self.x_axis.upper(), 'y_axis_type' : self.y_axis.upper(), 'histo_type' : self.type.upper()
+        },]
+        for i_b, b in enumerate(self.bins):
+            res.append('%.5e %.5e %.10e %.10e'%(
+                self.min+i_b*self.bin_width, self.min+(i_b+1)*self.bin_width, b.integral, b.variance**0.5
+            ))
+        res.append("<\\histogram>")
+        return '\n'.join(res)
+
 class HistogramCollection(dict):
     def __init__(self, *args, **opts):
         pass
@@ -104,10 +117,16 @@ class JetList(list):
 
 class Event(object):
 
-    def __init__(self, initial_state_jets, final_state_jets, weight):
+    def __init__(self, initial_state_jets, final_state_jets, E_com, weight):
         self.initial_state_jets = initial_state_jets
         self.final_state_jets = final_state_jets
         self.weight = weight
+        self.E_com = E_com
+
+    def compute_derived_quantities(self):
+        """ Compute derived quantities once here that may appear in multiple plots, for instance x_1 / x_2."""
+        #TODO
+        pass
 
 # Keep events from a single sample point grouped so as to properly account for correlations
 class EventGroup(list):
@@ -132,9 +151,9 @@ class Observable(object):
         if event_group.h_cube not in self.histos_current_iteration.keys():
             self.histos_current_iteration[event_group.h_cube] = Histogram(*self.histogram_args, **self.histogram_opts)
         histogram = self.histos_current_iteration.get(event_group.h_cube)
-        self.accumulate(histogram, event_group)
+        histogram.add_weights( [(self(e), e.weight) for e in event_group] )
 
-    def accumulate(self, histogram, event):
+    def __call__(self, event):
         raise NotImplementedError("This function must be implemented by the daughter class.")
 
     def finalize_iteration(self, worker_observable=None):
@@ -149,6 +168,9 @@ class Observable(object):
         
         self.histogram.accumulate_histograms(histos_to_merge)
         histos_to_merge.clear()
+
+    def format_to_HwU(self):
+        return self.histogram.format_to_HwU()
 
 class ObservableList(list):
     
@@ -171,20 +193,25 @@ class ObservableList(list):
             for o, w_o in zip(self, worker_observable):
                 o.finalize_iteration(*args, worker_observable = w_o, **opts)
 
+    def format_to_HwU(self):
+        res = ["##& xmin & xmax & central value & dy",'']
+        for o in self:
+            res.append(o.format_to_HwU())
+        return '\n'.join(res)
+
 class CrossSection(Observable):
 
     def __init__(self, title='CrossSection', histogram_type='NLO', **opts):
         super(CrossSection, self).__init__(title, min_value=0., max_value=3., n_bins=3, histogram_type=histogram_type, x_axis='lin', y_axis='lin', **opts)
 
-    def accumulate(self, histogram, event_group):
-        histogram.add_weights( [(1.5, e.weight) for e in event_group] )
+    def __call__(self, event):
+        return 1.5
 
 class x1(Observable):
 
-    def __init__(self, beam_energy, title='x1', min_value=0., max_value=1., n_bins=100, histogram_type='NLO', x_axis='lin', y_axis='log', **opts):
-        self.beam_energy = beam_energy
+    def __init__(self, title='x1', min_value=0., max_value=1., n_bins=100, histogram_type='NLO', x_axis='lin', y_axis='log', **opts):
         super(x1, self).__init__(title, min_value, max_value, n_bins, histogram_type=histogram_type, x_axis=x_axis, y_axis=y_axis, **opts)
 
-    def accumulate(self, histogram, event):
-        #TODO
-        pass
+    def __call__(self, event):
+        # TODO
+        return 1.0

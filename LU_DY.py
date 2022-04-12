@@ -63,9 +63,11 @@ class LU_DY(object):
             tag=tag, debug=(self.verbosity>2), mode=mode, phase=phase
         )
 
+        self.tag = tag
         self.observables = None
         self.worker_observables = None
         self.pool = None
+        self.timings = None
 
     # Helper function for paralellisation
     @staticmethod
@@ -98,9 +100,12 @@ class LU_DY(object):
                 obs.Event(
                         initial_state_jets = obs.JetList( [ obs.Jet(r.j1, spin=r.spin1), obs.Jet(r.j2, spin=r.spin2) ] ), 
                         final_state_jets = obs.JetList( [ obs.Jet(r.pg, spin=3 ), ] ),
-                        weight = r.res*r.jac*(1. if integrator_wgt is None else integrator_wgt)
+                        weight = r.res*r.jac*(1. if integrator_wgt is None else integrator_wgt),
+                        E_com = integrand.eCM
                 ) for r in all_res
             ], h_cube=h_cube)
+            for e in evt_group:
+                e.compute_derived_quantities()
             if apply_observables:
                 observables.accumulate_event_group(evt_group)
                 evt_group = None
@@ -110,18 +115,18 @@ class LU_DY(object):
         return (final_weight, evt_group)
 
     @vegas.batchintegrand
-    def evaluate_samples(self, xs, wgts=None, h_cubes=None, timings=None):    
+    def evaluate_samples(self, xs, wgts=None, h_cubes=None):    
         
         if self.n_cores == 1:
             if wgts is None:
-                return [ LU_DY.evaluate_sample((None, self.integrand, self.worker_observables[0], timings, True, (x,None,None) ))[0] for x in xs ]
+                return [ LU_DY.evaluate_sample((None, self.integrand, self.worker_observables[0], self.timings, True, (x,None,None) ))[0] for x in xs ]
             else:
-                return [ LU_DY.evaluate_sample((None, self.integrand, self.worker_observables[0], timings, True, (x,wgt,h_cube) ))[0] for x, wgt, h_cube in zip(xs, wgts, h_cubes) ]
+                return [ LU_DY.evaluate_sample((None, self.integrand, self.worker_observables[0], self.timings, True, (x,wgt,h_cube) ))[0] for x, wgt, h_cube in zip(xs, wgts, h_cubes) ]
         else:
              
             x_chunks = list(chunks(xs,1+len(xs)//self.n_cores))
-            wgts_chunks = list(chunks(wgts,1+len(xs)//self.n_cores)) if wgts is not None else [None,]*len(x_chunks)
-            h_cubes = list(chunks(h_cubes,1+len(xs)//self.n_cores)) if h_cubes is not None else [None,]*len(x_chunks)
+            wgts_chunks = list(chunks(wgts,1+len(xs)//self.n_cores)) if wgts is not None else [[None,]*len(x_chunk) for x_chunk in x_chunks]
+            h_cubes = list(chunks(h_cubes,1+len(xs)//self.n_cores)) if h_cubes is not None else [[None,]*len(x_chunk) for x_chunk in x_chunks]
 
             if self.verbosity>0:
                 logger.info("Dispatching %d points over %d cores."%(len(xs), self.n_cores))
@@ -129,7 +134,7 @@ class LU_DY(object):
             # It's more efficient to apply the observables in parallel since they are now no longer acting on shared memory so there is no locking anymore.
             apply_observable_in_parallel = True
             jobs_it = self.pool.imap(LU_DY.evaluate_sample, 
-                    list( (i_job, self.integrand, self.worker_observables[i_job], timings, apply_observable_in_parallel, job_args) for i_job, job_args in enumerate(zip(x_chunks, wgts_chunks, h_cubes)) ))
+                    list( (i_job, self.integrand, self.worker_observables[i_job], self.timings, apply_observable_in_parallel, job_args) for i_job, job_args in enumerate(zip(x_chunks, wgts_chunks, h_cubes)) ))
 
             all_res = {}
             for i_job, observables, res in jobs_it:
@@ -152,12 +157,18 @@ class LU_DY(object):
 
     def integrate(self, n_iterations=10, n_evals_training=10000, n_evals_production=10000, vegas_grid='./vegas_grid.pkl', 
             alpha=0.5, beta=0.75, nhcube_batch=1000, seed=None, target_relative_error=0., target_absolute_error=0., 
-            observables=None, **opts
+            observables=None, hwu_path=None, **opts
         ):
         
         if seed:
             np.random.seed(seed)
         
+        if hwu_path is None:
+            hwu_path = 'histograms_%s.HwU'%self.tag
+        else:
+            if not hwu_path.endswith('HwU'):
+                hwu_path = '%s.HwU'%hwu_path
+
         starting_map = None
         if vegas_grid is not None and vegas_grid.upper()!='NONE' and os.path.isfile(vegas_grid):
             logger.info("Recycling trained VEGAS grid from '%s'."%vegas_grid)
@@ -182,18 +193,27 @@ class LU_DY(object):
             # Disable observables during training
             self.observables = None
             self.worker_observables = [None for _ in range(self.n_cores)]
+            integration_start = time.time()
             logger.info("Training VEGAS grid with %d iterations of %d points..."%(n_iterations, n_evals_training))
-            with multiprocessing.Pool(processes=self.n_cores) as self.pool:
-                training_res = integrator(self.evaluate_samples, nitn=n_iterations, neval=n_evals_training, adapt=True)
-            
-            logger.info("Result after training:\n%s"%str(training_res.summary()))
-            logger.info("Integration wall time %.0f s. tot CPU time %.0f (x%.1f) (C++ : %.3g%%, Python observables: %.3g%% )"%(
-                wall_time,
-                tot_CPU,
-                tot_CPU/wall_time,
-                (dict_timings['c++']/tot_CPU)*100.,
-                (dict_timings['observables']/tot_CPU)*100.,
-            ))
+            with obs.LUDYManager() as manager:
+                with multiprocessing.Pool(processes=self.n_cores) as self.pool:
+                    this_manager = (manager if self.n_cores>1 else None)
+                    if this_manager is None:
+                        self.timings = obs.Timings()
+                    else:
+                        self.timings = manager.Timings()
+                    training_res = integrator(self.evaluate_samples, nitn=n_iterations, neval=n_evals_training, adapt=True)
+                    dict_timings = self.timings.to_dict()
+                    tot_CPU = dict_timings['c++']+dict_timings['observables']
+                    wall_time = time.time()-integration_start
+                    logger.info("Result after training:\n%s"%str(training_res.summary()))
+                    logger.info("Integration wall time %.0f s. tot CPU time %.0f (x%.1f) (C++ : %.3g%%, Python observables: %.3g%% )"%(
+                        wall_time,
+                        tot_CPU,
+                        tot_CPU/wall_time,
+                        (dict_timings['c++']/tot_CPU)*100.,
+                        (dict_timings['observables']/tot_CPU)*100.,
+                    ))
             if vegas_grid is not None and vegas_grid.upper()!='NONE':
                 logger.info("Saving trained VEGAS grid to '%s'."%vegas_grid)
                 pickle.dump(integrator.map,open(vegas_grid,'wb'))
@@ -209,9 +229,9 @@ class LU_DY(object):
                     this_manager = (manager if self.n_cores>1 else None)
 
                     if this_manager is None:
-                        timings = obs.Timings()
+                        self.timings = obs.Timings()
                     else:
-                        timings = manager.Timings()
+                        self.timings = manager.Timings()
 
                     # Enable observables
                     self.observables = obs.ObservableList([ obs.CrossSection(), ])
@@ -231,7 +251,7 @@ class LU_DY(object):
                     for xs, wgts, hcubes in integrator.random_batch(yield_hcube=True):
                         if self.verbosity>0:
                             logger.info("Submitting new batch of %d points..."%len(xs))
-                        self.evaluate_samples(xs, wgts=wgts, h_cubes=hcubes, timings=timings)
+                        self.evaluate_samples(xs, wgts=wgts, h_cubes=hcubes)
 
                     for w_obs in self.worker_observables:
                         self.observables.finalize_iteration(worker_observable=w_obs)
@@ -240,7 +260,7 @@ class LU_DY(object):
                         self.observables[0].histogram.bins[1].variance**0.5,
                         self.observables[0].histogram.bins[1].n_entries
                     ))
-                    dict_timings = timings.to_dict()
+                    dict_timings = self.timings.to_dict()
                     tot_CPU = dict_timings['c++']+dict_timings['observables']
                     wall_time = time.time()-integration_start
                     logger.info("Integration wall time %.0f s. tot CPU time %.0f (x%.1f) (C++ : %.3g%%, Python observables: %.3g%% )"%(
@@ -250,6 +270,9 @@ class LU_DY(object):
                         (dict_timings['c++']/tot_CPU)*100.,
                         (dict_timings['observables']/tot_CPU)*100.,
                     ))
+                    with open(hwu_path,'w') as f:
+                        f.write(self.observables.format_to_HwU())
+                    logger.info("Histograms output to file '%s'. They can be rendered using the madgraph/various/histograms.py script."%hwu_path)
 
 if __name__ == '__main__':
 
@@ -265,6 +288,8 @@ if __name__ == '__main__':
                         help='Specify random seed (default: %(default)s).')
     parser.add_argument('--batch_size', '-bs', dest='batch_size', type=int, default=1000,
                         help='Batch sizse (default: %(default)s).')
+    parser.add_argument('--hwu_path', '-hwu', dest='hwu_path', type=str, default=None,
+                        help='Path to output hwu file (default: as per tag).')
     parser.add_argument('--n_evals_training', '-net', dest='n_evals_training', type=int, default=10000,
                         help='Number of sample points for training (default: %(default)s).')
     parser.add_argument('--n_evals_production', '-nep', dest='n_evals_production', type=int, default=10000,
@@ -298,6 +323,7 @@ if __name__ == '__main__':
         seed = args.seed,
         vegas_grid = args.vegas_grid,
         nhcube_batch = args.batch_size,
+        hwu_path = args.hwu_path,
         n_evals_training = args.n_evals_training,
         n_iterations = args.n_iterations_training,
         n_evals_production = args.n_evals_production
