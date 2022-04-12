@@ -2,6 +2,7 @@ from multiprocessing.managers import BaseManager
 from multiprocessing import Value
 
 import ctypes
+import vectors as vec
 import logging
 logger = logging.getLogger("Observable")
 
@@ -105,9 +106,12 @@ LUDYManager.register('list', list)
 
 class Jet(object):
 
-    def __init__(self, p, spin):
-        self.p = p
-        self.spin = spin
+    def __init__(self, p, flavour):
+        self.p = vec.LorentzVector(p)
+        self.flavour = flavour
+    
+    def __str__(self):
+        return "(E=%.5g, p_x=%.5g, p_y=%.5g, p_z=%.5g)@flav=%s"%(self.p[0],self.p[1],self.p[2],self.p[3],self.flavour)
 
 class JetList(list):
     
@@ -122,6 +126,13 @@ class Event(object):
         self.final_state_jets = final_state_jets
         self.weight = weight
         self.E_com = E_com
+    
+    def __str__(self):
+        res = ["Event with %d initial-state jets and %d on final-state jet for a collision at E_com=%.4e."%(len(self.initial_state_jets),len(self.final_state_jets),self.E_com)]
+        res.append("Initial state jets : %s"%(' | '.join(str(j) for j in self.initial_state_jets)))
+        res.append("Final state jets   : %s"%(' | '.join(str(j) for j in self.final_state_jets)))
+        res.append("Weight             : %.16e"%self.weight)
+        return '\n'.join(res)
 
     def compute_derived_quantities(self):
         """ Compute derived quantities once here that may appear in multiple plots, for instance x_1 / x_2."""
@@ -133,6 +144,16 @@ class EventGroup(list):
     def __init__(self, *args, h_cube=None, **opts):
         self.h_cube =h_cube
         super(EventGroup, self).__init__(*args, **opts)
+
+    def compute_derived_quantities(self, *args, **opts):
+        for e in self:
+            e.compute_derived_quantities(*args, **opts)
+
+    def __str__(self):
+        res = ["Event group for h_cube #%d containing %d events:"%(self.h_cube, len(self))]
+        for i_e, e in enumerate(self):
+            res.extend(['     %s'%l if i_l > 0 else '#%-3d %s'%(i_e,l) for i_l, l in enumerate(str(e).split('\n'))])
+        return '\n'.join(res)
 
 class Observable(object):
 

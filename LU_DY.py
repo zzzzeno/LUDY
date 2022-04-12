@@ -98,14 +98,13 @@ class LU_DY(object):
             start = time.time()
             evt_group = obs.EventGroup([
                 obs.Event(
-                        initial_state_jets = obs.JetList( [ obs.Jet(r.j1, spin=r.spin1), obs.Jet(r.j2, spin=r.spin2) ] ), 
-                        final_state_jets = obs.JetList( [ obs.Jet(r.pg, spin=3 ), ] ),
+                        initial_state_jets = obs.JetList( [ obs.Jet(r.j1, flavour=int(r.spin1)), obs.Jet(r.j2, flavour=int(r.spin2)) ] ), 
+                        final_state_jets = obs.JetList( [ obs.Jet(r.pg, flavour=21 ), ] ),
                         weight = r.res*r.jac*(1. if integrator_wgt is None else integrator_wgt),
                         E_com = integrand.eCM
-                ) for r in all_res
+                ) for r in all_res if abs(r.res*r.jac*(1. if integrator_wgt is None else integrator_wgt))!=0.0
             ], h_cube=h_cube)
-            for e in evt_group:
-                e.compute_derived_quantities()
+            evt_group.compute_derived_quantities()
             if apply_observables:
                 observables.accumulate_event_group(evt_group)
                 evt_group = None
