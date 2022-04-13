@@ -54,7 +54,7 @@ class Histogram(object):
         return self.bins
 
     def place(self, x):
-        if x >= self.max:
+        if x >= self.max or x < self.min:
             return None
         return int((x-self.min)//self.bin_width)
 
@@ -319,10 +319,9 @@ class log10ptj(Observable):
     def __call__(self, event):
         return [( math.log10(event.final_state_jets[0].p.pt()), event.weight ),] if len(event.final_state_jets)>0 else []
 
-
 class x1(Observable):
 
-    def __init__(self, title='x1', min_value=0., max_value=2., n_bins=100, histogram_type='NLO', x_axis='lin', y_axis='lin', **opts):
+    def __init__(self, title='x1', min_value=0., max_value=1., n_bins=100, histogram_type='NLO', x_axis='lin', y_axis='lin', **opts):
         super(x1, self).__init__(title, min_value, max_value, n_bins, histogram_type=histogram_type, x_axis=x_axis, y_axis=y_axis, **opts)
 
     def __call__(self, event):
@@ -330,7 +329,7 @@ class x1(Observable):
 
 class x2(Observable):
 
-    def __init__(self, title='x2', min_value=0., max_value=2., n_bins=100, histogram_type='NLO', x_axis='lin', y_axis='lin', **opts):
+    def __init__(self, title='x2', min_value=0., max_value=1., n_bins=100, histogram_type='NLO', x_axis='lin', y_axis='lin', **opts):
         super(x2, self).__init__(title, min_value, max_value, n_bins, histogram_type=histogram_type, x_axis=x_axis, y_axis=y_axis, **opts)
 
     def __call__(self, event):
@@ -338,7 +337,7 @@ class x2(Observable):
 
 class x1FixedFlav(Observable):
 
-    def __init__(self, flavour=0, take_abs=True, min_value=0., max_value=2., n_bins=100, histogram_type='NLO', x_axis='lin', y_axis='lin', **opts):
+    def __init__(self, flavour=0, take_abs=True, min_value=0., max_value=1., n_bins=100, histogram_type='NLO', x_axis='lin', y_axis='lin', **opts):
         title = 'x1%sFlavour%s'%('Abs' if take_abs else '','m%d'%abs(flavour) if flavour<0 else '0' if flavour==0 else 'p%d'%flavour)
         self.take_abs = take_abs
         self.flavour = flavour
@@ -350,7 +349,7 @@ class x1FixedFlav(Observable):
 
 class x2FixedFlav(Observable):
 
-    def __init__(self, flavour=0, take_abs=True, min_value=0., max_value=2., n_bins=100, histogram_type='NLO', x_axis='lin', y_axis='lin', **opts):
+    def __init__(self, flavour=0, take_abs=True, min_value=0., max_value=1., n_bins=100, histogram_type='NLO', x_axis='lin', y_axis='lin', **opts):
         title = 'x2%sFlavour%s'%('Abs' if take_abs else '','m%d'%abs(flavour) if flavour<0 else '0' if flavour==0 else 'p%d'%flavour)
         self.take_abs = take_abs
         self.flavour = flavour

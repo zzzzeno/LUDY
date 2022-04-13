@@ -33,14 +33,17 @@ class MockUpRes(object):
         self.res = res
         self.jac = jac
         if j1 is None:
-            self.j1 = [0.,0.,0.,0.]
+            self.j1 = [100.,0.,100.,0.]
         else:
             self.j1 = j1
         if j2 is None:
-            self.j2 = [0.,0.,0.,0.]
+            self.j2 = [100.,0.,100.,0.]
         else:
             self.j2 = j2
-        self.pg = pg
+        if pg is None:
+            self.pg = [100.,0.,100.,0.]
+        else:
+            self.pg = pg
         self.spin1 = spin1
         self.spin2 = spin2
 
@@ -64,8 +67,8 @@ class LU_DY(object):
 
     def __init__(self, *args, 
                     mZ=91.188, eCM=13000., resolution_coll=0., resolution_soft=0., h_sigma=2, 
-                    initial_state_a=0., min_pt=10., max_pt=2000., n_bins=1, basis=None, tag="tqq", mode='min_pt', phase='real',
-                    verbosity = 0, n_cores=None, separate_h_cube_errors=True
+                    initial_state_a=0., min_pt=10., max_pt=2000., max_x1=1., max_x2=1., n_bins=1, basis=None, tag="tqq", mode='min_pt', phase='real',
+                    verbosity = 0, n_cores=None, separate_h_cube_errors=True, digits_f64=8, digits_f128=4, **opts 
                 ):
 
         if basis is None:
@@ -79,13 +82,15 @@ class LU_DY(object):
 
         self.verbosity = verbosity
         self.separate_h_cube_errors = separate_h_cube_errors
-        self.selector_variables = {'min_pt': min_pt, 'max_pt': max_pt}
+        self.selector_variables = {'min_pt': min_pt, 'max_pt': max_pt, 'max_x1': max_x1, 'max_x2': max_x2}
         
         self.integrand = [ NLO_integrands(
             mZ, eCM, resolution_coll, resolution_soft, h_sigma, 
             initial_state_a, min_pt, max_pt, n_bins, basis, 
             tag=tag, debug=(self.verbosity>2), mode=mode, phase=phase
         ) for _ in range(self.n_cores) ]
+        for itg in self.integrand:
+            itg.set_digits( digits_f64, digits_f128 )
         set_kin(mZ,eCM)
         set_r(resolution_coll, resolution_soft)
         set_sig(h_sigma)
@@ -100,17 +105,22 @@ class LU_DY(object):
     @staticmethod
     def cuts(evt, selector_variables):
         """ Implements cuts."""
+
+        if evt.x1 > selector_variables['max_x1']:
+            return False
         
+        if evt.x2 > selector_variables['max_x2']:
+            return False
+
         if len(evt.final_state_jets)==0:
             if selector_variables['min_pt']>0.:
                 return False
-            return True
         else:
             total_final_state_jet_pt = sum(j.p.pt() for j in evt.final_state_jets)
-            if selector_variables['min_pt'] < total_final_state_jet_pt < selector_variables['max_pt']:
-                return True
-            else:
+            if not (selector_variables['min_pt'] < total_final_state_jet_pt < selector_variables['max_pt']):
                 return False
+        
+        return True
 
     # Helper function for paralellisation
     @staticmethod
@@ -127,12 +137,11 @@ class LU_DY(object):
             ap=10.*math.tan(math.pi*(x[9]-1/2.))
             a_jac = 10.*math.pi/pow(math.sin(math.pi*x[9]),2)
             integrand.set_a(ap)
-
             all_res = integrand.safe_eval(x)
-            # The mockup function below is useful for validation
-            #all_res = [ MockUpRes( sum(xi**2 for xi in x) ), ]
             for r in all_res:
-                r.jac *= a_jac
+               r.jac *= a_jac
+            # The mockup function below is useful for validation
+            # all_res = [ MockUpRes( sum(xi**2 for xi in x) ), ]
 
             if timings is not None:
                 timings.increment('c++',time.time()-start) 
@@ -149,10 +158,10 @@ class LU_DY(object):
                 ) for r in all_res if abs(r.res*r.jac*(1. if integrator_wgt is None else integrator_wgt))!=0.0
             ], h_cube=(h_cube if separate_h_cube_errors else 1) )
             
+            evt_group.compute_derived_quantities()
+
             # Filter events to apply selector
             evt_group = obs.EventGroup([ e for e in evt_group if LU_DY.cuts(e, selector_variables)])
-            
-            evt_group.compute_derived_quantities()
 
             final_weight = 0.
             for evt in evt_group:
@@ -440,6 +449,10 @@ if __name__ == '__main__':
                         help='Minimum pt imposed to the sum of final state jets (default: %(default)s).')
     parser.add_argument('--max_pt', '-max_pt', dest='max_pt', type=float, default=2000.,
                         help='Maximum pt imposed to the sum of final state jets (default: %(default)s).')
+    parser.add_argument('--max_x1', '-max_x1', dest='max_x1', type=float, default=1.,
+                        help='Maximum value of Bjorken x1 (default: %(default)s).')
+    parser.add_argument('--max_x2', '-max_x2', dest='max_x2', type=float, default=1.,
+                        help='Maximum value of Bjorken x2 (default: %(default)s).')
     parser.add_argument('--resolution_soft', '-rs', dest='resolution_soft', type=float, default=0.,
                         help='Default soft resolution parameter (default: %(default)s).')
     parser.add_argument('--resolution_coll', '-rc', dest='resolution_coll', type=float, default=0.,
@@ -480,7 +493,9 @@ if __name__ == '__main__':
         resolution_soft = args.resolution_soft,
         separate_h_cube_errors = args.separate_h_cube_errors,
         min_pt = args.min_pt,
-        max_pt = args.max_pt
+        max_pt = args.max_pt,
+        max_x1 = args.max_x1,
+        max_x2 = args.max_x2,
     )
 
     lu_dy.integrate(
