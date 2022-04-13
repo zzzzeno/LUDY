@@ -129,7 +129,7 @@ class LU_DY(object):
         x, integrator_wgt, h_cube = call_args
         try:            
             if i_job is not None:
-                return i_job, (observables if apply_observables else None), [ LU_DY.evaluate_sample((None, integrand, observables, timings, separate_h_cube_errors, apply_observables, selector_variables, (a_x,a_wgt,a_h_cube) )) for a_x, a_wgt, a_h_cube in zip(x, integrator_wgt, h_cube) ]
+                return i_job, timings, (observables if apply_observables else None), [ LU_DY.evaluate_sample((None, integrand, observables, timings, separate_h_cube_errors, apply_observables, selector_variables, (a_x,a_wgt,a_h_cube) )) for a_x, a_wgt, a_h_cube in zip(x, integrator_wgt, h_cube) ]
 
             start = time.time()
             
@@ -200,10 +200,11 @@ class LU_DY(object):
             # It's more efficient to apply the observables in parallel since they are now no longer acting on shared memory so there is no locking anymore.
             apply_observable_in_parallel = True
             jobs_it = self.pool.imap(LU_DY.evaluate_sample, 
-                    list( (i_job, self.integrand[i_job], self.worker_observables[i_job], self.timings, self.separate_h_cube_errors, apply_observable_in_parallel, self.selector_variables, job_args) for i_job, job_args in enumerate(zip(x_chunks, wgts_chunks, h_cubes)) ))
+                    list( (i_job, self.integrand[i_job], self.worker_observables[i_job], obs.Timings(), self.separate_h_cube_errors, apply_observable_in_parallel, self.selector_variables, job_args) for i_job, job_args in enumerate(zip(x_chunks, wgts_chunks, h_cubes)) ))
 
             all_res = {}
-            for i_job, observables, res in jobs_it:
+            for i_job, timings, observables, res in jobs_it:
+                self.timings.aggregate_timings(timings)
                 all_res[i_job] = [r[0] for r in res]
                 if observables is not None:
                     self.worker_observables[i_job] = observables
@@ -262,25 +263,21 @@ class LU_DY(object):
             self.worker_observables = [None for _ in range(self.n_cores)]
             integration_start = time.time()
             logger.info("Training VEGAS grid with %d iterations of %d points..."%(n_iterations_training, n_evals_training))
-            with obs.LUDYManager() as manager:
-                with multiprocessing.Pool(processes=self.n_cores) as self.pool:
-                    this_manager = (manager if self.n_cores>1 else None)
-                    if this_manager is None:
-                        self.timings = obs.Timings()
-                    else:
-                        self.timings = manager.Timings()
-                    training_res = integrator(self.evaluate_samples, nitn=n_iterations_training, neval=n_evals_training, adapt=True)
-                    dict_timings = self.timings.to_dict()
-                    tot_CPU = dict_timings['c++']+dict_timings['observables']
-                    wall_time = time.time()-integration_start
-                    logger.info("Result after training:\n%s"%str(training_res.summary()))
-                    logger.info("Integration wall time %.0f s. tot CPU time %.0f (x%.1f) (C++ : %.3g%%, Python observables: %.3g%% )"%(
-                        wall_time,
-                        tot_CPU,
-                        tot_CPU/wall_time,
-                        (dict_timings['c++']/tot_CPU)*100.,
-                        (dict_timings['observables']/tot_CPU)*100.,
-                    ))
+            with multiprocessing.Pool(processes=self.n_cores) as self.pool:
+                
+                self.timings = obs.Timings()
+                training_res = integrator(self.evaluate_samples, nitn=n_iterations_training, neval=n_evals_training, adapt=True)
+                dict_timings = self.timings.to_dict()
+                tot_CPU = dict_timings['c++']+dict_timings['observables']
+                wall_time = time.time()-integration_start
+                logger.info("Result after training:\n%s"%str(training_res.summary()))
+                logger.info("Integration wall time %.0f s. tot CPU time %.0f (x%.1f) (C++ : %.3g%%, Python observables: %.3g%% )"%(
+                    wall_time,
+                    tot_CPU,
+                    tot_CPU/wall_time,
+                    (dict_timings['c++']/tot_CPU)*100.,
+                    (dict_timings['observables']/tot_CPU)*100.,
+                ))
             if vegas_grid is not None and vegas_grid.upper()!='NONE':
                 logger.info("Saving trained VEGAS grid to '%s'."%vegas_grid)
                 pickle.dump(integrator.map,open(vegas_grid,'wb'))
@@ -288,146 +285,140 @@ class LU_DY(object):
         if n_evals_production>0 and n_iterations_production>0:
 
             # Now build observables
-            with obs.LUDYManager() as manager:
-                with multiprocessing.Pool(processes=self.n_cores) as self.pool:
+            with multiprocessing.Pool(processes=self.n_cores) as self.pool:
 
-                    integration_start = time.time()
+                integration_start = time.time()
 
-                    this_manager = (manager if self.n_cores>1 else None)
+                self.timings = obs.Timings()
 
-                    if this_manager is None:
-                        self.timings = obs.Timings()
-                    else:
-                        self.timings = manager.Timings()
+                # Enable observables
+                self.observables = obs.ObservableList([ obs.CrossSection(), ])
+                if observables is not None:
+                    if 'ptj' in observables or 'ALL' in observables:
+                        self.observables.append( obs.ptj() )
+                        self.observables.append( obs.ptj(title='ptjZoom', min_value=0., max_value=20., n_bins=100,) )
+                    if 'log10ptj' in observables or 'ALL' in observables:
+                        self.observables.append( obs.log10ptj() )
+                    if 'x1' in observables or 'ALL' in observables:
+                        self.observables.append( obs.x1() )
+                    if 'x2' in observables or 'ALL' in observables:
+                        self.observables.append( obs.x2() )
+                    if ('x1_fixed_flavours' in observables or 'ALL' in observables) and not 'no_x1_fixed_flavours' in observables:
+                        self.observables.append( obs.x1FixedFlav(flavour=0, take_abs=True) )
+                        self.observables.append( obs.x1FixedFlav(flavour=1, take_abs=True) )
+                        self.observables.append( obs.x1FixedFlav(flavour=2, take_abs=True) )
+                    if ('x2_fixed_flavours' in observables or 'ALL' in observables) and not 'no_x2_fixed_flavours' in observables:
+                        self.observables.append( obs.x2FixedFlav(flavour=0, take_abs=True) )
+                        self.observables.append( obs.x2FixedFlav(flavour=1, take_abs=True) )
+                        self.observables.append( obs.x2FixedFlav(flavour=2, take_abs=True) )
 
-                    # Enable observables
-                    self.observables = obs.ObservableList([ obs.CrossSection(), ])
-                    if observables is not None:
-                        if 'ptj' in observables or 'ALL' in observables:
-                            self.observables.append( obs.ptj() )
-                            self.observables.append( obs.ptj(title='ptjZoom', min_value=0., max_value=20., n_bins=100,) )
-                        if 'log10ptj' in observables or 'ALL' in observables:
-                            self.observables.append( obs.log10ptj() )
-                        if 'x1' in observables or 'ALL' in observables:
-                            self.observables.append( obs.x1() )
-                        if 'x2' in observables or 'ALL' in observables:
-                            self.observables.append( obs.x2() )
-                        if ('x1_fixed_flavours' in observables or 'ALL' in observables) and not 'no_x1_fixed_flavours' in observables:
-                            self.observables.append( obs.x1FixedFlav(flavour=0, take_abs=True) )
-                            self.observables.append( obs.x1FixedFlav(flavour=1, take_abs=True) )
-                            self.observables.append( obs.x1FixedFlav(flavour=2, take_abs=True) )
-                        if ('x2_fixed_flavours' in observables or 'ALL' in observables) and not 'no_x2_fixed_flavours' in observables:
-                            self.observables.append( obs.x2FixedFlav(flavour=0, take_abs=True) )
-                            self.observables.append( obs.x2FixedFlav(flavour=1, take_abs=True) )
-                            self.observables.append( obs.x2FixedFlav(flavour=2, take_abs=True) )
+                self.worker_observables = [copy.deepcopy(self.observables) for _ in range(self.n_cores)]
 
-                    self.worker_observables = [copy.deepcopy(self.observables) for _ in range(self.n_cores)]
+                logger.info("Starting production run with %d sample points."%n_evals_production)
+                integrator.set(nitn=1, neval=n_evals_production, adapt=False)
+                n_production_iteration_performed = 0
 
-                    logger.info("Starting production run with %d sample points."%n_evals_production)
-                    integrator.set(nitn=1, neval=n_evals_production, adapt=False)
-                    n_production_iteration_performed = 0
+                interrupted = False
+                n_batch_per_iteration = None
+                for i_iteration in range(n_iterations_production):
+                    for w_o in self.worker_observables:
+                        w_o.reset()
+                    if i_iteration>0 and use_checkpoints:
+                        if self.verbosity>1: logger.info("Saving current results after iteration #%d to disk..."%i_iteration)
+                        start=time.time()
+                        #pickle.dump( (self.observables, self.worker_observables), open('./current_results.pkl','wb') )
+                        pickle.dump( self.observables, open('./current_results.pkl','wb') )
+                        if self.verbosity>1: logger.info("Done. [%.0fs]"%(time.time()-start))
 
-                    interrupted = False
-                    n_batch_per_iteration = None
-                    for i_iteration in range(n_iterations_production):
-                        for w_o in self.worker_observables:
-                            w_o.reset()
-                        if i_iteration>0 and use_checkpoints:
-                            if self.verbosity>1: logger.info("Saving current results after iteration #%d to disk..."%i_iteration)
+                    for i_batch, (xs, wgts, hcubes) in enumerate(integrator.random_batch(yield_hcube=True)):
+                        if i_batch == 0:
+                            n_batch_per_iteration = (n_evals_production//len(xs)+1)
+                        if self.verbosity>0: logger.info("Iteration #%d/%d : Submitting new batch #%d/%d (%.1f%%) of %d points over %d cores..."%(
+                            n_production_iteration_performed+1,n_iterations_production,i_batch+1,n_batch_per_iteration, 
+                            ((i_batch+1)/float(n_batch_per_iteration))*100., len(xs), self.n_cores))
+                        try:
+                            self.evaluate_samples(xs, wgts=wgts, h_cubes=hcubes)
+                        except KeyboardInterrupt as e:
+                            if not use_checkpoints:
+                                logger.warning("Integration aborted by user and checkpoints are disabled.")
+                                sys.exit(0)
+                            if n_production_iteration_performed==0.:
+                                logger.warning("Integration aborted by user and no iteration has completed yet.")
+                                sys.exit(0)
+
+                            interrupted = True
+                            logger.warning("Integration aborted by user. Will proceed with existing data up to iteration #%d."%i_iteration)
+                            if self.verbosity>1: logger.info("Loading current results from disk...")
                             start=time.time()
-                            #pickle.dump( (self.observables, self.worker_observables), open('./current_results.pkl','wb') )
-                            pickle.dump( self.observables, open('./current_results.pkl','wb') )
+                            #self.observables, self.worker_observables = pickle.load(open('./current_results.pkl','rb'))
+                            self.observables = pickle.load(open('./current_results.pkl','rb'))
                             if self.verbosity>1: logger.info("Done. [%.0fs]"%(time.time()-start))
-
-                        for i_batch, (xs, wgts, hcubes) in enumerate(integrator.random_batch(yield_hcube=True)):
-                            if i_batch == 0:
-                                n_batch_per_iteration = (n_evals_production//len(xs)+1)
-                            if self.verbosity>0: logger.info("Iteration #%d/%d : Submitting new batch #%d/%d (%.1f%%) of %d points over %d cores..."%(
-                                n_production_iteration_performed+1,n_iterations_production,i_batch+1,n_batch_per_iteration, 
-                                ((i_batch+1)/float(n_batch_per_iteration))*100., len(xs), self.n_cores))
-                            try:
-                                self.evaluate_samples(xs, wgts=wgts, h_cubes=hcubes)
-                            except KeyboardInterrupt as e:
-                                if not use_checkpoints:
-                                    logger.warning("Integration aborted by user and checkpoints are disabled.")
-                                    sys.exit(0)
-                                if n_production_iteration_performed==0.:
-                                    logger.warning("Integration aborted by user and no iteration has completed yet.")
-                                    sys.exit(0)
-
-                                interrupted = True
-                                logger.warning("Integration aborted by user. Will proceed with existing data up to iteration #%d."%i_iteration)
-                                if self.verbosity>1: logger.info("Loading current results from disk...")
-                                start=time.time()
-                                #self.observables, self.worker_observables = pickle.load(open('./current_results.pkl','rb'))
-                                self.observables = pickle.load(open('./current_results.pkl','rb'))
-                                if self.verbosity>1: logger.info("Done. [%.0fs]"%(time.time()-start))
-                                break
-                            if self.verbosity>1: logger.info("Iteration #%d : Batch evaluation completed."%(n_production_iteration_performed+1))
-                        if interrupted:
                             break
+                        if self.verbosity>1: logger.info("Iteration #%d : Batch evaluation completed."%(n_production_iteration_performed+1))
+                    if interrupted:
+                        break
+                    
+                    n_production_iteration_performed += 1
+                    if not parallelise_final_combination or self.n_cores==1:
+                        logger.info("Finalising iteration #%d/%d and combining %d histograms..."%(n_production_iteration_performed,n_iterations_production,len(self.observables)))
+                        self.observables.finalize_iteration(worker_observable=obs.ObservableList.merge(self.worker_observables))
+                    else:
+                        logger.info("Finalising iteration #%d/%d and combining %d histograms over %d cores..."%(n_production_iteration_performed,n_iterations_production,len(self.observables), self.n_cores))
+
+                        jobs_input_master_obs = [ obs.ObservableList([o,]) for o in self.observables ]
+                        jobs_input_worker_obs = [ [ obs.ObservableList([wobs[i_obs],]) for wobs in self.worker_observables ] for i_obs in range(len(self.observables)) ]
+                        jobs_input_master_obs_chunks =  list(chunks(jobs_input_master_obs,1+len(jobs_input_master_obs)//self.n_cores))
+                        jobs_input_worker_obs_chunks =  list(chunks(jobs_input_worker_obs,1+len(jobs_input_worker_obs)//self.n_cores))
+
+                        jobs_it = self.pool.imap(finalize_obs_helper, list( enumerate(zip(jobs_input_master_obs_chunks, jobs_input_worker_obs_chunks)) ) )
+                        all_res = {}
+                        for i_job, processes_observable in jobs_it:
+                            all_res[i_job] = processes_observable
+                            print("N jobs done: %d/%d"%(len(all_res),len(jobs_input_master_obs_chunks)), end='\r')
                         
-                        n_production_iteration_performed += 1
-                        if not parallelise_final_combination or self.n_cores==1:
-                            logger.info("Finalising iteration #%d/%d and combining %d histograms..."%(n_production_iteration_performed,n_iterations_production,len(self.observables)))
-                            self.observables.finalize_iteration(worker_observable=obs.ObservableList.merge(self.worker_observables))
-                        else:
-                            logger.info("Finalising iteration #%d/%d and combining %d histograms over %d cores..."%(n_production_iteration_performed,n_iterations_production,len(self.observables), self.n_cores))
+                        self.observables = obs.ObservableList([ ol[0] for ol in sum([all_res[i] for i in sorted(list(all_res.keys()))],[]) ])
 
-                            jobs_input_master_obs = [ obs.ObservableList([o,]) for o in self.observables ]
-                            jobs_input_worker_obs = [ [ obs.ObservableList([wobs[i_obs],]) for wobs in self.worker_observables ] for i_obs in range(len(self.observables)) ]
-                            jobs_input_master_obs_chunks =  list(chunks(jobs_input_master_obs,1+len(jobs_input_master_obs)//self.n_cores))
-                            jobs_input_worker_obs_chunks =  list(chunks(jobs_input_worker_obs,1+len(jobs_input_worker_obs)//self.n_cores))
-
-                            jobs_it = self.pool.imap(finalize_obs_helper, list( enumerate(zip(jobs_input_master_obs_chunks, jobs_input_worker_obs_chunks)) ) )
-                            all_res = {}
-                            for i_job, processes_observable in jobs_it:
-                                all_res[i_job] = processes_observable
-                                print("N jobs done: %d/%d"%(len(all_res),len(jobs_input_master_obs_chunks)), end='\r')
-                            
-                            self.observables = obs.ObservableList([ ol[0] for ol in sum([all_res[i] for i in sorted(list(all_res.keys()))],[]) ])
-
-                        if self.verbosity>0: logger.info("Iteration #%d completed."%n_production_iteration_performed)
-                        logger.info("Production results after iteration #%d/%d: %.5g +/- %.3g (n_events = %d, n_samples = %d)"%(
-                            n_production_iteration_performed,n_iterations_production,
-                            (1./n_production_iteration_performed)*self.observables[0].histogram.bins[1].integral,
-                            (1./n_production_iteration_performed)*(self.observables[0].histogram.bins[1].variance**0.5),
-                            self.observables[0].histogram.bins[1].n_entries,
-                            self.observables[0].histogram.n_total_samples
-                        ))
-
-                    # Clean up observables by removing very small weights for instance, Also apply the normalisation factor
-                    self.observables.clean_up(normalisation_factor=(1./n_production_iteration_performed))
-
-                    logger.info("Final production results: %.5g +/- %.3g (n_events = %d, n_samples = %d)"%(
-                        self.observables[0].histogram.bins[1].integral,
-                        self.observables[0].histogram.bins[1].variance**0.5,
+                    if self.verbosity>0: logger.info("Iteration #%d completed."%n_production_iteration_performed)
+                    logger.info("Production results after iteration #%d/%d: %.5g +/- %.3g (n_events = %d, n_samples = %d)"%(
+                        n_production_iteration_performed,n_iterations_production,
+                        (1./n_production_iteration_performed)*self.observables[0].histogram.bins[1].integral,
+                        (1./n_production_iteration_performed)*(self.observables[0].histogram.bins[1].variance**0.5),
                         self.observables[0].histogram.bins[1].n_entries,
                         self.observables[0].histogram.n_total_samples
                     ))
-                    # Consistency check (of course will correspond to the inclusive only if range sufficiently inclusive)
-                    # logger.info("Final production results from ptj plot: %.5g +/- %.3g (n_events = %d, n_samples = %d)"%(
-                    #     self.observables[1].histogram.norm()[0],
-                    #     self.observables[1].histogram.norm()[1],
-                    #     self.observables[1].histogram.n_total_entries,
-                    #     self.observables[1].histogram.n_total_samples
-                    # ))
-                    dict_timings = self.timings.to_dict()
-                    tot_CPU = dict_timings['c++']+dict_timings['observables']
-                    wall_time = time.time()-integration_start
-                    logger.info("Integration wall time %.0f s. tot CPU time %.0f (x%.1f) (C++ : %.3g%%, Python observables: %.3g%% )"%(
-                        wall_time,
-                        tot_CPU,
-                        tot_CPU/wall_time,
-                        (dict_timings['c++']/tot_CPU)*100.,
-                        (dict_timings['observables']/tot_CPU)*100.,
-                    ))
 
-                    with open(hwu_path,'w') as f:
-                        f.write(self.observables.format_to_HwU())
-                    logger.info("A total of %d histograms are output to file '%s'. They can be rendered using the madgraph/various/histograms.py script."%(
-                        len(self.observables),hwu_path)
-                    )
+                # Clean up observables by removing very small weights for instance, Also apply the normalisation factor
+                self.observables.clean_up(normalisation_factor=(1./n_production_iteration_performed))
+
+                logger.info("Final production results: %.5g +/- %.3g (n_events = %d, n_samples = %d)"%(
+                    self.observables[0].histogram.bins[1].integral,
+                    self.observables[0].histogram.bins[1].variance**0.5,
+                    self.observables[0].histogram.bins[1].n_entries,
+                    self.observables[0].histogram.n_total_samples
+                ))
+                # Consistency check (of course will correspond to the inclusive only if range sufficiently inclusive)
+                # logger.info("Final production results from ptj plot: %.5g +/- %.3g (n_events = %d, n_samples = %d)"%(
+                #     self.observables[1].histogram.norm()[0],
+                #     self.observables[1].histogram.norm()[1],
+                #     self.observables[1].histogram.n_total_entries,
+                #     self.observables[1].histogram.n_total_samples
+                # ))
+                dict_timings = self.timings.to_dict()
+                tot_CPU = dict_timings['c++']+dict_timings['observables']
+                wall_time = time.time()-integration_start
+                logger.info("Integration wall time %.0f s. tot CPU time %.0f (x%.1f) (C++ : %.3g%%, Python observables: %.3g%% )"%(
+                    wall_time,
+                    tot_CPU,
+                    tot_CPU/wall_time,
+                    (dict_timings['c++']/tot_CPU)*100.,
+                    (dict_timings['observables']/tot_CPU)*100.,
+                ))
+
+                with open(hwu_path,'w') as f:
+                    f.write(self.observables.format_to_HwU())
+                logger.info("A total of %d histograms are output to file '%s'. They can be rendered using the madgraph/various/histograms.py script."%(
+                    len(self.observables),hwu_path)
+                )
 
 if __name__ == '__main__':
 

@@ -1,6 +1,3 @@
-from multiprocessing.managers import BaseManager
-from multiprocessing import Value
-
 import ctypes
 import vectors as vec
 import logging
@@ -23,6 +20,10 @@ class Timings(object):
         self.cpp = cpp
         self.observables = observables
     
+    def aggregate_timings(self, other):
+        self.cpp += other.cpp
+        self.observables += other.observables
+
     def increment(self, quantity, value):
         if quantity=='c++':
             self.cpp += value
@@ -121,13 +122,6 @@ class HistogramCollection(dict):
 
     def add_histogram(self, key, histo):
         self[key]= histo
-
-class LUDYManager(BaseManager):
-    pass
-
-LUDYManager.register('Timings', Timings)
-LUDYManager.register('dict', dict)
-LUDYManager.register('list', list)
 
 class Jet(object):
 
