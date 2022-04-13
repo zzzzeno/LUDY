@@ -39,6 +39,17 @@ def chunks(lst, n):
     for i in range(0, len(lst), n):
         yield lst[i:i + n]
 
+# Helper function for parallelising the final combination of observables
+def finalize_obs_helper(args):
+    job_id, job_args = args
+    master_obs, worker_obs = job_args
+    res = []
+    for m_o, w_o in zip(master_obs, worker_obs):
+        m_o.finalize_iteration(worker_observable=obs.ObservableList.merge(w_o))
+        res.append(m_o)
+
+    return (job_id, res)
+
 class LU_DY(object):
 
     def __init__(self, *args, 
@@ -253,8 +264,26 @@ class LU_DY(object):
 
                     #print("BEFORE AGGREGATION: %d"%self.observables[0].histogram.bins[1].n_entries)
                     #print(['%d'%(sum(h.bins[1].n_entries for h in o[0].histos_current_iteration.values() ) ) for o in self.worker_observables])
-                    logger.info("Finalising iteration and combining %d histograms..."%len(self.observables))
-                    self.observables.finalize_iteration(worker_observable=obs.ObservableList.merge(self.worker_observables))
+                    parallelise_final_combination = True
+                    if not parallelise_final_combination or self.n_cores==1:
+                        logger.info("Finalising iteration and combining %d histograms..."%len(self.observables))
+                        self.observables.finalize_iteration(worker_observable=obs.ObservableList.merge(self.worker_observables))
+                    else:
+                        logger.info("Finalising iteration and combining %d histograms over %d cores..."%(len(self.observables), self.n_cores))
+
+                        jobs_input_master_obs = [ obs.ObservableList([o,]) for o in self.observables ]
+                        jobs_input_worker_obs = [ [ obs.ObservableList([wobs[i_obs],]) for wobs in self.worker_observables ] for i_obs in range(len(self.observables)) ]
+                        jobs_input_master_obs_chunks =  list(chunks(jobs_input_master_obs,1+len(jobs_input_master_obs)//self.n_cores))
+                        jobs_input_worker_obs_chunks =  list(chunks(jobs_input_worker_obs,1+len(jobs_input_worker_obs)//self.n_cores))
+
+                        jobs_it = self.pool.imap(finalize_obs_helper, list( enumerate(zip(jobs_input_master_obs_chunks, jobs_input_worker_obs_chunks)) ) )
+                        all_res = {}
+                        for i_job, processes_observable in jobs_it:
+                            all_res[i_job] = processes_observable
+                            print("N jobs done: %d/%d"%(len(all_res),len(jobs_input_master_obs_chunks)), end='\r')
+                        
+                        self.observables = obs.ObservableList([ ol[0] for ol in sum([all_res[i] for i in sorted(list(all_res.keys()))],[]) ])
+
                     logger.info("Production results: %.5g +/- %.3g (n_events = %d, n_samples = %d)"%(
                         self.observables[0].histogram.bins[1].integral,
                         self.observables[0].histogram.bins[1].variance**0.5,

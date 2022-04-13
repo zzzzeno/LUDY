@@ -250,6 +250,7 @@ class ObservableList(list):
                         res[i_obs].histos_current_iteration[k] = copy.deepcopy(h)
                     else:
                         res[i_obs].histos_current_iteration[k].n_total_samples += h.n_total_samples
+                        res[i_obs].histos_current_iteration[k].n_total_entries += h.n_total_entries
                         for i_b, b in enumerate(res[i_obs].histos_current_iteration[k].bins):
                             b.n_entries += h.bins[i_b].n_entries
                             b.integral += h.bins[i_b].integral
