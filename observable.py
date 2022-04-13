@@ -47,6 +47,9 @@ class Histogram(object):
         self.bin_width = (self.max-self.min)/self.n_bins        
         self.bins = [Bin() for _ in range(self.n_bins)]
 
+    def norm(self):
+        return sum(b.integral for b in self.bins), sum(b.variance for b in self.bins)**0.5
+
     def get_bins(self):
         return self.bins
 

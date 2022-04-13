@@ -267,6 +267,7 @@ class LU_DY(object):
                     if observables is not None:
                         if 'ptj' in observables or 'ALL' in observables:
                             self.observables.append( obs.ptj() )
+                            self.observables.append( obs.ptj(title='ptjZoom', min_value=0., max_value=10., n_bins=100,) )
                         if 'log10ptj' in observables or 'ALL' in observables:
                             self.observables.append( obs.log10ptj() )
                         if 'x1' in observables or 'ALL' in observables:
@@ -366,6 +367,13 @@ class LU_DY(object):
                         self.observables[0].histogram.bins[1].n_entries,
                         self.observables[0].histogram.n_total_samples
                     ))
+                    # Consistency check (of course will correspond to the inclusive only if range sufficiently inclusive)
+                    # logger.info("Final production results from ptj plot: %.5g +/- %.3g (n_events = %d, n_samples = %d)"%(
+                    #     self.observables[1].histogram.norm()[0],
+                    #     self.observables[1].histogram.norm()[1],
+                    #     self.observables[1].histogram.n_total_entries,
+                    #     self.observables[1].histogram.n_total_samples
+                    # ))
                     dict_timings = self.timings.to_dict()
                     tot_CPU = dict_timings['c++']+dict_timings['observables']
                     wall_time = time.time()-integration_start
