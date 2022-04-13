@@ -177,6 +177,7 @@ if __name__ == "__main__":
 
     integ = vegas.Integrator([[0.000,1], [0,1], [0,1], [0.000,1], [0,1], [0,1], [0.000,1], [0,1], [0,1],[0,1]]) #, [r3_min, r3_max], [th3_min, th3_max], [ph3_min, ph3_max]])
 
+    #integ(f, nitn=n_iterations_learning, neval=n_points_iteration_learning, analyzer=vegas.reporter())
     integ(f, nitn=n_iterations_learning, neval=n_points_iteration_learning)
     result = integ(f, nitn=n_iterations, neval=n_points_iteration)
     if integ.mpi_rank == 0:

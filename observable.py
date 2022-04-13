@@ -55,12 +55,17 @@ class Histogram(object):
             return None
         return int((x-self.min)//self.bin_width)
 
-    def clean_up(self, *args, threshold=1.e-50, **opts):
+    def clean_up(self, *args, normalisation_factor=1., threshold=1.e-15, **opts):
         abs_inclusive = sum(abs(b.integral) for b in self.bins)
+        if abs_inclusive == 0.:
+            return
         for b in self.bins:
             if abs(b.integral/abs_inclusive)<threshold:
                 b.integral = 0.
                 b.variance = 0.
+            
+            b.integral *= normalisation_factor
+            b.variance *= normalisation_factor**2
 
     def add_weights(self, xs_and_wgts):
 
@@ -143,18 +148,32 @@ class Event(object):
         self.final_state_jets = final_state_jets
         self.weight = weight
         self.E_com = E_com
+        self.derived_quantities_computed = False
     
     def __str__(self):
         res = ["Event with %d initial-state jets and %d on final-state jet for a collision at E_com=%.4e."%(len(self.initial_state_jets),len(self.final_state_jets),self.E_com)]
         res.append("Initial state jets : %s"%(' | '.join(str(j) for j in self.initial_state_jets)))
         res.append("Final state jets   : %s"%(' | '.join(str(j) for j in self.final_state_jets)))
         res.append("Weight             : %.16e"%self.weight)
+        if self.derived_quantities_computed:
+            res.append(self.str_derived_quantities())
+        return '\n'.join(res)
+
+    def str_derived_quantities(self):
+        res = ['Derived quantities :']
+        res.append('  > x1             : %.16e'%self.x1)
+        res.append('  > x2             : %.16e'%self.x2)
         return '\n'.join(res)
 
     def compute_derived_quantities(self):
         """ Compute derived quantities once here that may appear in multiple plots, for instance x_1 / x_2."""
-        #TODO
-        pass
+        self.derived_quantities_computed = True
+        # Store x1 and x2 for later use
+        sum_isr_jets_p = sum(j.p for j in self.initial_state_jets)
+        x1px2 = 2*(sum_isr_jets_p[0])/self.E_com
+        x1mx2 = 2*(sum_isr_jets_p[3])/self.E_com
+        self.x1=(x1px2+x1mx2)/2
+        self.x2=(x1px2-x1mx2)/2
 
 # Keep events from a single sample point grouped so as to properly account for correlations
 class EventGroup(list):
@@ -182,6 +201,10 @@ class Observable(object):
         self.histos_current_iteration = {}
         
         super(Observable, self).__init__()
+
+    def reset(self,*args,**opts):
+        self.histogram = Histogram(*self.histogram_args, **self.histogram_opts)
+        self.histos_current_iteration = {}
 
     def accumulate_event_group(self, event_group):
         if self.histos_current_iteration is None:
@@ -225,6 +248,10 @@ class ObservableList(list):
     def accumulate_event_group(self, *args, **opts):
         for o in self:
             o.accumulate_event_group(*args, **opts)
+
+    def reset(self, *args, **opts):
+        for o in self:
+            o.reset(*args, **opts)
 
     def finalize_iteration(self, *args, worker_observable=None, **opts):
         if worker_observable is None:
@@ -292,9 +319,40 @@ class log10ptj(Observable):
 
 class x1(Observable):
 
-    def __init__(self, title='x1', min_value=0., max_value=1., n_bins=100, histogram_type='NLO', x_axis='lin', y_axis='log', **opts):
+    def __init__(self, title='x1', min_value=0., max_value=2., n_bins=100, histogram_type='NLO', x_axis='lin', y_axis='lin', **opts):
         super(x1, self).__init__(title, min_value, max_value, n_bins, histogram_type=histogram_type, x_axis=x_axis, y_axis=y_axis, **opts)
 
     def __call__(self, event):
-        # TODO
-        return [(1.5,event.weight),]
+        return [(event.x1, event.weight),]
+
+class x2(Observable):
+
+    def __init__(self, title='x2', min_value=0., max_value=2., n_bins=100, histogram_type='NLO', x_axis='lin', y_axis='lin', **opts):
+        super(x2, self).__init__(title, min_value, max_value, n_bins, histogram_type=histogram_type, x_axis=x_axis, y_axis=y_axis, **opts)
+
+    def __call__(self, event):
+        return [(event.x2, event.weight),]
+
+class x1FixedFlav(Observable):
+
+    def __init__(self, flavour=0, take_abs=True, min_value=0., max_value=2., n_bins=100, histogram_type='NLO', x_axis='lin', y_axis='lin', **opts):
+        title = 'x1%sFlavour%s'%('Abs' if take_abs else '','m%d'%abs(flavour) if flavour<0 else '0' if flavour==0 else 'p%d'%flavour)
+        self.take_abs = take_abs
+        self.flavour = flavour
+        super(x1FixedFlav, self).__init__(title, min_value, max_value, n_bins, histogram_type=histogram_type, x_axis=x_axis, y_axis=y_axis, **opts)
+
+    def __call__(self, event):
+        #TODO check if event.initial_state_jets[0].flavour really always correspond to event.x1 indeed!
+        return [(event.x1, event.weight),] if (abs(event.initial_state_jets[0].flavour) if self.take_abs else event.initial_state_jets[0].flavour)==self.flavour else []
+
+class x2FixedFlav(Observable):
+
+    def __init__(self, flavour=0, take_abs=True, min_value=0., max_value=2., n_bins=100, histogram_type='NLO', x_axis='lin', y_axis='lin', **opts):
+        title = 'x2%sFlavour%s'%('Abs' if take_abs else '','m%d'%abs(flavour) if flavour<0 else '0' if flavour==0 else 'p%d'%flavour)
+        self.take_abs = take_abs
+        self.flavour = flavour
+        super(x2FixedFlav, self).__init__(title, min_value, max_value, n_bins, histogram_type=histogram_type, x_axis=x_axis, y_axis=y_axis, **opts)
+
+    def __call__(self, event):
+        #TODO check if event.initial_state_jets[1].flavour really always correspond to event.x2 indeed!
+        return [(event.x2, event.weight),] if (abs(event.initial_state_jets[1].flavour) if self.take_abs else event.initial_state_jets[0].flavour)==self.flavour else []
