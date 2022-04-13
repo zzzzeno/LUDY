@@ -55,7 +55,7 @@ class LU_DY(object):
     def __init__(self, *args, 
                     mZ=91.188, eCM=13000., resolution_coll=0., resolution_soft=0., h_sigma=2, 
                     initial_state_a=0., min_pt=10., max_pt=2000., n_bins=1, basis=None, tag="tqq", mode='min_pt', phase='real',
-                    verbosity = 0, n_cores=None
+                    verbosity = 0, n_cores=None, separate_h_cube_errors=True
                 ):
 
         if basis is None:
@@ -68,7 +68,8 @@ class LU_DY(object):
             self.n_cores = n_cores
 
         self.verbosity = verbosity
-
+        self.separate_h_cube_errors = separate_h_cube_errors
+        
         self.integrand = NLO_integrands(
             mZ, eCM, resolution_coll, resolution_soft, h_sigma, 
             initial_state_a, min_pt, max_pt, n_bins, basis, 
@@ -84,55 +85,57 @@ class LU_DY(object):
     # Helper function for paralellisation
     @staticmethod
     def evaluate_sample(args):
-
-        i_job, integrand, observables, timings, apply_observables, call_args = args
+        i_job, integrand, observables, timings, separate_h_cube_errors, apply_observables, call_args = args
         x, integrator_wgt, h_cube = call_args
-        
-        if i_job is not None:
-            return i_job, (observables if apply_observables else None), [ LU_DY.evaluate_sample((None, integrand, observables, timings, apply_observables, (a_x,a_wgt,a_h_cube) )) for a_x, a_wgt, a_h_cube in zip(x, integrator_wgt, h_cube) ]
+        try:            
+            if i_job is not None:
+                return i_job, (observables if apply_observables else None), [ LU_DY.evaluate_sample((None, integrand, observables, timings, separate_h_cube_errors, apply_observables, (a_x,a_wgt,a_h_cube) )) for a_x, a_wgt, a_h_cube in zip(x, integrator_wgt, h_cube) ]
 
-        start = time.time()
-        
-        all_res = integrand.safe_eval(x)
-
-        # The mockup function below is useful for validation
-        #all_res = [ MockUpRes( sum(xi**2 for xi in x) ), ]
-
-        if timings is not None:
-            timings.increment('c++',time.time()-start) 
-
-        final_weight = 0.
-        for r in all_res:
-            final_weight += r.res*r.jac*(1. if integrator_wgt is None else integrator_wgt)
-
-        evt_group = None
-        if observables is not None:
             start = time.time()
-            evt_group = obs.EventGroup([
-                obs.Event(
-                        initial_state_jets = obs.JetList( [ obs.Jet(r.j1, flavour=int(r.spin1)), obs.Jet(r.j2, flavour=int(r.spin2)) ] ), 
-                        final_state_jets = obs.JetList( [ obs.Jet(r.pg, flavour=21 ), ] ),
-                        weight = r.res*r.jac*(1. if integrator_wgt is None else integrator_wgt),
-                        E_com = integrand.eCM
-                ) for r in all_res if abs(r.res*r.jac*(1. if integrator_wgt is None else integrator_wgt))!=0.0
-            ], h_cube=h_cube)
-            evt_group.compute_derived_quantities()
-            if apply_observables:
-                observables.accumulate_event_group(evt_group)
-                evt_group = None
-            if timings is not None:
-                timings.increment('observables', time.time()-start)
+            
+            all_res = integrand.safe_eval(x)
 
-        return (final_weight, evt_group)
+            # The mockup function below is useful for validation
+            #all_res = [ MockUpRes( sum(xi**2 for xi in x) ), ]
+
+            if timings is not None:
+                timings.increment('c++',time.time()-start) 
+
+            final_weight = 0.
+            for r in all_res:
+                final_weight += r.res*r.jac*(1. if integrator_wgt is None else integrator_wgt)
+
+            evt_group = None
+            if observables is not None:
+                start = time.time()
+                evt_group = obs.EventGroup([
+                    obs.Event(
+                            initial_state_jets = obs.JetList( [ obs.Jet(r.j1, flavour=int(r.spin1)), obs.Jet(r.j2, flavour=int(r.spin2)) ] ), 
+                            final_state_jets = obs.JetList( [ obs.Jet(r.pg, flavour=21 ), ] ),
+                            weight = r.res*r.jac*(1. if integrator_wgt is None else integrator_wgt),
+                            E_com = integrand.eCM
+                    ) for r in all_res if abs(r.res*r.jac*(1. if integrator_wgt is None else integrator_wgt))!=0.0
+                ], h_cube=(h_cube if separate_h_cube_errors else 1) )
+                evt_group.compute_derived_quantities()
+                if apply_observables:
+                    observables.accumulate_event_group(evt_group)
+                    evt_group = None
+                if timings is not None:
+                    timings.increment('observables', time.time()-start)
+
+            return (final_weight, evt_group)
+        except KeyboardInterrupt as e:
+            logger.warning("Worker #%d interrupted by user."%i_job)
+            pass
 
     @vegas.batchintegrand
     def evaluate_samples(self, xs, wgts=None, h_cubes=None):    
         
         if self.n_cores == 1:
             if wgts is None:
-                return [ LU_DY.evaluate_sample((None, self.integrand, self.worker_observables[0], self.timings, True, (x,None,None) ))[0] for x in xs ]
+                return [ LU_DY.evaluate_sample((None, self.integrand, self.worker_observables[0], self.timings, self.separate_h_cube_errors, True, (x,None,None) ))[0] for x in xs ]
             else:
-                return [ LU_DY.evaluate_sample((None, self.integrand, self.worker_observables[0], self.timings, True, (x,wgt,h_cube) ))[0] for x, wgt, h_cube in zip(xs, wgts, h_cubes) ]
+                return [ LU_DY.evaluate_sample((None, self.integrand, self.worker_observables[0], self.timings, self.separate_h_cube_errors, True, (x,wgt,h_cube) ))[0] for x, wgt, h_cube in zip(xs, wgts, h_cubes) ]
         else:
              
             x_chunks = list(chunks(xs,1+len(xs)//self.n_cores))
@@ -145,7 +148,7 @@ class LU_DY(object):
             # It's more efficient to apply the observables in parallel since they are now no longer acting on shared memory so there is no locking anymore.
             apply_observable_in_parallel = True
             jobs_it = self.pool.imap(LU_DY.evaluate_sample, 
-                    list( (i_job, self.integrand, self.worker_observables[i_job], self.timings, apply_observable_in_parallel, job_args) for i_job, job_args in enumerate(zip(x_chunks, wgts_chunks, h_cubes)) ))
+                    list( (i_job, self.integrand, self.worker_observables[i_job], self.timings, self.separate_h_cube_errors, apply_observable_in_parallel, job_args) for i_job, job_args in enumerate(zip(x_chunks, wgts_chunks, h_cubes)) ))
 
             all_res = {}
             for i_job, observables, res in jobs_it:
@@ -161,14 +164,15 @@ class LU_DY(object):
                     start = time.time()
                     for r in res:
                         self.worker_observables[i_job].accumulate_event_group(r[1])
-                    timings.increment('observables', time.time()-start)
+                    if self.timings is not None: 
+                        self.timings.increment('observables', time.time()-start)
                     print("N jobs done: %d/%d, events processed."%(len(all_res),len(x_chunks)), end='\r')
             
             return sum([all_res[k] for k in sorted(list(all_res.keys()))],[])
 
     def integrate(self, n_iterations=10, n_evals_training=10000, n_evals_production=10000, vegas_grid='./vegas_grid.pkl', 
             alpha=0.5, beta=0.75, nhcube_batch=1000, seed=None, target_relative_error=0., target_absolute_error=0., 
-            observables=None, hwu_path=None, **opts
+            observables=None, hwu_path=None, use_checkpoints=True, **opts
         ):
         
         if seed:
@@ -257,18 +261,43 @@ class LU_DY(object):
                     logger.info("Starting production run with %d sample points."%n_evals_production)
 
                     integrator.set(nitn=1, neval=n_evals_production, adapt=False)
+                    first_completed = False
                     for xs, wgts, hcubes in integrator.random_batch(yield_hcube=True):
+                        if self.verbosity>0: logger.info("Starting new batch iteration...")
+                        if first_completed and use_checkpoints:
+                            if self.verbosity>0: logger.info("Saving current results to disk...")
+                            start=time.time()
+                            pickle.dump( (self.observables, self.worker_observables), open('./current_results.pkl','wb') )
+                            if self.verbosity>0: logger.info("Done. [%.0fs]"%(time.time()-start))
                         if self.verbosity>0:
                             logger.info("Submitting new batch of %d points..."%len(xs))
-                        self.evaluate_samples(xs, wgts=wgts, h_cubes=hcubes)
+                        try: 
+                            self.evaluate_samples(xs, wgts=wgts, h_cubes=hcubes)
+                        except KeyboardInterrupt as e:
+                            if not use_checkpoints:
+                                logger.warning("Integration aborted by user and checkpoints are disabled.")
+                                sys.exit(0)
+                            if not first_completed:
+                                logger.warning("Integration aborted by user and no batch completed yet.")
+                                sys.exit(0)
 
-                    #print("BEFORE AGGREGATION: %d"%self.observables[0].histogram.bins[1].n_entries)
-                    #print(['%d'%(sum(h.bins[1].n_entries for h in o[0].histos_current_iteration.values() ) ) for o in self.worker_observables])
-                    parallelise_final_combination = True
-                    if not parallelise_final_combination or self.n_cores==1:
-                        logger.info("Finalising iteration and combining %d histograms..."%len(self.observables))
-                        self.observables.finalize_iteration(worker_observable=obs.ObservableList.merge(self.worker_observables))
-                    else:
+                            logger.warning("Integration aborted by user. Will proceed with existing data.")
+                            if self.verbosity>0: logger.info("Loading current results from disk...")
+                            start=time.time()
+                            self.observables, self.worker_observables = pickle.load(open('./current_results.pkl','rb'))
+                            if self.verbosity>0: logger.info("Done. [%.0fs]"%(time.time()-start))
+                            break
+                        if self.verbosity>0: logger.info("Batch iteration completed.")
+                        first_completed = True
+
+                #print("BEFORE AGGREGATION: %d"%self.observables[0].histogram.bins[1].n_entries)
+                #print(['%d'%(sum(h.bins[1].n_entries for h in o[0].histos_current_iteration.values() ) ) for o in self.worker_observables])
+                parallelise_final_combination = True
+                if not parallelise_final_combination or self.n_cores==1:
+                    logger.info("Finalising iteration and combining %d histograms..."%len(self.observables))
+                    self.observables.finalize_iteration(worker_observable=obs.ObservableList.merge(self.worker_observables))
+                else:
+                    with multiprocessing.Pool(processes=self.n_cores) as self.pool:
                         logger.info("Finalising iteration and combining %d histograms over %d cores..."%(len(self.observables), self.n_cores))
 
                         jobs_input_master_obs = [ obs.ObservableList([o,]) for o in self.observables ]
@@ -284,29 +313,29 @@ class LU_DY(object):
                         
                         self.observables = obs.ObservableList([ ol[0] for ol in sum([all_res[i] for i in sorted(list(all_res.keys()))],[]) ])
 
-                    logger.info("Production results: %.5g +/- %.3g (n_events = %d, n_samples = %d)"%(
-                        self.observables[0].histogram.bins[1].integral,
-                        self.observables[0].histogram.bins[1].variance**0.5,
-                        self.observables[0].histogram.bins[1].n_entries,
-                        self.observables[0].histogram.n_total_samples
-                    ))
-                    dict_timings = self.timings.to_dict()
-                    tot_CPU = dict_timings['c++']+dict_timings['observables']
-                    wall_time = time.time()-integration_start
-                    logger.info("Integration wall time %.0f s. tot CPU time %.0f (x%.1f) (C++ : %.3g%%, Python observables: %.3g%% )"%(
-                        wall_time,
-                        tot_CPU,
-                        tot_CPU/wall_time,
-                        (dict_timings['c++']/tot_CPU)*100.,
-                        (dict_timings['observables']/tot_CPU)*100.,
-                    ))
-                    # Clean up observables by removing very small weights for instance
-                    self.observables.clean_up()
-                    with open(hwu_path,'w') as f:
-                        f.write(self.observables.format_to_HwU())
-                    logger.info("A total of %d histograms are output to file '%s'. They can be rendered using the madgraph/various/histograms.py script."%(
-                        len(self.observables),hwu_path)
-                    )
+                logger.info("Production results: %.5g +/- %.3g (n_events = %d, n_samples = %d)"%(
+                    self.observables[0].histogram.bins[1].integral,
+                    self.observables[0].histogram.bins[1].variance**0.5,
+                    self.observables[0].histogram.bins[1].n_entries,
+                    self.observables[0].histogram.n_total_samples
+                ))
+                dict_timings = self.timings.to_dict()
+                tot_CPU = dict_timings['c++']+dict_timings['observables']
+                wall_time = time.time()-integration_start
+                logger.info("Integration wall time %.0f s. tot CPU time %.0f (x%.1f) (C++ : %.3g%%, Python observables: %.3g%% )"%(
+                    wall_time,
+                    tot_CPU,
+                    tot_CPU/wall_time,
+                    (dict_timings['c++']/tot_CPU)*100.,
+                    (dict_timings['observables']/tot_CPU)*100.,
+                ))
+                # Clean up observables by removing very small weights for instance
+                self.observables.clean_up()
+                with open(hwu_path,'w') as f:
+                    f.write(self.observables.format_to_HwU())
+                logger.info("A total of %d histograms are output to file '%s'. They can be rendered using the madgraph/various/histograms.py script."%(
+                    len(self.observables),hwu_path)
+                )
 
 if __name__ == '__main__':
 
@@ -324,6 +353,10 @@ if __name__ == '__main__':
                         help='Batch sizse (default: %(default)s).')
     parser.add_argument('--hwu_path', '-hwu', dest='hwu_path', type=str, default=None,
                         help='Path to output hwu file (default: as per tag).')
+    parser.add_argument('--separate_h_cube_errors', '-she', dest='separate_h_cube_errors', action='store_true', default=False,
+                        help='Separately keep track of central values and errors for each h cube (default: disabled).')
+    parser.add_argument('--no_checkoints', '-ncp', dest='use_checkpoints', action='store_false', default=True,
+                        help='Disable the checkpointing system after each batch (default: enabled).')
     parser.add_argument('--n_evals_training', '-net', dest='n_evals_training', type=int, default=10000,
                         help='Number of sample points for training (default: %(default)s).')
     parser.add_argument('--n_evals_production', '-nep', dest='n_evals_production', type=int, default=10000,
@@ -349,12 +382,14 @@ if __name__ == '__main__':
     lu_dy = LU_DY(
         verbosity=args.verbosity,
         n_cores=args.n_cores,
-        tag = args.tag
+        tag = args.tag,
+        separate_h_cube_errors = args.separate_h_cube_errors
     )
 
     lu_dy.integrate(
         observables=args.observables,
         seed = args.seed,
+        use_checkpoints = args.use_checkpoints,
         vegas_grid = args.vegas_grid,
         nhcube_batch = args.batch_size,
         hwu_path = args.hwu_path,
