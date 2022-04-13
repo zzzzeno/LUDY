@@ -236,11 +236,11 @@ class LU_DY(object):
                     # Enable observables
                     self.observables = obs.ObservableList([ obs.CrossSection(), ])
                     if observables is not None:
-                        for obs_string in observables:
-                            if obs_string == 'x1':
-                                self.observables.append( obs.x1() )
-                            else:
-                                raise NotImplementedError("Observable %s not implemented yet."%obs_string)
+                        if 'ptj' in observables or 'ALL' in observables:
+                            self.observables.append( obs.ptj() )
+                        if 'log10ptj' in observables or 'ALL' in observables:
+                            self.observables.append( obs.log10ptj() )
+
                     self.worker_observables = [copy.deepcopy(self.observables) for _ in range(self.n_cores)]
 
                     logger.info("Starting production run with %d sample points."%n_evals_production)
@@ -251,12 +251,15 @@ class LU_DY(object):
                             logger.info("Submitting new batch of %d points..."%len(xs))
                         self.evaluate_samples(xs, wgts=wgts, h_cubes=hcubes)
 
-                    for w_obs in self.worker_observables:
-                        self.observables.finalize_iteration(worker_observable=w_obs)
-                    logger.info("Production results: %.5g +/- %.3g (n_events = %d)"%(
+                    #print("BEFORE AGGREGATION: %d"%self.observables[0].histogram.bins[1].n_entries)
+                    #print(['%d'%(sum(h.bins[1].n_entries for h in o[0].histos_current_iteration.values() ) ) for o in self.worker_observables])
+                    logger.info("Finalising iteration and combining %d histograms..."%len(self.observables))
+                    self.observables.finalize_iteration(worker_observable=obs.ObservableList.merge(self.worker_observables))
+                    logger.info("Production results: %.5g +/- %.3g (n_events = %d, n_samples = %d)"%(
                         self.observables[0].histogram.bins[1].integral,
                         self.observables[0].histogram.bins[1].variance**0.5,
-                        self.observables[0].histogram.bins[1].n_entries
+                        self.observables[0].histogram.bins[1].n_entries,
+                        self.observables[0].histogram.n_total_samples
                     ))
                     dict_timings = self.timings.to_dict()
                     tot_CPU = dict_timings['c++']+dict_timings['observables']
@@ -268,9 +271,13 @@ class LU_DY(object):
                         (dict_timings['c++']/tot_CPU)*100.,
                         (dict_timings['observables']/tot_CPU)*100.,
                     ))
+                    # Clean up observables by removing very small weights for instance
+                    self.observables.clean_up()
                     with open(hwu_path,'w') as f:
                         f.write(self.observables.format_to_HwU())
-                    logger.info("Histograms output to file '%s'. They can be rendered using the madgraph/various/histograms.py script."%hwu_path)
+                    logger.info("A total of %d histograms are output to file '%s'. They can be rendered using the madgraph/various/histograms.py script."%(
+                        len(self.observables),hwu_path)
+                    )
 
 if __name__ == '__main__':
 
@@ -296,7 +303,7 @@ if __name__ == '__main__':
                         help='Number of iterations for training VEGAS grids (default: %(default)s).')
     parser.add_argument('--n_cores', '-c', dest='n_cores', type=int, default=multiprocessing.cpu_count(),
                         help='Specify number of cores for the parallelisation (default: %(default)s).')
-    parser.add_argument('--observables', '-obs', dest='observables', type=str, nargs='?', default=None,
+    parser.add_argument('--observables', '-obs', dest='observables', type=str, nargs='?', default=['ALL'],
                         help='List observables to consider. Use keyword "ALL" to select them all (default: %(default)s).')
     parser.add_argument('--tag', '-tag', dest='tag', type=str, default='tqq', choices=('st','tqg','s','tqq','u'),
                         help='Specify which integrand to run (default: %(default)s).')

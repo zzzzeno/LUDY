@@ -4,6 +4,8 @@ from multiprocessing import Value
 import ctypes
 import vectors as vec
 import logging
+import copy
+import math
 logger = logging.getLogger("Observable")
 
 class ObservableError(Exception):
@@ -40,8 +42,8 @@ class Histogram(object):
         self.type = histogram_type
         self.x_axis = x_axis
         self.y_axis = y_axis
-        self.n_total_events = 0
-        self.n_events_rejected = 0
+        self.n_total_samples = 0
+        self.n_total_entries = 0
         self.bin_width = (self.max-self.min)/self.n_bins        
         self.bins = [Bin() for _ in range(self.n_bins)]
 
@@ -49,13 +51,26 @@ class Histogram(object):
         return self.bins
 
     def place(self, x):
+        if x >= self.max:
+            return None
         return int((x-self.min)//self.bin_width)
+
+    def clean_up(self, *args, threshold=1.e-50, **opts):
+        abs_inclusive = sum(abs(b.integral) for b in self.bins)
+        for b in self.bins:
+            if abs(b.integral/abs_inclusive)<threshold:
+                b.integral = 0.
+                b.variance = 0.
 
     def add_weights(self, xs_and_wgts):
 
         wgts = {}
+        self.n_total_samples += 1
+        self.n_total_entries += len(xs_and_wgts)
         for x, wgt in xs_and_wgts:
             bin_index = self.place(x)
+            if bin_index is None:
+                continue
             if bin_index in wgts:
                 wgts[bin_index][0] += 1
                 wgts[bin_index][1] += wgt
@@ -68,11 +83,13 @@ class Histogram(object):
             self.bins[bin_index].variance += total_wgt**2
 
     def accumulate_histograms(self, histograms):
-
+        
+        self.n_total_samples += sum(h.n_total_samples for h in histograms.values())
+        self.n_total_entries += sum(h.n_total_entries for h in histograms.values())
         for i_bin, a_bin in enumerate(self.bins):
             a_bin.integral += sum(h.bins[i_bin].integral for h in histograms.values())
             a_bin.variance += sum(
-                (h.bins[i_bin].variance*h.n_total_events - h.bins[i_bin].integral**2)/(h.n_total_events-1) 
+                (h.bins[i_bin].variance*h.n_total_samples - h.bins[i_bin].integral**2)/(h.n_total_samples-1) 
                 for h in histograms.values()
             )
             a_bin.n_entries += sum(h.bins[i_bin].n_entries for h in histograms.values())
@@ -85,7 +102,7 @@ class Histogram(object):
         },]
         for i_b, b in enumerate(self.bins):
             res.append('%.5e %.5e %.10e %.10e'%(
-                self.min+i_b*self.bin_width, self.min+(i_b+1)*self.bin_width, b.integral, b.variance**0.5
+                self.min+i_b*self.bin_width, self.min+(i_b+1)*self.bin_width, b.integral, (b.variance*(self.n_total_entries/b.n_entries if b.n_entries > 0 else 1.))**0.5
             ))
         res.append("<\\histogram>")
         return '\n'.join(res)
@@ -172,7 +189,7 @@ class Observable(object):
         if event_group.h_cube not in self.histos_current_iteration.keys():
             self.histos_current_iteration[event_group.h_cube] = Histogram(*self.histogram_args, **self.histogram_opts)
         histogram = self.histos_current_iteration.get(event_group.h_cube)
-        histogram.add_weights( [(self(e), e.weight) for e in event_group] )
+        histogram.add_weights( sum([ self(e) for e in event_group ],[]) )
 
     def __call__(self, event):
         raise NotImplementedError("This function must be implemented by the daughter class.")
@@ -189,6 +206,9 @@ class Observable(object):
         
         self.histogram.accumulate_histograms(histos_to_merge)
         histos_to_merge.clear()
+
+    def clean_up(self, *args, **opts):
+        self.histogram.clean_up(*args, **opts)
 
     def format_to_HwU(self):
         return self.histogram.format_to_HwU()
@@ -214,6 +234,29 @@ class ObservableList(list):
             for o, w_o in zip(self, worker_observable):
                 o.finalize_iteration(*args, worker_observable = w_o, **opts)
 
+    def clean_up(self, *args, **opts):
+        """ Clean up histograms, for instance by removing small weights."""
+        for o in self:
+            o.clean_up(*args, **opts)
+
+    @classmethod
+    def merge(cls, list_of_obs_list):
+        
+        res=copy.deepcopy(list_of_obs_list[0])
+        for ol in list_of_obs_list[1:]:
+            for i_obs, obs in enumerate(ol):
+                for k, h in obs.histos_current_iteration.items():
+                    if k not in res[i_obs].histos_current_iteration:
+                        res[i_obs].histos_current_iteration[k] = copy.deepcopy(h)
+                    else:
+                        res[i_obs].histos_current_iteration[k].n_total_samples += h.n_total_samples
+                        for i_b, b in enumerate(res[i_obs].histos_current_iteration[k].bins):
+                            b.n_entries += h.bins[i_b].n_entries
+                            b.integral += h.bins[i_b].integral
+                            b.variance += h.bins[i_b].variance
+
+        return res
+
     def format_to_HwU(self):
         res = ["##& xmin & xmax & central value & dy",'']
         for o in self:
@@ -226,7 +269,25 @@ class CrossSection(Observable):
         super(CrossSection, self).__init__(title, min_value=0., max_value=3., n_bins=3, histogram_type=histogram_type, x_axis='lin', y_axis='lin', **opts)
 
     def __call__(self, event):
-        return 1.5
+        return [(1.5,event.weight),]
+
+class ptj(Observable):
+
+    def __init__(self, title='ptj', min_value=0., max_value=5000., n_bins=100, histogram_type='NLO', x_axis='lin', y_axis='log', **opts):
+        super(ptj, self).__init__(title, min_value, max_value, n_bins, histogram_type=histogram_type, x_axis=x_axis, y_axis=y_axis, **opts)
+
+    def __call__(self, event):
+        # The first and unique final state jets should always be the leading jet; we could verify this if need be
+        return [(event.final_state_jets[0].p.pt(), event.weight),] if len(event.final_state_jets)>0 else []
+
+class log10ptj(Observable):
+
+    def __init__(self, title='log10ptj', min_value=-1., max_value=4., n_bins=100, histogram_type='NLO', x_axis='lin', y_axis='lin', **opts):
+        super(log10ptj, self).__init__(title, min_value, max_value, n_bins, histogram_type=histogram_type, x_axis=x_axis, y_axis=y_axis, **opts)
+
+    def __call__(self, event):
+        return [( math.log10(event.final_state_jets[0].p.pt()), event.weight ),] if len(event.final_state_jets)>0 else []
+
 
 class x1(Observable):
 
@@ -235,4 +296,4 @@ class x1(Observable):
 
     def __call__(self, event):
         # TODO
-        return 1.0
+        return [(1.5,event.weight),]
