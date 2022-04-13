@@ -1044,10 +1044,12 @@ class observables{
 
                 res_vec.eval=0;
                 res_vec.jac=res_f;
-                /*res_vec.j1=j1;
-                res_vec.j2=j2;*/
+                res_vec.j1=j1;
+                res_vec.j2=j2;
+                /*
                 res_vec.j1=jacques_vecs[0];
                 res_vec.j2=jacques_vecs[4];
+                */
                 res_vec.spin1=double(tot_spin1);
                 res_vec.spin2=double(tot_spin2);
                 res_vec.pg=pg;

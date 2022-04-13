@@ -13,6 +13,7 @@ from NLO_integrands import NLO_integrands
 from integrand_wrapper import set_r, set_kin, set_sig, set_defo, set_MUV
 import time
 import copy
+import math
 
 from pprint import pprint, pformat
 
@@ -78,12 +79,13 @@ class LU_DY(object):
 
         self.verbosity = verbosity
         self.separate_h_cube_errors = separate_h_cube_errors
+        self.selector_variables = {'min_pt': min_pt, 'max_pt': max_pt}
         
-        self.integrand = NLO_integrands(
+        self.integrand = [ NLO_integrands(
             mZ, eCM, resolution_coll, resolution_soft, h_sigma, 
             initial_state_a, min_pt, max_pt, n_bins, basis, 
             tag=tag, debug=(self.verbosity>2), mode=mode, phase=phase
-        )
+        ) for _ in range(self.n_cores) ]
         set_kin(mZ,eCM)
         set_r(resolution_coll, resolution_soft)
         set_sig(h_sigma)
@@ -95,47 +97,74 @@ class LU_DY(object):
         self.pool = None
         self.timings = None
 
+    @staticmethod
+    def cuts(evt, selector_variables):
+        """ Implements cuts."""
+        
+        if len(evt.final_state_jets)==0:
+            if selector_variables['min_pt']>0.:
+                return False
+            return True
+        else:
+            total_final_state_jet_pt = sum(j.p.pt() for j in evt.final_state_jets)
+            if selector_variables['min_pt'] < total_final_state_jet_pt < selector_variables['max_pt']:
+                return True
+            else:
+                return False
+
     # Helper function for paralellisation
     @staticmethod
     def evaluate_sample(args):
-        i_job, integrand, observables, timings, separate_h_cube_errors, apply_observables, call_args = args
+        i_job, integrand, observables, timings, separate_h_cube_errors, apply_observables, selector_variables, call_args = args
         x, integrator_wgt, h_cube = call_args
         try:            
             if i_job is not None:
-                return i_job, (observables if apply_observables else None), [ LU_DY.evaluate_sample((None, integrand, observables, timings, separate_h_cube_errors, apply_observables, (a_x,a_wgt,a_h_cube) )) for a_x, a_wgt, a_h_cube in zip(x, integrator_wgt, h_cube) ]
+                return i_job, (observables if apply_observables else None), [ LU_DY.evaluate_sample((None, integrand, observables, timings, separate_h_cube_errors, apply_observables, selector_variables, (a_x,a_wgt,a_h_cube) )) for a_x, a_wgt, a_h_cube in zip(x, integrator_wgt, h_cube) ]
 
             start = time.time()
             
+            #TODO streamline and make hyperparameters
+            ap=10.*math.tan(math.pi*(x[9]-1/2.))
+            a_jac = 10.*math.pi/pow(math.sin(math.pi*x[9]),2)
+            integrand.set_a(ap)
+
             all_res = integrand.safe_eval(x)
             # The mockup function below is useful for validation
             #all_res = [ MockUpRes( sum(xi**2 for xi in x) ), ]
+            for r in all_res:
+                r.jac *= a_jac
 
             if timings is not None:
                 timings.increment('c++',time.time()-start) 
 
-            final_weight = 0.
-            for r in all_res:
-                final_weight += r.res*r.jac*(1. if integrator_wgt is None else integrator_wgt)
-
             evt_group = None
-            if observables is not None:
-                start = time.time()
-                evt_group = obs.EventGroup([
-                    obs.Event(
-                            initial_state_jets = obs.JetList( [ obs.Jet(r.j1, flavour=_CONVERT_TO_FLAV[int(r.spin1)]), obs.Jet(r.j2, flavour=_CONVERT_TO_FLAV[int(r.spin2)]) ] ), 
-                            final_state_jets = obs.JetList( [ obs.Jet(r.pg, flavour=None ), ] ),
-                            weight = r.res*r.jac*(1. if integrator_wgt is None else integrator_wgt),
-                            E_com = integrand.eCM
-                    ) for r in all_res if abs(r.res*r.jac*(1. if integrator_wgt is None else integrator_wgt))!=0.0
-                ], h_cube=(h_cube if separate_h_cube_errors else 1) )
-                evt_group.compute_derived_quantities()
-                # Useful printout of all events passing by
-                #print(evt_group)
-                if apply_observables:
-                    observables.accumulate_event_group(evt_group)
-                    evt_group = None
-                if timings is not None:
-                    timings.increment('observables', time.time()-start)
+
+            start = time.time()
+            evt_group = obs.EventGroup([
+                obs.Event(
+                        initial_state_jets = obs.JetList( [ obs.Jet(r.j1, flavour=_CONVERT_TO_FLAV[int(r.spin1)]), obs.Jet(r.j2, flavour=_CONVERT_TO_FLAV[int(r.spin2)]) ] ), 
+                        final_state_jets = obs.JetList( [ obs.Jet(r.pg, flavour=None ), ] ),
+                        weight = r.res*r.jac*(1. if integrator_wgt is None else integrator_wgt),
+                        E_com = integrand.eCM
+                ) for r in all_res if abs(r.res*r.jac*(1. if integrator_wgt is None else integrator_wgt))!=0.0
+            ], h_cube=(h_cube if separate_h_cube_errors else 1) )
+            
+            # Filter events to apply selector
+            evt_group = obs.EventGroup([ e for e in evt_group if LU_DY.cuts(e, selector_variables)])
+            
+            evt_group.compute_derived_quantities()
+
+            final_weight = 0.
+            for evt in evt_group:
+                final_weight += evt.weight
+
+            # Useful printout of all events passing by
+            #print(evt_group)
+            if apply_observables and observables is not None:
+                observables.accumulate_event_group(evt_group)
+                evt_group = None
+            if timings is not None:
+                timings.increment('observables', time.time()-start)
 
             return (final_weight, evt_group)
         except KeyboardInterrupt as e:
@@ -147,22 +176,22 @@ class LU_DY(object):
         
         if self.n_cores == 1:
             if wgts is None:
-                return [ LU_DY.evaluate_sample((None, self.integrand, self.worker_observables[0], self.timings, self.separate_h_cube_errors, True, (x,None,None) ))[0] for x in xs ]
+                return [ LU_DY.evaluate_sample((None, self.integrand[0], self.worker_observables[0], self.timings, self.separate_h_cube_errors, True, self.selector_variables, (x,None,None) ))[0] for x in xs ]
             else:
-                return [ LU_DY.evaluate_sample((None, self.integrand, self.worker_observables[0], self.timings, self.separate_h_cube_errors, True, (x,wgt,h_cube) ))[0] for x, wgt, h_cube in zip(xs, wgts, h_cubes) ]
+                return [ LU_DY.evaluate_sample((None, self.integrand[0], self.worker_observables[0], self.timings, self.separate_h_cube_errors, True, self.selector_variables, (x,wgt,h_cube) ))[0] for x, wgt, h_cube in zip(xs, wgts, h_cubes) ]
         else:
              
             x_chunks = list(chunks(xs,1+len(xs)//self.n_cores))
             wgts_chunks = list(chunks(wgts,1+len(xs)//self.n_cores)) if wgts is not None else [[None,]*len(x_chunk) for x_chunk in x_chunks]
             h_cubes = list(chunks(h_cubes,1+len(xs)//self.n_cores)) if h_cubes is not None else [[None,]*len(x_chunk) for x_chunk in x_chunks]
 
-            if self.verbosity>2:
+            if self.verbosity>2 or (self.verbosity>0 and wgts is None):
                 logger.info("Dispatching %d points over %d cores."%(len(xs), self.n_cores))
 
             # It's more efficient to apply the observables in parallel since they are now no longer acting on shared memory so there is no locking anymore.
             apply_observable_in_parallel = True
             jobs_it = self.pool.imap(LU_DY.evaluate_sample, 
-                    list( (i_job, self.integrand, self.worker_observables[i_job], self.timings, self.separate_h_cube_errors, apply_observable_in_parallel, job_args) for i_job, job_args in enumerate(zip(x_chunks, wgts_chunks, h_cubes)) ))
+                    list( (i_job, self.integrand[i_job], self.worker_observables[i_job], self.timings, self.separate_h_cube_errors, apply_observable_in_parallel, self.selector_variables, job_args) for i_job, job_args in enumerate(zip(x_chunks, wgts_chunks, h_cubes)) ))
 
             all_res = {}
             for i_job, observables, res in jobs_it:
@@ -267,7 +296,7 @@ class LU_DY(object):
                     if observables is not None:
                         if 'ptj' in observables or 'ALL' in observables:
                             self.observables.append( obs.ptj() )
-                            self.observables.append( obs.ptj(title='ptjZoom', min_value=0., max_value=10., n_bins=100,) )
+                            self.observables.append( obs.ptj(title='ptjZoom', min_value=0., max_value=20., n_bins=100,) )
                         if 'log10ptj' in observables or 'ALL' in observables:
                             self.observables.append( obs.log10ptj() )
                         if 'x1' in observables or 'ALL' in observables:
@@ -407,6 +436,14 @@ if __name__ == '__main__':
                         help='Batch sizse (default: %(default)s).')
     parser.add_argument('--hwu_path', '-hwu', dest='hwu_path', type=str, default=None,
                         help='Path to output hwu file (default: as per tag).')
+    parser.add_argument('--min_pt', '-min_pt', dest='min_pt', type=float, default=10.,
+                        help='Minimum pt imposed to the sum of final state jets (default: %(default)s).')
+    parser.add_argument('--max_pt', '-max_pt', dest='max_pt', type=float, default=2000.,
+                        help='Maximum pt imposed to the sum of final state jets (default: %(default)s).')
+    parser.add_argument('--resolution_soft', '-rs', dest='resolution_soft', type=float, default=0.,
+                        help='Default soft resolution parameter (default: %(default)s).')
+    parser.add_argument('--resolution_coll', '-rc', dest='resolution_coll', type=float, default=0.,
+                        help='Default collinear resolution parameter (default: %(default)s).')
     parser.add_argument('--separate_h_cube_errors', '-she', dest='separate_h_cube_errors', action='store_true', default=False,
                         help='Separately keep track of central values and errors for each h cube (default: disabled).')
     parser.add_argument('--no_checkoints', '-ncp', dest='use_checkpoints', action='store_false', default=True,
@@ -439,7 +476,11 @@ if __name__ == '__main__':
         verbosity=args.verbosity,
         n_cores=args.n_cores,
         tag = args.tag,
-        separate_h_cube_errors = args.separate_h_cube_errors
+        resolution_coll = args.resolution_coll,
+        resolution_soft = args.resolution_soft,
+        separate_h_cube_errors = args.separate_h_cube_errors,
+        min_pt = args.min_pt,
+        max_pt = args.max_pt
     )
 
     lu_dy.integrate(
