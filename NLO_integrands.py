@@ -82,9 +82,9 @@ class NLO_integrands:
         self.unstablef128=[]
         if obs_tag=='JADE':
             set_observable(0)
-            set_observable_lambda(obs_lambda)
-        else:
+        if obs_tag=='HEMI':
             set_observable(1)
+            set_observable_lambda(obs_lambda)
         
 
 
@@ -101,9 +101,11 @@ class NLO_integrands:
     def set_obs(obs_tag, lamb):
         if obs_tag=='JADE':
             set_observable(0)
-            set_observable_lambda(lamb)
-        else:
+        if obs_tag=='HEMI':
             set_observable(1)
+            set_observable_lambda(obs_lambda)
+        if obs_tag!='JADE' and obs_tag!='HEMI':
+            print("not a valid clustering algorithm")
 
 
     def x_param(self, x):
