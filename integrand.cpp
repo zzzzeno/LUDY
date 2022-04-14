@@ -1305,6 +1305,7 @@ class integrands{
         double eCM;
         double constant;
         double MUV;
+        double tag_obs;
 
         observables my_obs;
         causal_flow my_flow;
@@ -1313,7 +1314,7 @@ class integrands{
     public:
         integrands(double nm, double neCM, double nsigma, double nMUV):my_obs(0,0,neCM,nm), my_flow(nm,nsigma), my_defo(1,0.069,1){
 
-            
+            tag_obs=0;            
             eCM=neCM;
             m=nm;
             MUV=nMUV;
@@ -1344,6 +1345,7 @@ class integrands{
             constant=pow(gV,2)*pow(gs,2)*CF*NC/(pow(spin_norm,2.))*PS_constant*0.389379*pow(10,9);
             cout<<constant<<endl;*/
 
+            tag_obs=0;            
             double gV=0.1303037631031056;
             double gs=Sqrt(0.118*4*M_PI);
             double NC=3;
@@ -1359,6 +1361,8 @@ class integrands{
             MUV=nMUV;
         }
         
+        void change_observable_tag(int new_tag){tag_obs=new_tag;};
+
         void set_MUV(double nMUV){MUV=nMUV;};
 
         void set_kinematics(double nm, double neCM){my_obs.set_kinematics(nm,neCM); my_flow.set_mass(nm); m=nm; eCM=neCM;};
@@ -1661,7 +1665,13 @@ class integrands{
 
                 vector<double> pg={0,0,0,0};
 
-                observable obs_res_n=my_obs.b2b_sampling_final(constituents, 2, pg, spins, a);
+                observable obs_res_n;
+                if(tag_obs==0){
+                        obs_res_n=my_obs.b2b_sampling_final(constituents, 2, pg, spins, a);
+                    }else{
+                        obs_res_n=my_obs.hemisphere_sampling(constituents, 2, pg, spins, a);
+                    };
+                
 
                 observable_c obs_res;
                 obs_res.eval=obs_res_n.eval;
@@ -1837,7 +1847,12 @@ class integrands{
 
                 vector<double> pg={0,0,0,0};
 
-                observable obs_res_n=my_obs.b2b_sampling_final(constituents, 3, pg, spins, a);
+                observable obs_res_n;
+                if(tag_obs==0){
+                        obs_res_n=my_obs.b2b_sampling_final(constituents, 3, pg, spins, a);
+                    }else{
+                        obs_res_n=my_obs.hemisphere_sampling(constituents, 3, pg, spins, a);
+                    };
 
                 observable_c obs_res;
                 obs_res.eval=obs_res_n.eval;
@@ -2283,7 +2298,12 @@ class integrands{
 
                 vector<double> pg={0,0,0,0};
 
-                observable obs_res_n=my_obs.b2b_sampling_final(constituents, 2, pg, spins, a);
+                observable obs_res_n;
+                if(tag_obs==0){
+                        obs_res_n=my_obs.b2b_sampling_final(constituents, 2, pg, spins, a);
+                    }else{
+                        obs_res_n=my_obs.hemisphere_sampling(constituents, 2, pg, spins, a);
+                    };
 
                 observable_c obs_res;
                 obs_res.eval=obs_res_n.eval;
@@ -2414,7 +2434,12 @@ class integrands{
 
                 vector<double> pg={0,0,0,0};
 
-                observable obs_res_n=my_obs.b2b_sampling_final(constituents, 3, pg, spins, a);
+                observable obs_res_n;
+                if(tag_obs==0){
+                        obs_res_n=my_obs.b2b_sampling_final(constituents, 3, pg, spins, a);
+                    }else{
+                        obs_res_n=my_obs.hemisphere_sampling(constituents, 3, pg, spins, a);
+                    };
 
 
                 observable_c obs_res;
@@ -2747,7 +2772,12 @@ class integrands{
 
                 int spins[2]={1,0};
 
-                observable obs_res=my_obs.b2b_sampling_final(constituents, 2, ls, spins, a);;
+                observable obs_res;
+                if(tag_obs==0){
+                        obs_res=my_obs.b2b_sampling_final(constituents, 2, ls, spins, a);
+                    }else{
+                        obs_res=my_obs.hemisphere_sampling(constituents, 2, ls, spins, a);
+                    };
 
                 if(DEBUG==1){
                     vector<double> ksp={0.3, 0.1, 0.5};
@@ -2884,7 +2914,12 @@ class integrands{
 
                 int spins[3]={1,1,-1};
 
-                observable obs_res=my_obs.b2b_sampling_final(constituents, 3, ls, spins, a);;
+                observable obs_res;
+                if(tag_obs==0){
+                        obs_res=my_obs.b2b_sampling_final(constituents, 3, ls, spins, a);
+                    }else{
+                        obs_res=my_obs.hemisphere_sampling(constituents, 3, ls, spins, a);
+                    };
 
                 if(DEBUG==1){
                     vector<double> ksp={0.3, 0.1, 0.5};
@@ -3013,7 +3048,13 @@ class integrands{
                 int spins[2]={-1,1};
 
                 //vector<double> obs_res=my_obs.b2b_sampling(constituents, 2, spins, a);
-                observable obs_res=my_obs.b2b_sampling_final(constituents, 2, vector_swap(ls), spins, a);
+
+                observable obs_res;
+                if(tag_obs==0){
+                        obs_res=my_obs.b2b_sampling_final(constituents, 2, vector_swap(ls), spins, a);
+                    }else{
+                        obs_res=my_obs.hemisphere_sampling(constituents, 2, vector_swap(ls), spins, a);
+                    };
 
                 if(DEBUG==1){
                     vector<double> ksp={0.3, 0.1, 0.5};
@@ -3169,7 +3210,12 @@ class integrands{
                 //int spins[3]={-1,1};
 
                 //vector<double> obs_res=my_obs.b2b_sampling(constituents, 3, spins, a);
-                observable obs_res=my_obs.b2b_sampling_final(constituents, 3, vector_swap(ls), spins, a);
+                observable obs_res;
+                if(tag_obs==0){
+                        obs_res=my_obs.b2b_sampling_final(constituents, 3, vector_swap(ls), spins, a);
+                    }else{
+                        obs_res=my_obs.hemisphere_sampling(constituents, 3, vector_swap(ls), spins, a);
+                    };
                 //vector<double> obs_res=my_obs.b2b_sampling_final(constituents, 2, vector_swap(ls), spins, a);
 
                 if(DEBUG==1){
@@ -3339,7 +3385,12 @@ class integrands{
 
                 int spins[2]={-1,0};
 
-                observable obs_res=my_obs.b2b_sampling_final(constituents, 2, vector_swap(ls), spins, a);
+                observable obs_res;
+                if(tag_obs==0){
+                        obs_res=my_obs.b2b_sampling_final(constituents, 2, vector_swap(ls), spins, a);
+                    }else{
+                        obs_res=my_obs.hemisphere_sampling(constituents, 2, vector_swap(ls), spins, a);
+                    };
 
                 if(DEBUG==1){
                     vector<double> ksp={0.3, 0.1, 0.5};
@@ -3481,7 +3532,12 @@ class integrands{
 
                 int spins[3]={-1,1,-1};
 
-                observable obs_res=my_obs.b2b_sampling_final(constituents, 3, vector_swap(ls), spins, a);
+                observable obs_res;
+                if(tag_obs==0){
+                        obs_res=my_obs.b2b_sampling_final(constituents, 3, vector_swap(ls), spins, a);
+                    }else{
+                        obs_res=my_obs.hemisphere_sampling(constituents, 3, vector_swap(ls), spins, a);
+                    };
 
                 if(DEBUG==1){
                     vector<double> ksp={0.3, 0.1, 0.5};
@@ -3633,7 +3689,12 @@ class integrands{
 
                 int spins[2]={-1,1};
 
-                observable obs_res=my_obs.b2b_sampling_final(constituents, 2, vector_swap(ls), spins, a);
+                observable obs_res;
+                if(tag_obs==0){
+                        obs_res=my_obs.b2b_sampling_final(constituents, 2, vector_swap(ls), spins, a);
+                    }else{
+                        obs_res=my_obs.hemisphere_sampling(constituents, 2, vector_swap(ls), spins, a);
+                    };
 
                 if(DEBUG==1){
                     vector<double> ksp={0.3, 0.1, 0.5};
@@ -3759,7 +3820,12 @@ class integrands{
 
                 int spins[3]={-1,1,0};
 
-                observable obs_res=my_obs.b2b_sampling_final(constituents, 3, vector_swap(ls), spins, a);
+                observable obs_res;
+                if(tag_obs==0){
+                        obs_res=my_obs.b2b_sampling_final(constituents, 3, vector_swap(ls), spins, a);
+                    }else{
+                        obs_res=my_obs.hemisphere_sampling(constituents, 3, vector_swap(ls), spins, a);
+                    };
 
                 if(DEBUG==1){
                     vector<double> ksp={0.3, 0.1, 0.5};
@@ -3885,7 +3951,12 @@ class integrands{
 
                 int spins[3]={1,-1,0};
 
-                observable obs_res=my_obs.b2b_sampling_final(constituents, 3, vector_swap(ls), spins, a);
+                observable obs_res;
+                if(tag_obs==0){
+                        obs_res=my_obs.b2b_sampling_final(constituents, 3, vector_swap(ls), spins, a);
+                    }else{
+                        obs_res=my_obs.hemisphere_sampling(constituents, 3, vector_swap(ls), spins, a);
+                    };
 
                 if(DEBUG==1){
                     vector<double> ksp={0.3, 0.1, 0.5};
@@ -4011,7 +4082,12 @@ class integrands{
 
                 int spins[4]={0,1,-1,0};
 
-                observable obs_res=my_obs.b2b_sampling_final(constituents, 4, vector_swap(ls), spins, a);
+                observable obs_res;
+                if(tag_obs==0){
+                        obs_res=my_obs.b2b_sampling_final(constituents, 4, vector_swap(ls), spins, a);
+                    }else{
+                        obs_res=my_obs.hemisphere_sampling(constituents, 3, vector_swap(ls), spins, a);
+                    };
 
                 if(DEBUG==1){
                     vector<double> ksp={0.3, 0.1, 0.5};
@@ -4135,7 +4211,12 @@ class integrands{
 
                 int spins[4]={1,-1,-1,1};
 
-                observable obs_res=my_obs.b2b_sampling_final(constituents, 4, vector_swap(ls), spins, a);
+                observable obs_res;
+                if(tag_obs==0){
+                        obs_res=my_obs.b2b_sampling_final(constituents, 4, vector_swap(ls), spins, a);
+                    }else{
+                        obs_res=my_obs.hemisphere_sampling(constituents, 3, vector_swap(ls), spins, a);
+                    };
 
                 if(DEBUG==1){
                     vector<double> ksp={0.3, 0.1, 0.5};
@@ -4259,7 +4340,12 @@ class integrands{
 
                 int spins[4]={-1,1,1,-1};
 
-                observable obs_res=my_obs.b2b_sampling_final(constituents, 4, vector_swap(ls), spins, a);
+                observable obs_res;
+                if(tag_obs==0){
+                        obs_res=my_obs.b2b_sampling_final(constituents, 4, vector_swap(ls), spins, a);
+                    }else{
+                        obs_res=my_obs.hemisphere_sampling(constituents, 3, vector_swap(ls), spins, a);
+                    };
 
                 if(DEBUG==1){
                     vector<double> ksp={0.3, 0.1, 0.5};
@@ -4396,7 +4482,12 @@ class integrands{
 
                 int spins[2]={0,1};
 
-                observable obs_res=my_obs.b2b_sampling_final(constituents, 2, ks, spins, a);;
+                observable obs_res;
+                if(tag_obs==0){
+                        obs_res=my_obs.b2b_sampling_final(constituents, 2, ks, spins, a);
+                    }else{
+                        obs_res=my_obs.hemisphere_sampling(constituents, 2, ks, spins, a);
+                    };
 
                 if(DEBUG==1){
                     vector<double> ksp={0.3, 0.1, 0.5};
