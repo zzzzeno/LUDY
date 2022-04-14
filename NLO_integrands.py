@@ -22,6 +22,40 @@ def rotator(ks):
     return rotks
 
 
+class LO_integrands:
+
+    def __init__(self, m, eCM, sigma, a, debug=False):
+        self.eCM = eCM
+        self.mZ=m
+        self.a = a
+        set_kin(m,eCM)
+        set_sig(sigma)
+        set_r(0.,0.)
+
+    def set_a(self, ma):
+        self.a = ma
+
+    def eval(self, x):
+        eCMn=1.
+        dr1=eCMn*x[0]/(1-x[0])
+        dth1=x[1]*2*math.pi
+        dph1=x[2]*math.pi
+        dr2=eCMn*x[3]/(1-x[3])
+        dth2=x[4]*2*math.pi
+        dph2=x[5]*math.pi
+
+        k=np.array([dr1*math.cos(dth1)*math.sin(dph1),dr1*math.sin(dth1)*math.sin(dph1),dr1*math.cos(dph1)])
+        l=np.array([dr2*math.cos(dth2)*math.sin(dph2),dr2*math.sin(dth2)*math.sin(dph2),dr2*math.cos(dph2)])
+
+        jacques=pow(eCMn,2)*math.pow(dr1,2)*math.sin(dph1)*math.pow(dr2,2)*math.sin(dph2)*math.pow(2*math.pi,2)*math.pow(math.pi,2)/(math.pow(1-x[0],2)*math.pow(1-x[3],2))
+
+        j1=[math.sqrt(pow(k[0],2.)+pow(k[1],2.)+pow(k[2],2.)),k[0],k[1],k[2]]
+        j2=[math.sqrt(pow(l[0]-k[0],2.)+pow(l[1]-k[1],2.)+pow(l[2]-k[2],2.)),l[0]-k[0],l[1]-k[1],l[2]-k[2]]
+
+        res=cut_res(LO(k,l,self.a,'dy'),jacques,j1,1,j2,-1,[0,0,0,0])
+
+        return res
+
 
 class NLO_integrands:
 
@@ -137,8 +171,9 @@ class NLO_integrands:
         if self.mode=='min_pt':
             for r in res:
                 ptg=math.sqrt(math.pow(r.pg[1],2.)+math.pow(r.pg[2],2.))
-                x1px2=2*(r.j1[0])/self.eCM
-                x1mx2=2*(r.j1[3])/self.eCM
+                x1px2=2*(res.j1[0]+res.j2[0])/my_integrand_LO.eCM
+                x1mx2=2*(res.j1[3]+res.j2[3])/my_integrand_LO.eCM
+
                 x1=(x1px2+x1mx2)/2
                 x2=(x1px2-x1mx2)/2
 
@@ -199,8 +234,9 @@ class NLO_integrands:
 
                 for r in resf128:
                     ptg=math.sqrt(math.pow(r.pg[1],2.)+math.pow(r.pg[2],2.))
-                    x1px2=2*(r.j1[0])/self.eCM
-                    x1mx2=2*(r.j1[3])/self.eCM
+                    x1px2=2*(r.j1[0]+r.j2[0])/self.eCM
+                    x1mx2=2*(r.j1[3]+r.j2[3])/self.eCM
+
                     x1=(x1px2+x1mx2)/2
                     x2=(x1px2-x1mx2)/2
 
@@ -219,8 +255,9 @@ class NLO_integrands:
 
             for r in resf64:
                 ptg=math.sqrt(math.pow(r.pg[1],2.)+math.pow(r.pg[2],2.))
-                x1px2=2*(r.j1[0])/self.eCM
-                x1mx2=2*(r.j1[3])/self.eCM
+                x1px2=2*(r.j1[0]+r.j2[0])/self.eCM
+                x1mx2=2*(r.j1[3]+r.j2[3])/self.eCM
+
                 x1=(x1px2+x1mx2)/2
                 x2=(x1px2-x1mx2)/2
 

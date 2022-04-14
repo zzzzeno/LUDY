@@ -4,7 +4,7 @@ import numpy as np
 from scipy.spatial.transform import Rotation as Roto
 import vegas
 import yaml
-from NLO_integrands import NLO_integrands
+from NLO_integrands import NLO_integrands, LO_integrands
 import time
 import matplotlib.pyplot as plt
 from integrand_wrapper import cut_res
@@ -128,6 +128,11 @@ if __name__ == "__main__":
 
     print(safe_res)
 
+
+
+
+
+
     ##########################################################################
     #Let's test this with some benchmarked number
     ##########################################################################
@@ -140,6 +145,48 @@ if __name__ == "__main__":
     n_iterations=10 
     #size of refining iterations for vegas
     n_points_iteration=1000000 
+
+
+    #################################################
+    #We start with the "LO" cross-section
+    #################################################
+
+    eCM=13000
+    mZ=91.188
+    my_integrand_LO=LO_integrands(mZ,eCM,2,0.5)
+
+    def g(x):
+
+        ap=10.*math.tan(math.pi*(x[6]-1/2))
+        my_integrand_LO.set_a(ap)
+
+        xs=[x[i] for i in range(0,6)]
+
+        resf=0
+        x1=(ap*pow(eCM,2.) + math.sqrt(pow(ap,2.)*pow(eCM,4.) + pow(eCM,2.)*pow(mZ,2.)))/(2*pow(eCM,2.))
+        x2=pow(mZ,2.)/(4*pow(eCM,2.)*x1)
+        if x1<1. and x2<1.:
+            res=my_integrand_LO.eval(xs)
+            resf=res.res*10.*math.pi/pow(math.sin(math.pi*x[6]),2)*res.jac
+
+        return resf
+
+    integ0 = vegas.Integrator([[0.000,1], [0,1], [0,1], [0.000,1], [0,1], [0,1], [0.0001,1]])
+
+    integ0(g, nitn=n_iterations_learning, neval=n_points_iteration_learning)
+    result0 = integ0(g, nitn=n_iterations, neval=n_points_iteration)
+    if integ0.mpi_rank == 0:
+        print(result0.summary())
+    if integ0.mpi_rank == 0:
+        print('result = %s    Q = %.2f' % (result0, result0.Q))
+
+
+
+
+
+    #################################################
+    #and continue with the "NLO" cross-sections
+    #################################################
 
     basis=np.linalg.inv(np.array([[1,0,0],[0,1,0],[0,0,1]]))
 

@@ -1465,7 +1465,9 @@ class integrands{
                     cout<<"LO BORN: "<<LO_DrellYan_numerator(psp,qsp)/(8*epp*eqp*epq)<<endl;
             };
 
-            return constant*jac_flow*flow_h*obs_res[0]*LO_DrellYan_numerator(ps,qs)/(8*e1*e2*e3);
+            double con=-pow(0.1303037631031056,2)*0.389379*pow(10,9)*3/(3*3*2*2*4*eCM*eCM);
+
+            return con*jac_flow*flow_h*obs_res[0]*LO_DrellYan_numerator(ps,qs)/(8*e1*e2*e3);
         };
 
 
