@@ -1352,6 +1352,8 @@ class integrands{
         
         void change_observable_tag(int new_tag){tag_obs=new_tag;};
 
+        void change_observable_lambda(dreal new_lambda){my_obs.set_lambda(new_lambda);};
+
         void set_MUV(dreal nMUV){MUV=nMUV;};
 
         void set_kinematics(dreal nm, dreal neCM){my_obs.set_kinematics(nm,neCM); m=nm; eCM=neCM;};
@@ -4583,6 +4585,8 @@ void set_kinematics(double nM, double neCM){my_integrand.set_kinematics(nM,neCM)
 void set_res(double nres_c, double nres_s){my_integrand.set_res(nres_c,nres_s);};
 void set_sigma(double nsigma){my_integrand.set_sigma(nsigma);};
 void set_defo_parameters(double lambda, double Mij, double bc_lambda){my_integrand.set_deformation_hyperparameters(lambda, Mij, bc_lambda);};
+void set_observable_tag(int tag){my_integrand.change_observable_tag(tag);};
+void set_hemisphere_lambda(double lambda){my_integrand.change_observable_lambda(lambda);};
 
 double LO_scalar_eval(double px, double py, double pz, double qx, double qy, double qz, double a){
     vector<dreal> p={px,py,pz};

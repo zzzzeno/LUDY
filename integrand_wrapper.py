@@ -13,6 +13,9 @@ set_sigma = cdll.LoadLibrary('./integrand.so').set_sigma
 set_defo_parameters = cdll.LoadLibrary('./integrand.so').set_defo_parameters
 set_uv_mass = cdll.LoadLibrary('./integrand.so').set_uv_mass
 
+set_observable_tag = cdll.LoadLibrary('./integrand.so').set_observable_tag
+set_hemisphere_lambda = cdll.LoadLibrary('./integrand.so').set_hemisphere_lambda
+
 
 set_kinematics.argtypes = [c_double, c_double]
 set_kinematics.restype = None
@@ -37,6 +40,9 @@ set_res_f128 = cdll.LoadLibrary('./integrand_f128.so').set_res
 set_sigma_f128 = cdll.LoadLibrary('./integrand_f128.so').set_sigma
 set_defo_parameters_f128 = cdll.LoadLibrary('./integrand_f128.so').set_defo_parameters
 set_uv_mass_f128 = cdll.LoadLibrary('./integrand_f128.so').set_uv_mass
+
+set_observable_tag_f128 = cdll.LoadLibrary('./integrand.so').set_observable_tag
+set_hemisphere_lambda_f128 = cdll.LoadLibrary('./integrand.so').set_hemisphere_lambda
 
 
 set_kinematics_f128.argtypes = [c_double, c_double]
@@ -75,6 +81,14 @@ def set_defo(lamb, mij, bc_lamb):
 def set_MUV(nMUV):
     set_uv_mass(nMUV)
     set_uv_mass_f128(nMUV)
+
+def set_observable(tag):
+    set_observable_tag(tag)
+    set_observable_tag_f128(tag)
+
+def set_observable_lambda(lamb):
+    set_hemisphere_lambda(lamb)
+    set_hemisphere_lambda_f128(lamb)
 
 
 

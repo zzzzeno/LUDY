@@ -3,7 +3,7 @@ from random import random
 import numpy as np
 from scipy.spatial.transform import Rotation as Roto
 from integrand_wrapper import cut_res, LO, NLO
-from integrand_wrapper import set_r, set_kin, set_sig, set_defo, set_MUV
+from integrand_wrapper import set_r, set_kin, set_sig, set_defo, set_MUV, set_observable, set_observable_lambda
 
 
 def rotator(ks):
@@ -45,21 +45,21 @@ class LO_integrands:
         dph2=x[5]*math.pi
 
         k=np.array([dr1*math.cos(dth1)*math.sin(dph1),dr1*math.sin(dth1)*math.sin(dph1),dr1*math.cos(dph1)])
-        l=np.array([dr2*math.cos(dth2)*math.sin(dph2),dr2*math.sin(dth2)*math.sin(dph2),dr2*math.cos(dph2)])
+        q=np.array([dr2*math.cos(dth2)*math.sin(dph2),dr2*math.sin(dth2)*math.sin(dph2),dr2*math.cos(dph2)])
 
         jacques=pow(eCMn,2)*math.pow(dr1,2)*math.sin(dph1)*math.pow(dr2,2)*math.sin(dph2)*math.pow(2*math.pi,2)*math.pow(math.pi,2)/(math.pow(1-x[0],2)*math.pow(1-x[3],2))
 
-        j1=[math.sqrt(pow(k[0],2.)+pow(k[1],2.)+pow(k[2],2.)),k[0],k[1],k[2]]
-        j2=[math.sqrt(pow(l[0]-k[0],2.)+pow(l[1]-k[1],2.)+pow(l[2]-k[2],2.)),l[0]-k[0],l[1]-k[1],l[2]-k[2]]
+        j1=[0,0,0,0]
+        j2=[0,0,0,0]
 
-        res=cut_res(LO(k,l,self.a,'dy'),jacques,j1,1,j2,-1,[0,0,0,0])
+        res=cut_res(LO(k,q,self.a,'dy'),jacques,j1,1,j2,-1,[0,0,0,0])
 
         return res
 
 
 class NLO_integrands:
 
-    def __init__(self, m, eCM, res_c, res_s, sigma, a, min_pt, max_pt, n_bins, basis, tag='st', debug=False, mode='min_pt',phase='real'):
+    def __init__(self, m, eCM, res_c, res_s, sigma, a, min_pt, max_pt, n_bins, basis, tag='st', obs_tag='JADE', obs_lambda=0,debug=False, mode='min_pt',phase='real'):
         self.eCM = eCM
         self.mZ=m
         self.min_pt = min_pt
@@ -80,6 +80,13 @@ class NLO_integrands:
         self.n_unstable_f128=0
         self.unstablef64=[]
         self.unstablef128=[]
+        if obs_tag=='JADE':
+            set_observable(0)
+            set_observable_lambda(obs_lambda)
+        else:
+            set_observable(1)
+        
+
 
     def set_digits(self,n_digits_f64,n_digits_f128):
         self.n_digits_f128=n_digits_f128
@@ -88,9 +95,15 @@ class NLO_integrands:
     def set_a(self, a):
         self.a = a
 
-
     def set_basis(self, basis):
         self.basis = basis
+
+    def set_obs(obs_tag, lamb):
+        if obs_tag=='JADE':
+            set_observable(0)
+            set_observable_lambda(lamb)
+        else:
+            set_observable(1)
 
 
     def x_param(self, x):
