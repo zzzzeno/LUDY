@@ -24,37 +24,78 @@ def rotator(ks):
 
 class LO_integrands:
 
-    def __init__(self, m, eCM, sigma, a, debug=False):
+    def __init__(self, eCM, m, x1, n_bins, tag='dy'):
         self.eCM = eCM
-        self.mZ=m
-        self.a = a
+        self.m = m
+        self.x1 = x1
+        self.x2 = m**2/(4*(eCM**2)*x1)
+        self.jac = (self.x1+self.x2)*self.x2/(4*pow(self.x1*self.x2,3/2))
+        self.a = (self.x1-self.x2)/(2*math.sqrt(self.x1*self.x2))
+        self.n_bins = n_bins
+        self.tag = tag
         set_kin(m,eCM)
-        set_sig(sigma)
-        set_r(0.,0.)
 
-    def set_a(self, ma):
-        self.a = ma
+    def set_x1(self, x1):
+        self.x1 = x1
+        self.x2 = self.m**2/(4*(self.eCM**2)*x1)
+        self.jac = (self.x1+self.x2)*self.x2/(4*pow(self.x1*self.x2,3/2))
+        self.a = (self.x1-self.x2)/(2*math.sqrt(self.x1*self.x2))
 
-    def eval(self, x):
-        eCMn=1.
-        dr1=eCMn*x[0]/(1-x[0])
+
+    def LO_bin(self, x):
+        res=0
+
+        dr1=x[0]/(1-x[0])
         dth1=x[1]*2*math.pi
         dph1=x[2]*math.pi
-        dr2=eCMn*x[3]/(1-x[3])
+        dr2=x[3]/(1-x[3])
         dth2=x[4]*2*math.pi
         dph2=x[5]*math.pi
 
-        k=np.array([dr1*math.cos(dth1)*math.sin(dph1),dr1*math.sin(dth1)*math.sin(dph1),dr1*math.cos(dph1)])
-        q=np.array([dr2*math.cos(dth2)*math.sin(dph2),dr2*math.sin(dth2)*math.sin(dph2),dr2*math.cos(dph2)])
+        p=[dr1*math.cos(dth1)*math.sin(dph1),dr1*math.sin(dth1)*math.sin(dph1),dr1*math.cos(dph1)]
+        q=[dr2*math.cos(dth2)*math.sin(dph2),dr2*math.sin(dth2)*math.sin(dph2),dr2*math.cos(dph2)]
 
-        jacques=pow(eCMn,2)*math.pow(dr1,2)*math.sin(dph1)*math.pow(dr2,2)*math.sin(dph2)*math.pow(2*math.pi,2)*math.pow(math.pi,2)/(math.pow(1-x[0],2)*math.pow(1-x[3],2))
+        if self.x2<1 and self.x2>0:
+            res=LO(p,q,self.a,'dy','f64')
 
-        j1=[0,0,0,0]
-        j2=[0,0,0,0]
+        jacques=math.pow(dr1,2)*math.sin(dph1)*math.pow(dr2,2)*math.sin(dph2)*math.pow(2*math.pi,2)*math.pow(math.pi,2)/(math.pow(1-x[0],2)*math.pow(1-x[3],2))
 
-        res=cut_res(LO(k,q,self.a,'dy'),jacques,j1,1,j2,-1,[0,0,0,0])
+        return self.jac*jacques*res
 
-        return res
+
+# class LO_integrands:
+
+#     def __init__(self, m, eCM, sigma, a, debug=False):
+#         self.eCM = eCM
+#         self.mZ=m
+#         self.a = a
+#         set_kin(m,eCM)
+#         set_sig(sigma)
+#         set_r(0.,0.)
+
+#     def set_a(self, ma):
+#         self.a = ma
+
+#     def eval(self, x):
+#         eCMn=1.
+#         dr1=eCMn*x[0]/(1-x[0])
+#         dth1=x[1]*2*math.pi
+#         dph1=x[2]*math.pi
+#         dr2=eCMn*x[3]/(1-x[3])
+#         dth2=x[4]*2*math.pi
+#         dph2=x[5]*math.pi
+
+#         k=np.array([dr1*math.cos(dth1)*math.sin(dph1),dr1*math.sin(dth1)*math.sin(dph1),dr1*math.cos(dph1)])
+#         q=np.array([dr2*math.cos(dth2)*math.sin(dph2),dr2*math.sin(dth2)*math.sin(dph2),dr2*math.cos(dph2)])
+
+#         jacques=pow(eCMn,2)*math.pow(dr1,2)*math.sin(dph1)*math.pow(dr2,2)*math.sin(dph2)*math.pow(2*math.pi,2)*math.pow(math.pi,2)/(math.pow(1-x[0],2)*math.pow(1-x[3],2))
+
+#         j1=[0,0,0,0]
+#         j2=[0,0,0,0]
+
+#         res=cut_res(LO(k,q,self.a,'dy'),jacques,j1,1,j2,-1,[0,0,0,0])
+
+#         return res
 
 
 class NLO_integrands:

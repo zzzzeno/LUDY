@@ -140,47 +140,35 @@ if __name__ == "__main__":
     #number of learning iterations for vegas
     n_iterations_learning=10 
     #size of learning iterations for vegas
-    n_points_iteration_learning=1000000 
+    n_points_iteration_learning=100000
     #number of refining iterations for vegas
     n_iterations=10 
     #size of refining iterations for vegas
-    n_points_iteration=1000000 
+    n_points_iteration=1000000
 
 
     #################################################
     #We start with the "LO" cross-section
     #################################################
 
-    eCM=13000
-    mZ=91.188
-    my_integrand_LO=LO_integrands(mZ,eCM,2,0.5)
+    benchmark=1.3820603e-03
 
-    def g(x):
+    integrand0=LO_integrands(eCM=13000, m=91.1188, x1=0.595, n_bins=0)
 
-        ap=10.*math.tan(math.pi*(x[6]-1/2))
-        my_integrand_LO.set_a(ap)
+    m=9.118800e+01
+    s=13000**2
 
-        xs=[x[i] for i in range(0,6)]
+    def f_LO(x):
+        #integrand0.set_x1(x[6])
+        return integrand0.LO_bin(x)
+        
+    integ0 = vegas.Integrator([[0,1],[0,1],[0,1],[0,1],[0,1],[0,1],[0,1]])#, [r3_min, r3_max], [th3_min, th3_max], [ph3_min, ph3_max]])
+    integ0(f_LO, nitn=10, neval=100000)
 
-        resf=0
-        x1=(ap*pow(eCM,2.) + math.sqrt(pow(ap,2.)*pow(eCM,4.) + pow(eCM,2.)*pow(mZ,2.)))/(2*pow(eCM,2.))
-        x2=pow(mZ,2.)/(4*pow(eCM,2.)*x1)
-        if x1<1. and x2<1.:
-            res=my_integrand_LO.eval(xs)
-            resf=res.res*10.*math.pi/pow(math.sin(math.pi*x[6]),2)*res.jac
-
-        return resf
-
-    integ0 = vegas.Integrator([[0.000,1], [0,1], [0,1], [0.000,1], [0,1], [0,1], [0.0001,1]])
-
-    integ0(g, nitn=n_iterations_learning, neval=n_points_iteration_learning)
-    result0 = integ0(g, nitn=n_iterations, neval=n_points_iteration)
+    result = integ0(f_LO, nitn=10, neval=1000000)
     if integ0.mpi_rank == 0:
-        print(result0.summary())
-    if integ0.mpi_rank == 0:
-        print('result = %s    Q = %.2f' % (result0, result0.Q))
-
-
+        print(result.summary())
+        print('result = %s    Q = %.2f' % (result, result.Q))
 
 
 
@@ -206,7 +194,7 @@ if __name__ == "__main__":
 
     my_tag="tqq"
 
-    my_integrand=NLO_integrands(91.188,13000,0.,0.,2,0.,10,2000,1,basis,tag=my_tag,phase='real')
+    my_integrand=NLO_integrands(91.188,13000,0.,0.,2,0.,10,2000,1,basis,tag=my_tag, obs_tag='JADE', obs_lambda=1, phase='real')
     my_integrand.set_digits(8,4)
 
     def f(x):
