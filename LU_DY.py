@@ -397,13 +397,22 @@ class LU_DY(object):
                         
                         self.observables = obs.ObservableList([ ol[0] for ol in sum([all_res[i] for i in sorted(list(all_res.keys()))],[]) ])
 
+                    tmp_obs = copy.deepcopy(self.observables)
+                    tmp_obs.clean_up(normalisation_factor=(1./n_production_iteration_performed))
+                    hwu_path_for_this_iteration = '%s_iteration_%d.%s'%('.'.join(hwu_path.split('.')[:-1]), n_production_iteration_performed, hwu_path.split('.')[-1])
+                    with open(hwu_path_for_this_iteration,'w') as f:
+                        f.write(tmp_obs.format_to_HwU())
+                    if self.verbosity>0: logger.info("A total of %d histograms are output to file '%s' for iteration #%d. They can be rendered using the madgraph/various/histograms.py script."%(
+                        len(tmp_obs),hwu_path_for_this_iteration, n_production_iteration_performed)
+                    )
+
                     if self.verbosity>0: logger.info("Iteration #%d completed."%n_production_iteration_performed)
                     logger.info("Production results after iteration #%d/%d: %.5g +/- %.3g (n_events = %d, n_samples = %d)"%(
                         n_production_iteration_performed,n_iterations_production,
-                        (1./n_production_iteration_performed)*self.observables[0].histogram.bins[1].integral,
-                        (1./n_production_iteration_performed)*(self.observables[0].histogram.bins[1].variance**0.5),
-                        self.observables[0].histogram.bins[1].n_entries,
-                        self.observables[0].histogram.n_total_samples
+                        tmp_obs[0].histogram.bins[1].integral,
+                        (tmp_obs[0].histogram.bins[1].variance**0.5),
+                        tmp_obs[0].histogram.bins[1].n_entries,
+                        tmp_obs[0].histogram.n_total_samples
                     ))
 
                 # Clean up observables by removing very small weights for instance, Also apply the normalisation factor
