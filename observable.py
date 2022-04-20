@@ -112,9 +112,8 @@ class Histogram(object):
             'n_bins': self.n_bins, 'title': self.title, 'x_axis_type' : self.x_axis.upper(), 'y_axis_type' : self.y_axis.upper(), 'histo_type' : self.type.upper()
         },]
         for i_b, b in enumerate(self.bins):
-            # Use absolute value of weight if we're going to plot it with log Y axis
             res.append('%.5e %.5e %.10e %.10e'%(
-                self.min+i_b*self.bin_width, self.min+(i_b+1)*self.bin_width, abs(b.integral) if self.y_axis.upper()=='LOG' else b.integral, abs((b.variance*(self.n_total_entries/b.n_entries if b.n_entries > 0 else 1.))**0.5)
+                self.min+i_b*self.bin_width, self.min+(i_b+1)*self.bin_width, b.integral, abs((b.variance*(self.n_total_entries/b.n_entries if b.n_entries > 0 else 1.))**0.5)
             ))
         res.append("<\\histogram>")
         return '\n'.join(res)
