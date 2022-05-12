@@ -103,6 +103,43 @@ class LU_DY(object):
         self.timings = None
 
     @staticmethod
+    def build_observables(observables):
+        """ Helper function to centralise where observables are defined."""
+
+        obs_list = obs.ObservableList([ obs.CrossSection(), ])
+        if observables is not None:
+            if 'ptj' in observables or 'ALL' in observables:
+                obs_list.append( obs.ptj() )
+                obs_list.append( obs.ptj(title='ptjLogY', min_value=0., max_value=2000., n_bins=100, y_axis='log') )
+                obs_list.append( obs.ptj(title='ptjZoom', min_value=0., max_value=20., n_bins=100) )
+            if 'log10ptj' in observables or 'ALL' in observables:
+                obs_list.append( obs.log10ptj() )
+                obs_list.append( obs.log10ptj(title='log10ptjLogY', min_value=-1., max_value=4., n_bins=100, y_axis='log') )
+            if 'x1' in observables or 'ALL' in observables:
+                obs_list.append( obs.x1() )
+            if 'x2' in observables or 'ALL' in observables:
+                obs_list.append( obs.x2() )
+            if 'z' in observables or 'ALL' in observables:
+                obs_list.append( obs.z(title='z', min_value=0., max_value=1, n_bins=100, y_axis='lin') )
+                obs_list.append( obs.z(title='zLogY', min_value=0., max_value=1, n_bins=100, y_axis='log') )
+                obs_list.append( obs.z(title='zZoomX1e2', min_value=0., max_value=1.0e-2, n_bins=100, y_axis='lin') )
+                obs_list.append( obs.z(title='zZoomX1e2LogY', min_value=0., max_value=1.0e-2, n_bins=100, y_axis='log') )
+                obs_list.append( obs.z(title='zZoomX1e4', min_value=0., max_value=1.0e-4, n_bins=100, y_axis='lin') )
+                obs_list.append( obs.z(title='zZoomX1e4LogY', min_value=0., max_value=1.0e-4, n_bins=100, y_axis='log') )
+            if 'log10z' in observables or 'ALL' in observables:
+                obs_list.append( obs.log10z(title='log10z', min_value=-6., max_value=0., n_bins=100, y_axis='lin') )
+                obs_list.append( obs.log10z(title='log10zLogY', min_value=-6., max_value=0., n_bins=100, y_axis='log') )
+            if ('x1_fixed_flavours' in observables or 'ALL' in observables) and not 'no_x1_fixed_flavours' in observables:
+                obs_list.append( obs.x1FixedFlav(flavour=0, take_abs=True) )
+                obs_list.append( obs.x1FixedFlav(flavour=1, take_abs=True) )
+                obs_list.append( obs.x1FixedFlav(flavour=2, take_abs=True) )
+            if ('x2_fixed_flavours' in observables or 'ALL' in observables) and not 'no_x2_fixed_flavours' in observables:
+                obs_list.append( obs.x2FixedFlav(flavour=0, take_abs=True) )
+                obs_list.append( obs.x2FixedFlav(flavour=1, take_abs=True) )
+                obs_list.append( obs.x2FixedFlav(flavour=2, take_abs=True) )
+        return obs_list
+
+    @staticmethod
     def cuts(evt, selector_variables):
         """ Implements cuts."""
 
@@ -292,25 +329,7 @@ class LU_DY(object):
                 self.timings = obs.Timings()
 
                 # Enable observables
-                self.observables = obs.ObservableList([ obs.CrossSection(), ])
-                if observables is not None:
-                    if 'ptj' in observables or 'ALL' in observables:
-                        self.observables.append( obs.ptj() )
-                        self.observables.append( obs.ptj(title='ptjZoom', min_value=0., max_value=20., n_bins=100,) )
-                    if 'log10ptj' in observables or 'ALL' in observables:
-                        self.observables.append( obs.log10ptj() )
-                    if 'x1' in observables or 'ALL' in observables:
-                        self.observables.append( obs.x1() )
-                    if 'x2' in observables or 'ALL' in observables:
-                        self.observables.append( obs.x2() )
-                    if ('x1_fixed_flavours' in observables or 'ALL' in observables) and not 'no_x1_fixed_flavours' in observables:
-                        self.observables.append( obs.x1FixedFlav(flavour=0, take_abs=True) )
-                        self.observables.append( obs.x1FixedFlav(flavour=1, take_abs=True) )
-                        self.observables.append( obs.x1FixedFlav(flavour=2, take_abs=True) )
-                    if ('x2_fixed_flavours' in observables or 'ALL' in observables) and not 'no_x2_fixed_flavours' in observables:
-                        self.observables.append( obs.x2FixedFlav(flavour=0, take_abs=True) )
-                        self.observables.append( obs.x2FixedFlav(flavour=1, take_abs=True) )
-                        self.observables.append( obs.x2FixedFlav(flavour=2, take_abs=True) )
+                self.observables = LU_DY.build_observables(observables)
 
                 self.worker_observables = [copy.deepcopy(self.observables) for _ in range(self.n_cores)]
 
@@ -378,13 +397,22 @@ class LU_DY(object):
                         
                         self.observables = obs.ObservableList([ ol[0] for ol in sum([all_res[i] for i in sorted(list(all_res.keys()))],[]) ])
 
+                    tmp_obs = copy.deepcopy(self.observables)
+                    tmp_obs.clean_up(normalisation_factor=(1./n_production_iteration_performed))
+                    hwu_path_for_this_iteration = '%s_iteration_%d.%s'%('.'.join(hwu_path.split('.')[:-1]), n_production_iteration_performed, hwu_path.split('.')[-1])
+                    with open(hwu_path_for_this_iteration,'w') as f:
+                        f.write(tmp_obs.format_to_HwU())
+                    if self.verbosity>0: logger.info("A total of %d histograms are output to file '%s' for iteration #%d. They can be rendered using the madgraph/various/histograms.py script."%(
+                        len(tmp_obs),hwu_path_for_this_iteration, n_production_iteration_performed)
+                    )
+
                     if self.verbosity>0: logger.info("Iteration #%d completed."%n_production_iteration_performed)
                     logger.info("Production results after iteration #%d/%d: %.5g +/- %.3g (n_events = %d, n_samples = %d)"%(
                         n_production_iteration_performed,n_iterations_production,
-                        (1./n_production_iteration_performed)*self.observables[0].histogram.bins[1].integral,
-                        (1./n_production_iteration_performed)*(self.observables[0].histogram.bins[1].variance**0.5),
-                        self.observables[0].histogram.bins[1].n_entries,
-                        self.observables[0].histogram.n_total_samples
+                        tmp_obs[0].histogram.bins[1].integral,
+                        (tmp_obs[0].histogram.bins[1].variance**0.5),
+                        tmp_obs[0].histogram.bins[1].n_entries,
+                        tmp_obs[0].histogram.n_total_samples
                     ))
 
                 # Clean up observables by removing very small weights for instance, Also apply the normalisation factor
