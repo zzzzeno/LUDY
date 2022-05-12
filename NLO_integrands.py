@@ -41,6 +41,12 @@ class LO_integrands:
         self.jac = (self.x1+self.x2)*self.x2/(4*pow(self.x1*self.x2,3/2))
         self.a = (self.x1-self.x2)/(2*math.sqrt(self.x1*self.x2))
 
+    def set_a_jj(self,a):
+        self.a=a
+        self.x1=0.5
+        self.x2=0.5
+        self.jac=1
+
 
     def LO_bin(self, x):
         res=0
@@ -121,11 +127,18 @@ class NLO_integrands:
         self.n_unstable_f128=0
         self.unstablef64=[]
         self.unstablef128=[]
+        self.max_val=0
+        self.max_x=0
+        self.max_k=0
         if obs_tag=='JADE':
             set_observable(0)
         if obs_tag=='HEMI':
             set_observable(1)
             set_observable_lambda(obs_lambda)
+        if obs_tag=='JJ':
+            set_observable(2)
+        if obs_tag!='JADE' and obs_tag!='HEMI' and obs_tag!='JJ':
+            print("not a valid clustering algorithm")
         
 
 
@@ -145,7 +158,9 @@ class NLO_integrands:
         if obs_tag=='HEMI':
             set_observable(1)
             set_observable_lambda(obs_lambda)
-        if obs_tag!='JADE' and obs_tag!='HEMI':
+        if obs_tag=='JJ':
+            set_observable(2)
+        if obs_tag!='JADE' and obs_tag!='HEMI' and obs_tag!='JJ':
             print("not a valid clustering algorithm")
 
 
@@ -172,7 +187,14 @@ class NLO_integrands:
             kb=b[0]*k+b[1]*l+b[2]*q
             ks.append(kb)
 
+
         jacques=pow(eCMn,3)*math.pow(dr1,2)*math.sin(dph1)*math.pow(dr2,2)*math.sin(dph2)*math.pow(dr3,2)*math.sin(dph3)*math.pow(2*math.pi,3)*math.pow(math.pi,3)/(math.pow(1-x[0],2)*math.pow(1-x[3],2)*math.pow(1-x[6],2))
+
+        # print("jacques x")
+        # print(jacques)
+        # print(dr1)
+        # print(dr2)
+        # print(dr3)
 
         return [jacques,ks]
 
@@ -227,8 +249,8 @@ class NLO_integrands:
         if self.mode=='min_pt':
             for r in res:
                 ptg=math.sqrt(math.pow(r.pg[1],2.)+math.pow(r.pg[2],2.))
-                x1px2=2*(res.j1[0]+res.j2[0])/my_integrand_LO.eCM
-                x1mx2=2*(res.j1[3]+res.j2[3])/my_integrand_LO.eCM
+                x1px2=2*(r.j1[0]+r.j2[0])/self.eCM
+                x1mx2=2*(r.j1[3]+r.j2[3])/self.eCM
 
                 x1=(x1px2+x1mx2)/2
                 x2=(x1px2-x1mx2)/2
@@ -272,7 +294,7 @@ class NLO_integrands:
         if abs(totresf64-totresnewf64)>pow(10.,-self.n_digits_f64)*(abs(totresf64)+abs(totresnewf64)):
             
             self.n_unstable_f64+=1
-            self.unstablef64.append([self.x_param(x),x])
+            self.unstablef64.append([x, self.x_param(x)])
 
             resf128=NLO(ks[0],ks[1],ks[2],self.a,self.tag,'f128',self.phase)
             resnewf128=NLO(ksnew[0],ksnew[1],ksnew[2],self.a,self.tag,'f128',self.phase)
@@ -302,8 +324,11 @@ class NLO_integrands:
                         res_bin[bin_index]+=r.res*r.jac
 
             else:
-                self.unstablef128.append(self.x_param(x))
+
+                self.unstablef128.append([x,self.x_param(x)])
                 self.n_unstable_f128+=1
+
+
         else:
 
             for r in resf64:
@@ -356,7 +381,7 @@ class NLO_integrands:
         # print(abs(totresf64-totresnewf64))
         # print(pow(10.,-self.n_digits_f64)*(abs(totresf64)+abs(totresnewf64)))
         if abs(totresf64-totresnewf64)>pow(10.,-self.n_digits_f64)*(abs(totresf64)+abs(totresnewf64)):
-            
+
             self.n_unstable_f64+=1
             self.unstablef64.append([self.x_param(x),x])
 
@@ -369,26 +394,57 @@ class NLO_integrands:
                 totresf128+=r.res*jacques
                 totresnewf128+=newr.res*jacques
 
+            # print("****************")
+            # print(totresf64)
+            # print(totresnewf64)
+            # print("----")
+            # print(totresf128)
+            # print(totresnewf128)
+
             if abs(totresf128-totresnewf128)<pow(10.,-self.n_digits_f128)*(abs(totresf128)+abs(totresnewf128)):
                 #print(x)
+                res=0
                 for r in resf128:
                     r.jac=r.jac*jacques
+                    res+=r.res*r.jac
+                
+                if abs(res)>abs(self.max_val):
+                    self.max_val=res
+                    self.max_x=x
+                    self.max_k=ks
 
                 return resf128
 
             else:
+                for r in resf128:
+                    r.res=0
                 self.unstablef128.append(self.x_param(x))
                 self.n_unstable_f128+=1
+                return resf128
         else:
 
+            res=0
             for r in resf64:
                 r.jac=r.jac*jacques
+                res+=r.res*r.jac
+                
+            if abs(res)>abs(self.max_val):
+                self.max_val=res
+                self.max_x=x
+                self.max_k=ks
+                
 
             return resf64
 
-
+        res=0
         for r in resnewf64:
             r.res=0
+            res+=r.res*r.jac
+                
+        if abs(res)>abs(self.max_val):
+            self.max_val=res
+            self.max_x=x
+            self.max_k=ks
             
         return resnewf64
         

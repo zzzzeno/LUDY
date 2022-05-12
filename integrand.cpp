@@ -24,14 +24,14 @@ struct jet_list{
 
 double NLO_constant(double m){return 0.389379*pow(10,9.)*pow(4*2*acos(0.0)/132.507,2.)*(4*2*acos(0.0)*0.118/9)/(pow(2*2*acos(0.0),5.)*4*8*pow(m,6.));};
 
-double norm(vector<double> v){return pow(pow(v[0],2.)+pow(v[1],2.)+pow(v[2],2.),0.5);};
-dcomp norm(vector<dcomp> v){return pow(pow(v[0],2.)+pow(v[1],2.)+pow(v[2],2.),0.5);};
+double norm(vector<double> v){return pow(pow(v[0],2)+pow(v[1],2)+pow(v[2],2),0.5);};
+dcomp norm(vector<dcomp> v){return sqrt(v[0]*v[0]+v[1]*v[1]+v[2]*v[2]);};
 double spatial_norm(vector<double> v){return pow(pow(v[1],2.)+pow(v[2],2.)+pow(v[3],2.),0.5);};
 
 double KroneckerDelta(int i, int j){if(i==j){return 1;}; return 0;};
 
 dcomp Power(dcomp x, double c){return pow(x,c);}
-dcomp Sqrt(dcomp x){return pow(x,0.5);}
+dcomp Sqrt(dcomp x){return sqrt(x);}
 
 double Power(double x, double c){return pow(x,c);}
 double Sqrt(double x){return pow(x,0.5);}
@@ -49,6 +49,12 @@ vector<double> vector_minus(vector<double> a, vector<double> b){
 
 vector<dcomp> vector_minus(vector<dcomp> a, vector<double> b){
     vector<dcomp> res=a;
+    for(int i=0; i<a.size(); i++){res[i]=a[i]-b[i];};
+    return res;
+};
+
+vector<dcomp> vector_minus(vector<double> a, vector<dcomp> b){
+    vector<dcomp> res=b;
     for(int i=0; i<a.size(); i++){res[i]=a[i]-b[i];};
     return res;
 };
@@ -73,6 +79,12 @@ vector<double> vector_swap(vector<double> a){
 
 vector<double> vector_times(vector<double> a, double c){
     vector<double> res=a;
+    for(int i=0; i<a.size(); i++){res[i]=a[i]*c;};
+    return res;    
+};
+
+vector<dual<double>> vector_times(vector<dual<double>> a, dual<double> c){
+    vector<dual<double>> res=a;
     for(int i=0; i<a.size(); i++){res[i]=a[i]*c;};
     return res;    
 };
@@ -1107,11 +1119,11 @@ class observables{
             double hardness=0;
             int index=0;
             double tote=0;
+            vector<double> tot={0,0,0,0};
 
             for(int i=0; i<n_constituents; i++){
-                tote+=constituents[i][0];
-                if(constituents[i][0]>hardness){
-                    hardness=constituents[i][0];
+                if(abs(constituents[i][0])>hardness){
+                    hardness=abs(constituents[i][0]);
                     index=i;
                 };
             };
@@ -1120,30 +1132,215 @@ class observables{
             double total_s=0;
 
             for(int i=0; i<n_constituents; i++){
+                tot={tot[0]+constituents[i][0],tot[1]+constituents[i][1],tot[2]+constituents[i][2],tot[3]+constituents[i][3]};
                 if(i != index){
                     total_p={total_p[0]+constituents[i][0],total_p[1]+constituents[i][1],total_p[2]+constituents[i][2],total_p[3]+constituents[i][3]};
-                    total_s+=spins[i];
+                    total_s+=abs(spins[i]);
                 };
             };
+
+
+            vector<double> j1pj2=tot;
+            vector<double> j1mj2={total_p[0]-constituents[index][0],total_p[1]-constituents[index][1],total_p[2]-constituents[index][2],total_p[3]-constituents[index][3]};
+
 
             double total_m=SP(total_p,total_p);
 
             double jac=0;
 
-            if(total_m<lambda*pow(eCM,2.) && tote<eCM){
+            //if(total_m<lambda*pow(eCM,2.) && total_s<=1){
+            if(total_m<lambda*pow(eCM,2.)){
                 jac=1;
+
+                vector<vector<double>> jacques_vecs={j1pj2,j1pj2,j1pj2,j1pj2,j1mj2,final_parton};
+
+                double tLz=b_flow.t_val(jacques_vecs[0],3);
+                jacques_vecs={b_flow.perform_flow(jacques_vecs[0],3,tLz),b_flow.perform_flow(jacques_vecs[1],3,tLz),b_flow.perform_flow(jacques_vecs[2],3,tLz),b_flow.perform_jacques(jacques_vecs[3],tLz,3),b_flow.perform_flow(jacques_vecs[4],3,tLz),b_flow.perform_flow(jacques_vecs[5],3,tLz)};
+
+
+                double tLy=b_flow.t_val(jacques_vecs[0],2);
+                jacques_vecs={b_flow.perform_flow(jacques_vecs[0],2,tLy),b_flow.perform_flow(jacques_vecs[1],2,tLy),b_flow.perform_jacques(jacques_vecs[2],tLy,2),b_flow.perform_flow(jacques_vecs[3],2,tLy),b_flow.perform_flow(jacques_vecs[4],2,tLy),b_flow.perform_flow(jacques_vecs[5],2,tLy)};
+
+
+                double tLx=b_flow.t_val(jacques_vecs[0],1);
+                jacques_vecs={b_flow.perform_flow(jacques_vecs[0],1,tLx),b_flow.perform_jacques(jacques_vecs[1],tLx,1),b_flow.perform_flow(jacques_vecs[2],1,tLx),b_flow.perform_flow(jacques_vecs[3],1,tLx),b_flow.perform_flow(jacques_vecs[4],1,tLx),b_flow.perform_flow(jacques_vecs[5],1,tLx)};
+
+                jac=Sqrt(SP(jacques_vecs[0],jacques_vecs[0]))*(b_flow.h(tLx)*b_flow.h(tLy)*b_flow.h(tLz))/abs(jacques_vecs[1][1]*jacques_vecs[2][2]*jacques_vecs[3][3]);
+
+                vector<double> j1={(jacques_vecs[0][0]+jacques_vecs[4][0])/2,(jacques_vecs[0][1]+jacques_vecs[4][1])/2,(jacques_vecs[0][2]+jacques_vecs[4][2])/2,(jacques_vecs[0][3]+jacques_vecs[4][3])/2};
+                vector<double> j2={(jacques_vecs[0][0]-jacques_vecs[4][0])/2,(jacques_vecs[0][1]-jacques_vecs[4][1])/2,(jacques_vecs[0][2]-jacques_vecs[4][2])/2,(jacques_vecs[0][3]-jacques_vecs[4][3])/2};
+                vector<double> pg={jacques_vecs[5][0],jacques_vecs[5][1],jacques_vecs[5][2],jacques_vecs[5][3]};
+
+                observable res_vec_n;
+
+
+                res_vec_n.eval=0;
+                res_vec_n.jac=jac;
+                res_vec_n.j1=j1;
+                res_vec_n.j2=j2;
+                res_vec_n.spin2=spins[index];
+                res_vec_n.spin1=total_s;
+                res_vec_n.pg=pg;
+
+                return res_vec_n;
+
+
             };
 
+
+            //FLOWWW TO PUT Q=(0,0,0)
+
+            observable res_vec_n;
+
+            res_vec_n.eval=0;
+            res_vec_n.jac=0;
+            res_vec_n.j1={0,0,0,0};
+            res_vec_n.j2={0,0,0,0};
+            res_vec_n.spin2=0;
+            res_vec_n.spin1=0;
+            res_vec_n.pg={0,0,0,0};
+
+            return res_vec_n;
+
+        };
+
+
+        observable hemisphere_sampling_2(vector<vector<double>> constituents, int n_constituents, vector<double> final_parton, int* spins, double a){
+
+        
+            vector<double> tot={0,0,0,0};
+
+            for(int i=0; i<n_constituents; i++){
+                tot={tot[0]+constituents[i][0],tot[1]+constituents[i][1],tot[2]+constituents[i][2],tot[3]+constituents[i][3]};
+            };
+
+            vector<double> j1pj2=tot;
+
+            vector<vector<double>> jacques_vecs={j1pj2,j1pj2,j1pj2,j1pj2,final_parton};
+            vector<vector<double>> constituents_boosted=constituents;
+
+            double tLz=b_flow.t_val(jacques_vecs[0],3);
+            jacques_vecs={b_flow.perform_flow(jacques_vecs[0],3,tLz),b_flow.perform_flow(jacques_vecs[1],3,tLz),b_flow.perform_flow(jacques_vecs[2],3,tLz),b_flow.perform_jacques(jacques_vecs[3],tLz,3),b_flow.perform_flow(jacques_vecs[4],3,tLz)};
+            for(int i=0; i<n_constituents; i++){
+                constituents_boosted[i]=b_flow.perform_flow(constituents_boosted[i],3,tLz);
+            };
+
+            double tLy=b_flow.t_val(jacques_vecs[0],2);
+            jacques_vecs={b_flow.perform_flow(jacques_vecs[0],2,tLy),b_flow.perform_flow(jacques_vecs[1],2,tLy),b_flow.perform_jacques(jacques_vecs[2],tLy,2),b_flow.perform_flow(jacques_vecs[3],2,tLy),b_flow.perform_flow(jacques_vecs[4],2,tLy)};
+            for(int i=0; i<n_constituents; i++){
+                constituents_boosted[i]=b_flow.perform_flow(constituents_boosted[i],2,tLy);
+            };
+
+            double tLx=b_flow.t_val(jacques_vecs[0],1);
+            jacques_vecs={b_flow.perform_flow(jacques_vecs[0],1,tLx),b_flow.perform_jacques(jacques_vecs[1],tLx,1),b_flow.perform_flow(jacques_vecs[2],1,tLx),b_flow.perform_flow(jacques_vecs[3],1,tLx),b_flow.perform_flow(jacques_vecs[4],1,tLx)};
+            for(int i=0; i<n_constituents; i++){
+                constituents_boosted[i]=b_flow.perform_flow(constituents_boosted[i],1,tLx);
+            };
+
+            vector<double> pg={jacques_vecs[4][0],jacques_vecs[4][1],jacques_vecs[4][2],jacques_vecs[4][3]};
+
+            double hardness=0;
+            int index=0;
+
+            for(int i=0; i<n_constituents; i++){
+                if(abs(constituents_boosted[i][0])>hardness){
+                    hardness=abs(constituents_boosted[i][0]);
+                    index=i;
+                };
+            };
+
+            vector<double> total_p={0,0,0,0};
+            int total_s=0;
+
+            for(int i=0; i<n_constituents; i++){
+                tot={tot[0]+constituents_boosted[i][0],tot[1]+constituents_boosted[i][1],tot[2]+constituents_boosted[i][2],tot[3]+constituents_boosted[i][3]};
+                if(i != index){
+                    total_p={total_p[0]+constituents_boosted[i][0],total_p[1]+constituents_boosted[i][1],total_p[2]+constituents_boosted[i][2],total_p[3]+constituents_boosted[i][3]};
+                    total_s+=abs(spins[i]);
+                };
+            };
+
+            double total_m=SP(total_p,total_p);
+
+            // cout<<"*****F64*****"<<endl;
+            // cout<<"HARDEST "<<constituents_boosted[index][0]<<" "<<constituents_boosted[index][1]<<" "<<constituents_boosted[index][2]<<" "<<constituents_boosted[index][3]<<endl;
+            // cout<<"OTHER "<<total_p[0]<<" "<<total_p[1]<<" "<<total_p[2]<<" "<<total_p[3]<<endl;
+            // cout<<"q "<<jacques_vecs[0][0]<<" "<<jacques_vecs[0][1]<<" "<<jacques_vecs[0][2]<<" "<<jacques_vecs[0][3]<<endl;
+            // cout<<"total_m "<<total_m<<endl;
+            // cout<<"eCM "<<eCM<<endl;
+
+            double jac=0;
+
+            if(total_m<lambda*pow(eCM,2.) && total_s<2){
+                jac=Sqrt(SP(jacques_vecs[0],jacques_vecs[0]))*(b_flow.h(tLx)*b_flow.h(tLy)*b_flow.h(tLz))/abs(jacques_vecs[1][1]*jacques_vecs[2][2]*jacques_vecs[3][3]);
+
+                observable res_vec_n;
+
+                res_vec_n.eval=0;
+                res_vec_n.jac=jac;
+                res_vec_n.j1=total_p;
+                res_vec_n.j2=constituents_boosted[index];
+                res_vec_n.spin1=spins[index];
+                res_vec_n.spin2=total_s;
+                res_vec_n.pg=pg;
+
+                return res_vec_n;
+
+            };
+
+            observable res_vec_n;
+
+            res_vec_n.eval=0;
+            res_vec_n.jac=0;
+            res_vec_n.j1={0,0,0,0};
+            res_vec_n.j2={0,0,0,0};
+            res_vec_n.spin2=0;
+            res_vec_n.spin1=0;
+            res_vec_n.pg={0,0,0,0};
+
+            return res_vec_n;
+
+        };
+
+
+
+        observable jj_sampling(vector<vector<double>> constituents, int n_constituents, vector<double> final_parton, double a){
+
+            vector<double> tot={0,0,0,0};
+
+            for(int i=0; i<n_constituents; i++){
+                tot={tot[0]+constituents[i][0],tot[1]+constituents[i][1],tot[2]+constituents[i][2],tot[3]+constituents[i][3]};
+            };
+
+
+            vector<double> j1pj2=tot;
+
+            double jac=1;
+
+            vector<vector<double>> jacques_vecs={j1pj2,j1pj2,j1pj2,j1pj2,final_parton};
+
+            double tLz=b_flow.t_val(jacques_vecs[0],3);
+            jacques_vecs={b_flow.perform_flow(jacques_vecs[0],3,tLz),b_flow.perform_flow(jacques_vecs[1],3,tLz),b_flow.perform_flow(jacques_vecs[2],3,tLz),b_flow.perform_jacques(jacques_vecs[3],tLz,3),b_flow.perform_flow(jacques_vecs[4],3,tLz)};
+
+            double tLy=b_flow.t_val(jacques_vecs[0],2);
+            jacques_vecs={b_flow.perform_flow(jacques_vecs[0],2,tLy),b_flow.perform_flow(jacques_vecs[1],2,tLy),b_flow.perform_jacques(jacques_vecs[2],tLy,2),b_flow.perform_flow(jacques_vecs[3],2,tLy),b_flow.perform_flow(jacques_vecs[4],2,tLy)};
+
+            double tLx=b_flow.t_val(jacques_vecs[0],1);
+            jacques_vecs={b_flow.perform_flow(jacques_vecs[0],1,tLx),b_flow.perform_jacques(jacques_vecs[1],tLx,1),b_flow.perform_flow(jacques_vecs[2],1,tLx),b_flow.perform_flow(jacques_vecs[3],1,tLx),b_flow.perform_flow(jacques_vecs[4],1,tLx)};
+
+            jac=Sqrt(SP(jacques_vecs[0],jacques_vecs[0]))*(b_flow.h(tLx)*b_flow.h(tLy)*b_flow.h(tLz))/abs(jacques_vecs[1][1]*jacques_vecs[2][2]*jacques_vecs[3][3]);
+
+            vector<double> pg={jacques_vecs[4][0],jacques_vecs[4][1],jacques_vecs[4][2],jacques_vecs[4][3]};
 
             observable res_vec_n;
 
             res_vec_n.eval=0;
             res_vec_n.jac=jac;
-            res_vec_n.j1={total_p[0],total_p[1],total_p[2],total_p[3]};
-            res_vec_n.j2={constituents[index][0],constituents[index][1],constituents[index][2],constituents[index][3]};
-            res_vec_n.spin1=spins[index];
-            res_vec_n.spin2=total_s;
-            res_vec_n.pg={final_parton[0],final_parton[1],final_parton[2],final_parton[3]};
+            res_vec_n.j1={0,0,0,0};
+            res_vec_n.j2={0,0,0,0};
+            res_vec_n.spin2=0;
+            res_vec_n.spin1=0;
+            res_vec_n.pg=pg;
 
             return res_vec_n;
 
@@ -1162,19 +1359,25 @@ class deformation_field{
         double lambda;
         double mij;
         double branch_cut_lambda;
+        double m;
 
     public:
 
-        deformation_field(double nlambda, double nmij, double nbranch_cut_lambda){
+        deformation_field(double nlambda, double nmij, double nbranch_cut_lambda, double mass){
             lambda=nlambda;
             mij=nmij;
             branch_cut_lambda=nbranch_cut_lambda;
+            m=mass;
         };
 
         void set_hyperparameters(double nlambda, double nmij, double nbranch_cut_lambda){
             lambda=nlambda;
             mij=nmij;
             branch_cut_lambda=nbranch_cut_lambda;
+        };
+
+        void set_mass(double my_mass){
+            m=my_mass;
         };
 
 
@@ -1210,6 +1413,70 @@ class deformation_field{
         };*/
 
 
+        dual<double> min_dual(vector<dual<double>> input){
+
+            dual<double> min=input[0];
+            for(int i=0; i<input.size(); i++){
+                if(input[i].rpart()<min.rpart()){
+                    min=input[i];
+                    if(input[i].rpart()<0){
+                        cout<<"negative lambda value reached"<<endl;
+                    };
+                };
+            };
+
+            return min;
+        };
+
+        dual<double> expansion_check(vector<dual<double>> q1, vector<dual<double>> kappa){
+            dual<double> a=pow(q1[0],2.)+pow(q1[1],2.)+pow(q1[2],2.);
+            dual<double> b=q1[0]*kappa[0]+q1[1]*kappa[1]+q1[2]*kappa[2];
+            dual<double> c=pow(kappa[0],2.)+pow(kappa[1],2.)+pow(kappa[2],2.);
+            return 0.25*sqrt(2*pow(a,2.)/(a*c-pow(b,2.)));
+        };
+
+        dual<double> complex_pole_check(vector<dual<double>> q1, vector<dual<double>> q2, dual<double> p0, vector<dual<double>> kappa){
+            dual<double> e_q1=sqrt(pow(q1[0],2.)+pow(q1[1],2.)+pow(q1[2],2.));
+            dual<double> e_q2=sqrt(pow(q2[0],2.)+pow(q2[1],2.)+pow(q2[2],2.));
+            dual<double> a=e_q1+e_q2-p0;
+
+            dual<double> norm_kappa=sqrt(pow(kappa[0],2.)+pow(kappa[1],2.)+pow(kappa[2],2.));
+
+            dual<double> b=1./2*((q1[0]/e_q1+q2[0]/e_q2)*kappa[0]+(q1[1]/e_q1+q2[1]/e_q2)*kappa[1]+(q1[2]/e_q1+q2[2]/e_q2)*kappa[2]);
+
+            dual<double> c1=(pow(e_q1,2.)*pow(norm_kappa,2.)-pow(q1[0]*kappa[0]+q1[1]*kappa[1]+q1[2]*kappa[2],2.))/pow(e_q1,3.);
+            dual<double> c2=(pow(e_q2,2.)*pow(norm_kappa,2.)-pow(q2[0]*kappa[0]+q2[1]*kappa[1]+q2[2]*kappa[2],2.))/pow(e_q2,3.);
+            dual<double> c=1./2*(c1+c2);
+
+            if(2*b.rpart()<a.rpart()){return sqrt(a/(4*c));};
+            if(2*b.rpart()>a.rpart() && a.rpart()>0){return sqrt(b/c-a/(4*c));};
+            if(a.rpart()<0){return sqrt(b/c-a/(2*c));};
+
+            return 0;
+        };
+
+        dual<double> branch_cut_check(vector<dual<double>> q1, vector<dual<double>> kappa){
+            dual<double> e_q1=sqrt(pow(q1[0],2.)+pow(q1[1],2.)+pow(q1[2],2.));
+            dual<double> norm_kappa=sqrt(pow(kappa[0],2.)+pow(kappa[1],2.)+pow(kappa[2],2.));
+
+            return e_q1/norm_kappa;
+        }
+
+        dual<double> pinch_suppression(vector<dual<double>> q1, vector<dual<double>> q2, dual<double> p0){
+            dual<double> e_q1=sqrt(pow(q1[0],2.)+pow(q1[1],2.)+pow(q1[2],2.));
+            dual<double> e_q2=sqrt(pow(q2[0],2.)+pow(q2[1],2.)+pow(q2[2],2.));
+            dual<double> a=e_q1+e_q2-p0;
+
+            return pow(a,2.)/(pow(a,2.)+pow(mij,2.));
+        };
+
+        dual<double> soft_suppression(vector<dual<double>> q1){
+            dual<double> e_q1=sqrt(pow(q1[0],2.)+pow(q1[1],2.)+pow(q1[2],2.));
+
+            return pow(e_q1,3.)/(pow(e_q1,3.)+pow(mij,3.));
+        };
+
+
         dual<double> get_deformation_dt(vector<double> k, vector<double> l, vector<double> q, int i, int j){
 
             //cout<<lambda<<" "<<mij<<" "<<branch_cut_lambda<<endl;
@@ -1228,41 +1495,78 @@ class deformation_field{
                 kz=k[2]+1_e;
             };
 
+            
+            // dual<double> e_k=sqrt(kx*kx+ky*ky+kz*kz);
+            // dual<double> e_kq=sqrt((kx-qx)*(kx-qx)+(ky-qy)*(ky-qy)+(kz-qz)*(kz-qz));
 
-            dual<double> e_k=sqrt(kx*kx+ky*ky+kz*kz);
-            dual<double> e_kl=sqrt((kx-lx)*(kx-lx)+(ky-ly)*(ky-ly)+(kz-lz)*(kz-lz));
-            double e_l=norm(l);
-            dual<double> e_kq=sqrt((kx-qx)*(kx-qx)+(ky-qy)*(ky-qy)+(kz-qz)*(kz-qz));
-            double e_lq=norm(vector_plus(l,vector_swap(q)));
 
-            dual<double> pinch1=e_k+e_kl-e_l;
-            dual<double> pinch2=e_kq+e_kl-e_lq;
+            // vector<dual<double>> radial_field={kx/e_k+(kx-qx)/e_kq,ky/e_k+(ky-qy)/e_kq,kz/e_k+(kz-qz)/e_kq};
 
-            dual<double> tp1=pow(pinch1,2.)/(pow(pinch1,2.)+pow(mij,2.));
-            dual<double> tp2=pow(pinch2,2.)/(pow(pinch2,2.)+pow(mij,2.));
+            vector<dual<double>> kd={kx,ky,kz};
+            vector<dual<double>> kqd={kx-qx,ky-qy,kz-qz};
+            vector<dual<double>> lqd={lx-qx,ly-qy,lz-qz};
+            vector<dual<double>> kld={kx-lx,ky-ly,kz-lz};
 
-            if(e_kl/e_k<e_kq/e_k && e_kl/e_k<branch_cut_lambda){
-                if(j==1){return k[0]*tp1*tp2*e_kl/e_k;};
-                if(j==2){return k[1]*tp1*tp2*e_kl/e_k;};
-                if(j==3){return k[2]*tp1*tp2*e_kl/e_k;};
-            }
-            if(e_kq/e_k<e_kl/e_k && e_kq/e_k<branch_cut_lambda){
-                if(j==1){return k[0]*tp1*tp2*e_kq/e_k;};
-                if(j==2){return k[1]*tp1*tp2*e_kq/e_k;};
-                if(j==3){return k[2]*tp1*tp2*e_kq/e_k;};
-            }
-            if(branch_cut_lambda<e_kq/e_k && branch_cut_lambda<e_kl/e_k){
-                if(j==1){return k[0]*tp1*tp2*branch_cut_lambda;};
-                if(j==2){return k[1]*tp1*tp2*branch_cut_lambda;};
-                if(j==3){return k[2]*tp1*tp2*branch_cut_lambda;};
-            }
 
+            dual<double> tp1=pinch_suppression(kd,kld,sqrt(lx*lx+ly*ly+lz*lz));
+            dual<double> tp2=pinch_suppression(kqd,kld,norm(vector_plus(l,vector_swap(q))));
+            dual<double> tp3=soft_suppression(kld);
+
+
+            vector<dual<double>> radial_field={tp1*tp2*tp3*kx,tp1*tp2*tp3*ky,tp1*tp2*tp3*kz};
+
+
+
+            dual<double> lambda_bc_k=branch_cut_check(kd,radial_field);
+            dual<double> lambda_bc_kq=branch_cut_check(kqd,radial_field);
+            dual<double> lambda_bc_kl=branch_cut_check(kld,radial_field);
+
+            dual<double> lambda_cp_1=complex_pole_check(kd,kld,sqrt(lx*lx+ly*ly+lz*lz),radial_field);
+            dual<double> lambda_cp_2=complex_pole_check(kqd,kld,norm(vector_plus(l,vector_swap(q))),radial_field);
+            dual<double> lambda_cp_3=complex_pole_check(kd,kqd,sqrt(pow(norm(q),2)+pow(m,2.)),radial_field);
+
+            dual<double> lambda_exp_1=expansion_check(kd,radial_field);
+            dual<double> lambda_exp_2=expansion_check(kqd,radial_field);
+            dual<double> lambda_exp_3=expansion_check(kld,radial_field);
+
+            
+            // cout<<"branch_cuts  "<<lambda_bc_k<<" "<<lambda_bc_kl<<" "<<lambda_bc_kq<<endl;
+            // cout<<"complex_poles  "<<lambda_cp_1<<" "<<lambda_cp_2<<" "<<lambda_cp_3<<endl;
+
+            vector<dual<double>> lambdas={branch_cut_lambda,lambda_bc_k,lambda_bc_kl,lambda_bc_kq,lambda_cp_1,lambda_cp_2,lambda_cp_3,lambda_exp_1,lambda_exp_2,lambda_exp_3};
+
+            
+
+            // cout<<"pinch suppressions "<<tp1<<" "<<tp2<<" "<<tp3<<endl;
+
+            dual<double> UV_suppression=exp(-pow(norm(k),2.)/10.);
+
+            dual<double> final_lambda=min_dual(lambdas);
+
+            // if(tp1<pow(10.,-4.) || tp2<pow(10.,-4.)){
+            //     cout<<"close to pinch"<<final_lambda<<"     "<<radial_field[0]<<" "<<radial_field[1]<<" "<<radial_field[2]<<endl;
+            // };
+
+            // if(pinch_suppression(kd,kqd,sqrt(pow(norm(q),2)+pow(m,2.)))<pow(10.,-4.)){
+            //     cout<<"close to e-surf"<<final_lambda<<"     "<<radial_field[0]<<" "<<radial_field[1]<<" "<<radial_field[2]<<endl;
+            // };
+
+
+            // cout<<"final_lambda "<<final_lambda<<endl;
+
+            vector<dual<double>> final_kappa={radial_field[0]*final_lambda,radial_field[1]*final_lambda,radial_field[2]*final_lambda};
+
+            if(j==1){return final_kappa[0];};
+            if(j==2){return final_kappa[1];};
+            if(j==3){return final_kappa[2];};
+            
+            cout<<"Ben told me to add this printout"<<endl;
             return 0;
 
         };
 
 
-        dcomp jacques_deformation_dt(vector<double> k, vector<double> l, vector<double> q, int signn){
+        dcomp jacques_deformation_dt(vector<double> k, vector<double> l, vector<double> q, double signn){
 
             double sign=signn;
 
@@ -1312,8 +1616,7 @@ class integrands{
         deformation_field my_defo;
 
     public:
-        integrands(double nm, double neCM, double nsigma, double nMUV):my_obs(0,0,neCM,nm), my_flow(nm,nsigma), my_defo(1,0.069,1){
-
+        integrands(double nm, double neCM, double nsigma, double nMUV):my_obs(0,0,neCM,nm), my_flow(nm,nsigma), my_defo(1,0.069,1,nm){
             tag_obs=0;            
             eCM=neCM;
             m=nm;
@@ -1321,18 +1624,18 @@ class integrands{
             double gV=0.1303037631031056;
             double gs=Sqrt(0.118*4*M_PI);
             int NC=3;
+
+            //INTEGER ARITHMETIC TO FIX HERE
             double CF=(NC*NC-1)/(2*NC);
             double spin_norm=2;
 
-            double PS_constant=1/(16*pow(M_PI,2.)*eCM*eCM);
+            double PS_constant=1/(16.*pow(M_PI,2.)*eCM*eCM);
 
             constant=pow(gV,2)*pow(gs,2)*CF*NC/(pow(spin_norm,2.))*PS_constant*0.389379*pow(10,9);
             
-    
-            
         }
 
-        integrands(double nm, double neCM, double nsigma, double nMUV, double res_c, double res_s):my_obs(res_c,res_s,neCM,nm), my_flow(nm,nsigma), my_defo(1,0.069,1){
+        integrands(double nm, double neCM, double nsigma, double nMUV, double res_c, double res_s):my_obs(res_c,res_s,neCM,nm), my_flow(nm,nsigma), my_defo(1,0.069,1,nm){
             eCM=neCM;
             m=nm;
             /*double gV=0.1303037631031056;
@@ -1344,7 +1647,6 @@ class integrands{
             double PS_constant=1/(16*pow(M_PI,2.)*eCM*eCM);
             constant=pow(gV,2)*pow(gs,2)*CF*NC/(pow(spin_norm,2.))*PS_constant*0.389379*pow(10,9);
             cout<<constant<<endl;*/
-
             tag_obs=0;            
             double gV=0.1303037631031056;
             double gs=Sqrt(0.118*4*M_PI);
@@ -1367,8 +1669,17 @@ class integrands{
 
         void set_MUV(double nMUV){MUV=nMUV;};
 
-        void set_kinematics(double nm, double neCM){my_obs.set_kinematics(nm,neCM); my_flow.set_mass(nm); m=nm; eCM=neCM;};
+        void set_kinematics(double nm, double neCM){my_obs.set_kinematics(nm,neCM); my_flow.set_mass(nm); my_defo.set_mass(nm); m=nm; eCM=neCM;
+        double PS_constant=1/(16*pow(M_PI,2.)*neCM*neCM);
+        double gV=0.1303037631031056;
+        double gs=Sqrt(0.118*4*M_PI);
+        int NC=3.;
+        double CF=(NC*NC-1)/(2*NC);
+        double spin_norm=2;
+        constant=pow(gV,2)*pow(gs,2)*CF*NC/(pow(spin_norm,2.))*PS_constant*0.389379*pow(10,9);
+        };
 
+        
         void set_res(double nres_c, double nres_s){my_obs.set_res(nres_c,nres_s);};
 
         void set_sigma(double nsigma){
@@ -1453,8 +1764,13 @@ class integrands{
             vector<vector<double>> constituents={ps, vector_minus(qs,ps)};
 
             int spins[2]={1,1};
+            vector<double> pg={0,0,0,0};
 
-            vector<double> obs_res=my_obs.b2b_sampling(constituents, 2, spins, a);;
+            //OBSERVABLE CHANGE
+
+            //vector<double> obs_res=my_obs.b2b_sampling(constituents, 2, spins, a);
+
+            observable obs_res=my_obs.jj_sampling(constituents, 2, pg, a);
 
             if(DEBUG==1){
                     vector<double> psp={0.0, 0.0, 91.188/2};
@@ -1471,9 +1787,10 @@ class integrands{
                     cout<<"LO BORN: "<<LO_DrellYan_numerator(psp,qsp)/(8*epp*eqp*epq)<<endl;
             };
 
-            double con=-pow(0.1303037631031056,2)*0.389379*pow(10,9)*3/(3*3*2*2*4*eCM*eCM);
+            double con=1;//-pow(0.1303037631031056,2)*0.389379*pow(10,9)*3/(3*3*2*2*4*eCM*eCM);
 
-            return con*jac_flow*flow_h*obs_res[0]*LO_DrellYan_numerator(ps,qs)/(8*e1*e2*e3);
+            //return con*jac_flow*flow_h*obs_res[0]*LO_DrellYan_numerator(ps,qs)/(8*e1*e2*e3);
+            return con*jac_flow*flow_h*obs_res.jac*LO_DrellYan_numerator(ps,qs)/(8*e1*e2*e3);
         };
 
 
@@ -1488,11 +1805,15 @@ class integrands{
             return 128.*(-pow(SP(k, l),2.) + SP(k, l)*SP(k, q) + SP(k, l)*SP(l, q) - SP(k, q)*SP(l, q));
         };
 
+        dcomp NLO_DT_DrellYan_numerator(vector<double> k, vector<dcomp> l, vector<double> q){
+            return 128.*(-pow(SP(k, l),2.) + SP(k, l)*SP(k, q) + SP(k, l)*SP(l, q) - SP(k, q)*SP(l, q));
+        };
+
 
         //1/(MUV^2 + norm[k]^2)^(5/2)
         double NLO_DT_UV_DrellYan_numeratorA(vector<double> k, vector<double> l, vector<double> q){
-            return -24*pow(SP(k, l),2.) + 24*SP(k, l)*SP(k, q) + 12*pow(MUV,2.)*SP(l, l) + 12*SP(k, k)*SP(l, l) - 
-                12*pow(MUV,2.)*SP(l, q) - 12*SP(k, k)*SP(l, q);
+            return -24*pow(SP(k, l),2) + 24*SP(k, l)*SP(k, q) + 12*pow(MUV,2)*SP(l, l) + 12*SP(k, k)*SP(l, l) - 
+                12*pow(MUV,2)*SP(l, q) - 12*SP(k, k)*SP(l, q);
         };
 
         //1/(MUV^2 + norm[k]^2)^(3/2)
@@ -1529,14 +1850,33 @@ class integrands{
             return 64*(SP(k, k)*k[0] - 2*k[0]*SP(k, q) + SP(k, k)*q[0]);
         };  
 
+        dcomp test_f(vector<double> k, vector<double> l, vector<double> q, double a){
+            double defo_sign=1;
+            double jac_sign=1;
+            vector<double> kappa={my_defo.get_deformation_dt(k,l,q,1,1).rpart(),my_defo.get_deformation_dt(k,l,q,1,2).rpart(),my_defo.get_deformation_dt(k,l,q,1,3).rpart()};
 
-        //ADD ep+em->d+dbar flow
+
+            //cout<<kappa[0]<<" "<<kappa[1]<<" "<<kappa[2]<<endl;
+            dcomp i(0,1);
+            vector<dcomp> ks={k[0]+defo_sign*i*kappa[0],k[1]+defo_sign*i*kappa[1],k[2]+defo_sign*i*kappa[2]};
+            dcomp defo_jacques=my_defo.jacques_deformation_dt(k,l,q,jac_sign);
+
+            dcomp e_k=norm(ks);
+            dcomp e_l=norm(l);
+            dcomp e_q=norm(q);
+
+            dcomp res=defo_jacques/(pow(ks[0]*ks[0]+ks[1]*ks[1]+ks[2]*ks[2]+1.,3.)*pow(pow(e_l,2.)+1.,3.)*pow(pow(e_q,2.)+1.,3.));//*exp(-pow(norm(ks),2.)-pow(norm(l),2.)-pow(norm(q),2.));
+
+            //cout<<res<<endl;
+
+            return res;
+
+        };
+
 
         observable_c NLO_dt_DrellYan_integrand(vector<double> k, vector<double> l, vector<double> q, double a, int comp){
 
-
             if(comp==1 || comp==2){
-
 
                 vector<double> l_in=l;
                 vector<double> k_in=k;
@@ -1585,24 +1925,10 @@ class integrands{
                 double flow_h=my_flow.h(my_flow.t_val(ni,nf,q_in));
 
 
-                /*cout<<my_flow.t_val(ni,nf,q_in)<<endl;
-                cout<<flow_h<<endl;
-                cout<<"mass: "<<m<<" - eCM: "<<eCM<<endl;*/
-
                 dcomp i(0,1.);
-                //vector<double> kappa=my_defo.get_deformation(ks_real,ls,1);
                 vector<double> kappa={my_defo.get_deformation_dt(ks_real,ls,qs,1,1).rpart(),my_defo.get_deformation_dt(ks_real,ls,qs,1,2).rpart(),my_defo.get_deformation_dt(ks_real,ls,qs,1,3).rpart()};
                 vector<dcomp> ks={ks_real[0]+defo_sign*i*kappa[0],ks_real[1]+defo_sign*i*kappa[1],ks_real[2]+defo_sign*i*kappa[2]};
-                //dcomp defo_jacques=my_defo.jacques_deformation(ks_real,ls,1,jac_sign);
                 dcomp defo_jacques=my_defo.jacques_deformation_dt(ks_real,ls,qs,jac_sign);
-
-                //cout<<ks[0]<<" "<<ks[1]<<" "<<ks[2]<<endl;
-
-                /*cout<<"k: "<<ks_real[0]<<" "<<ks_real[1]<<" "<<ks_real[2]<<endl;
-                cout<<"l: "<<ls[0]<<" "<<ls[1]<<" "<<ls[2]<<endl;
-                cout<<"q: "<<qs[0]<<" "<<qs[1]<<" "<<qs[2]<<endl;
-                cout<<"kappa:  "<<kappa[0]<<" "<<kappa[1]<<" "<<kappa[2]<<endl;
-                cout<<"jacques:  "<<defo_jacques<<endl;*/
 
                 dcomp e_k=norm(ks);
                 dcomp e_kq=norm(vector_minus(ks,qs));
@@ -1610,8 +1936,15 @@ class integrands{
                 dcomp e_kl=norm(vector_minus(ks,ls));
                 double e_q=sqrt(pow(norm(qs),2.)+pow(m,2));
 
-                dcomp e_kUV=Sqrt(pow(norm(ks),2.)+pow(MUV,2));
-                
+                dcomp e_kUV=sqrt(norm(ks)*norm(ks)+MUV*MUV);
+
+
+                // cout<<"energies"<<endl;
+                // cout<<e_k<<" | "<<ks[0]<<" "<<ks[1]<<" "<<ks[2]<<" "<<endl;
+                // cout<<e_kq<<" | "<<vector_minus(ks,qs)[0]<<endl;
+                // cout<<e_kl<<" | "<<vector_minus(ks,ls)[0]<<endl;
+                // cout<<e_kUV<<" | "<<pow(norm(ks),2.)+pow(MUV,2)<<" "<<norm(ks)<<" "<<pow(ks[0],2.)+pow(ks[1],2.)+pow(ks[2],2.)<<" "<<(ks[0]*ks[0]+ks[1]*ks[1]+ks[2]*ks[2])<<endl;
+                // cout<<MUV<<endl;
                 
                 ls.insert(ls.begin(), e_l);
                 qs.insert(qs.begin(), e_q);
@@ -1633,17 +1966,18 @@ class integrands{
 
                 vector<dcomp> ksuv={0,ks[0],ks[1],ks[2]};
 
-                dcomp dt_left_uv=1./(2.*e_l*2.*(-e_l+e_q)*2.*e_q)*(NLO_DT_UV_DrellYan_numeratorA(ksuv, ls, qs)/pow(e_kUV,5.)+
-                    NLO_DT_UV_DrellYan_numeratorB(ksuv, ls, qs)/pow(e_kUV,3.)
+                dcomp dt_left_uv=1./(2.*e_l*2.*(-e_l+e_q)*2.*e_q)*(NLO_DT_UV_DrellYan_numeratorA(ksuv, ls, qs)/pow(e_kUV,5)+
+                    NLO_DT_UV_DrellYan_numeratorB(ksuv, ls, qs)/pow(e_kUV,3)
                     );
 
-                /*if(comp==2){
-                    cout<<"scaling"<<endl;
-                    cout<<"e_l: "<<e_k<<endl;
-                    cout<<real(pow(e_k,3.)*dt_virtual_left_1)<<" "<<real(pow(e_k,3.)*dt_virtual_left_2)<<" "<<real(pow(e_k,3.)*dt_virtual_left_3)<<"     tot orig:"<<real(pow(e_k,3.)*(dt_virtual_left_1+dt_virtual_left_2+dt_virtual_left_3-dt_left_uv))<<endl;
-                    cout<<"no scaling"<<endl;
-                    cout<<real(dt_virtual_left_1)<<" "<<real(dt_virtual_left_2)<<" "<<real(dt_virtual_left_3)<<"     tot orig:"<<real((dt_virtual_left_1+dt_virtual_left_2+dt_virtual_left_3-dt_left_uv))<<endl;
-                };*/
+                if(comp==8){
+                    cout<<"f64"<<endl;
+                    cout<<k[0]<<" "<<k[1]<<" "<<k[2]<<endl;
+                    cout<<"flow: "<<my_flow.t_val(ni,nf,q_in)<<endl;
+                    cout<<"flow h: "<<flow_h<<endl;
+                    cout<<"flow jacques: "<<jac_flow<<endl;
+                    cout<<dt_virtual_left_1<<" "<<dt_virtual_left_2<<" "<<dt_virtual_left_3<<endl;
+                };
 
                 if(DEBUG==3){
                     cout<<"ks1: "<<ks1[0]<<" "<<ks1[1]<<" "<<ks1[2]<<" "<<ks1[3]<<endl;
@@ -1668,87 +2002,94 @@ class integrands{
                 vector<double> pg={0,0,0,0};
 
                 observable obs_res_n;
+                double extra_const=1;
+                
+                //obs_res_n=my_obs.jj_sampling(constituents,2,pg,0);
+
                 if(tag_obs==0){
                         obs_res_n=my_obs.b2b_sampling_final(constituents, 2, pg, spins, a);
-                    }else{
-                        obs_res_n=my_obs.hemisphere_sampling(constituents, 2, pg, spins, a);
+                        extra_const=group_average(obs_res_n.spin1,obs_res_n.spin2);
                     };
-                
+                if(tag_obs==1){
+                        obs_res_n=my_obs.hemisphere_sampling(constituents, 2, pg, spins, a);
+                        extra_const=1;//group_average(obs_res_n.spin1,obs_res_n.spin2);
+                    };
+                if(tag_obs==2){
+                        extra_const=m*1.3603656066729753663*pow(10,-9)/(8*pow(M_PI,2.));//4*(m/3.)*1.4344473116003848311*pow(10,-8)/(64*pow(M_PI,4.));//1/(4*m)*1.4344473116003848311*pow(10,-8);
+                        obs_res_n=my_obs.jj_sampling(constituents, 2, pg, 0.);
+                    };
 
+
+                //obs_res_n=my_obs.jj_sampling(constituents, 2, pg, 0.);
+
+                //obs_res_n=my_obs.jj_sampling(constituents, 2, pg, 0.);
+
+                
+                //obs_res_n=my_obs.jj_sampling(constituents, 2, pg, a);
+
+                // observable_c obs_res;
+                // obs_res.eval=obs_res_n.eval;
+                // obs_res.jac=obs_res_n.jac;
+                // obs_res.j1=obs_res_n.j1;
+                // obs_res.j2=obs_res_n.j2;
+                // obs_res.spin1=obs_res_n.spin1;
+                // obs_res.spin2=obs_res_n.spin2;
+                // obs_res.pg=obs_res_n.pg;
+
+                //NEW
                 observable_c obs_res;
-                obs_res.eval=obs_res_n.eval;
-                obs_res.jac=obs_res_n.jac;
+                //NEW
+
+                //dcomp integrand_val=constant*defo_jacques*colour_average*(dt_virtual_left_1+dt_virtual_left_2+dt_virtual_left_3-dt_left_uv);
+                dcomp integrand_val=extra_const*constant*defo_jacques*(dt_virtual_left_1+dt_virtual_left_2+dt_virtual_left_3-dt_left_uv);
+
+                // cout<<"f64"<<endl;
+                // cout<<integrand_val<<" "<<constant<<" "<<defo_jacques<<endl;
+                // cout<<ks[0]<<" "<<ks[1]<<" "<<ks[2]<<endl;
+                //cout<<kappa[0]<<" "<<kappa[1]<<" "<<kappa[2]<<endl;
+
+                obs_res.jac=obs_res_n.jac*jac_flow*flow_h;
+
+                /*cout<<"integrand_val  "<<integrand_val<<endl;
+                cout<<constant<<" "<<colour_average<<endl;*/
+
+                obs_res.eval=integrand_val;
+
                 obs_res.j1=obs_res_n.j1;
                 obs_res.j2=obs_res_n.j2;
                 obs_res.spin1=obs_res_n.spin1;
                 obs_res.spin2=obs_res_n.spin2;
                 obs_res.pg=obs_res_n.pg;
 
+                // obs_res.j1={0,0,0,0};
+                // obs_res.j2={0,0,0,0};
+                // obs_res.spin1=0;
+                // obs_res.spin2=0;
+                // obs_res.pg={0,0,0,0};
 
+                //NEW STUFF STARTS HERE
                 
-                if(DEBUG==1){
-                    vector<double> ksp={0.3, 0.1, 0.5};
-                    vector<double> lsp={0.2, 0.7, 0.1};
-                    vector<double> qsp={0.4, 0.4, 0.1};
+                // if(e_q<eCM){
+                //     obs_res.eval=integrand_val;
+                //     obs_res.jac=jac_flow*flow_h;
+                //     obs_res.j1={0,0,0,0};
+                //     obs_res.j2={0,0,0,0};
+                //     obs_res.spin1=0;
+                //     obs_res.spin2=0;
+                //     obs_res.pg={0,0,0,0};
+                // }else{
+                //     obs_res.eval=0;
+                //     obs_res.jac=0;
+                //     obs_res.j1={0,0,0,0};
+                //     obs_res.j2={0,0,0,0};
+                //     obs_res.spin1=0;
+                //     obs_res.spin2=0;
+                //     obs_res.pg={0,0,0,0};
+                // }
+                //NEW STUFF ENDS HERE     
 
-                    double ekp=norm(ksp);
-                    double ekqp=norm(vector_minus(ksp,qsp));
-                    double eqp=sqrt(pow(norm(qsp),2.)+pow(m,2));
-                    double elp=norm(lsp);  
-                    double eklp=norm(vector_minus(ksp,lsp));  
-                    double eklqp=norm(vector_plus(lsp,vector_plus(ksp,qsp)));
-                    double e_kUVp=sqrt(pow(norm(ksp),2.)+pow(MUV,2));
 
-                    lsp.insert(lsp.begin(), elp);
-                    qsp.insert(qsp.begin(), eqp);
-                    
-
-                    vector<double> ks1p={ekp,ksp[0],ksp[1],ksp[2]};
-
-                    double dt_virtual_left_1p=NLO_DT_DrellYan_numerator(ks1p,lsp,qsp)/
-                        (2.*elp*2.*ekp*2.*(-elp+eqp)*2*eqp*SP(vector_minus(ks1p,lsp),vector_minus(ks1p,lsp))*SP(vector_minus(ks1p,qsp),vector_minus(ks1p,qsp)));
-                    
-
-                    vector<double> ks2p={elp+eklp,ksp[0],ksp[1],ksp[2]};
-
-                    double dt_virtual_left_2p=NLO_DT_DrellYan_numerator(ks2p, lsp, qsp)/
-                        ((2.*elp*2.*(-elp+eqp)*2.*(eklp)*2*eqp)*SP(ks2p,ks2p)*SP(vector_minus(ks2p,qsp),vector_minus(ks2p,qsp)));
-
-                    vector<double> ks3p={ekqp+eqp,ksp[0],ksp[1],ksp[2]};
-
-                    double dt_virtual_left_3p=NLO_DT_DrellYan_numerator(ks3p, lsp, qsp)/
-                        ((2.*elp*2.*(-elp+eqp)*2.*(ekqp)*2*eqp)*SP(ks3p,ks3p)*SP(vector_minus(ks3p,lsp),vector_minus(ks3p,lsp)));
-
-                    vector<double> ksuvp={0,ksp[0],ksp[1],ksp[2]};
-
-                    double dt_left_uv=1/(2.*elp*2.*(-elp+eqp)*2*eqp)*(NLO_DT_UV_DrellYan_numeratorA(ksuvp, lsp, qsp)/pow(e_kUVp,5.)+
-                        NLO_DT_UV_DrellYan_numeratorB(ksuvp, lsp, qsp)/pow(e_kUVp,3.)
-                        );
-
-                    cout<<NLO_DT_DrellYan_numerator(ks1p,lsp,qsp)<<endl;
-                    cout<<"ltd1: "<<dt_virtual_left_1p<<endl;
-                    cout<<"energies1: "<<2.*elp*2.*ekp*2.*(-elp+eqp)*2*eqp<<endl;
-                    cout<<"sp11: "<<SP(vector_minus(ks1p,lsp),vector_minus(ks1p,lsp))<<endl;
-                    cout<<"sp12: "<<SP(vector_minus(ks1p,qsp),vector_minus(ks1p,qsp))<<endl;
-                    cout<<"ltd2: "<<dt_virtual_left_2p<<endl;
-                    cout<<"ltd3: "<<dt_virtual_left_3p<<endl;
-                    cout<<"res: "<<dt_virtual_left_1p+dt_virtual_left_2p+dt_virtual_left_3p<<endl;
-                    cout<<"res UV: "<<dt_left_uv<<endl;    
-
-                };
-
-                
-                double colour_average=group_average(obs_res.spin1,obs_res.spin2);
-
-                //dcomp integrand_val=constant*colour_average*(dt_virtual_left_1+dt_virtual_left_2+dt_virtual_left_3-dt_left_uv);
-                dcomp integrand_val=constant*defo_jacques*colour_average*(dt_virtual_left_1+dt_virtual_left_2+dt_virtual_left_3-dt_left_uv);
-
-                //obs_res.jac=obs_res_n.jac*jac_flow*flow_h*defo_jacques;
-                obs_res.jac=obs_res_n.jac*jac_flow*flow_h;
-
-                obs_res.eval=integrand_val;
-
-                if(comp==5){
+                /*if(comp==5){
                     cout<<"--------------------"<<endl;
                     cout<<"f64"<<endl;
                     cout<<"eCM "<<double(eCM)<<"     mZ: "<<double(m)<<endl;
@@ -1783,11 +2124,12 @@ class integrands{
                     cout<<obs_res.j1[0]<<""<<obs_res.j1[1]<<""<<obs_res.j1[2]<<""<<obs_res.j1[3]<<endl;
                     cout<<obs_res.j2[0]<<""<<obs_res.j2[1]<<""<<obs_res.j2[2]<<""<<obs_res.j2[3]<<endl;
                     cout<<obs_res.pg[0]<<""<<obs_res.pg[1]<<""<<obs_res.pg[2]<<""<<obs_res.pg[3]<<endl;
-                };
+                };*/
 
                 return obs_res;
 
             };
+
 
 
 
@@ -1850,20 +2192,33 @@ class integrands{
                 vector<double> pg={0,0,0,0};
 
                 observable obs_res_n;
+                double extra_const=1;
+
+                //obs_res_n=my_obs.jj_sampling(constituents,3,pg,0.);
                 if(tag_obs==0){
                         obs_res_n=my_obs.b2b_sampling_final(constituents, 3, pg, spins, a);
-                    }else{
+                        extra_const=group_average(obs_res_n.spin1,obs_res_n.spin2);
+                    };
+                if(tag_obs==1){
                         obs_res_n=my_obs.hemisphere_sampling(constituents, 3, pg, spins, a);
+                        extra_const=1;//group_average(obs_res_n.spin1,obs_res_n.spin2);
+                    };
+                if(tag_obs==2){
+                        obs_res_n=my_obs.jj_sampling(constituents, 3, pg, a);
+                        extra_const=m*1.3603656066729753663*pow(10,-9)/(8*pow(M_PI,2.));//4*(m/3.)*1.4344473116003848311*pow(10,-8)/(64*pow(M_PI,4.));
                     };
 
-                observable_c obs_res;
-                obs_res.eval=obs_res_n.eval;
-                obs_res.jac=obs_res_n.jac;
-                obs_res.j1=obs_res_n.j1;
-                obs_res.j2=obs_res_n.j2;
-                obs_res.spin1=obs_res_n.spin1;
-                obs_res.spin2=obs_res_n.spin2;
-                obs_res.pg=obs_res_n.pg;
+                //obs_res_n=my_obs.jj_sampling(constituents, 3, pg, a);
+
+
+                // observable_c obs_res;
+                // obs_res.eval=obs_res_n.eval;
+                // obs_res.jac=obs_res_n.jac;
+                // obs_res.j1=obs_res_n.j1;
+                // obs_res.j2=obs_res_n.j2;
+                // obs_res.spin1=obs_res_n.spin1;
+                // obs_res.spin2=obs_res_n.spin2;
+                // obs_res.pg=obs_res_n.pg;
 
                 if(DEBUG==1){
                     vector<double> ksp={0.3, 0.1, 0.5};
@@ -1891,16 +2246,83 @@ class integrands{
 
                 };   
 
-                double colour_average=group_average(obs_res.spin1,obs_res.spin2);
+                //NEW
+                observable_c obs_res;
+                //NEW
+
+                //double colour_average=group_average(obs_res.spin1,obs_res.spin2);
                     
-                double integrand_val=constant*colour_average*(NLO_DT_DrellYan_numerator(ks,ls,qs)/
+                /*double integrand_val=constant*colour_average*(NLO_DT_DrellYan_numerator(ks,ls,qs)/
+                    ((2.*e_k*2.*(e_q-e_lq-e_k)*2.*(e_lq)*2*e_q)*
+                    SP(vector_minus(ks,qs),vector_minus(ks,qs))*SP(ls,ls)
+                    ));*/
+                //cout<<extra_const<<endl;
+                //constant=1;
+                double integrand_val=extra_const*constant*(NLO_DT_DrellYan_numerator(ks,ls,qs)/
                     ((2.*e_k*2.*(e_q-e_lq-e_k)*2.*(e_lq)*2*e_q)*
                     SP(vector_minus(ks,qs),vector_minus(ks,qs))*SP(ls,ls)
                     ));
 
-                obs_res.jac=obs_res.jac*jac_flow*flow_h;
 
+                obs_res.jac=obs_res_n.jac*jac_flow*flow_h;
                 obs_res.eval=integrand_val;
+
+                obs_res.j1=obs_res_n.j1;
+                obs_res.j2=obs_res_n.j2;
+                obs_res.spin1=obs_res_n.spin1;
+                obs_res.spin2=obs_res_n.spin2;
+                obs_res.pg=obs_res_n.pg;
+
+
+                // obs_res.j1={0,0,0,0};
+                // obs_res.j2={0,0,0,0};
+                // obs_res.spin1=0;
+                // obs_res.spin2=0;
+                // obs_res.pg={0,0,0,0};
+
+                // cout<<"----------info--------"<<endl;
+                // cout<<comp<<endl;
+                // cout<<"moms"<<endl;
+                // cout<<"k:  "<<ks[1]<<" "<<ks[2]<<" "<<ks[3]<<endl;
+                // cout<<"l:  "<<ls[1]<<" "<<ls[2]<<" "<<ls[3]<<endl;
+                // cout<<"q:  "<<qs[1]<<" "<<qs[2]<<" "<<qs[3]<<endl;
+                // cout<<"surfs"<<endl;
+                // cout<<SP(ls,ls)<<endl;
+                // cout<<SP(vector_minus(ks,qs),vector_minus(ks,qs))<<endl;
+                // cout<<"flow"<<endl;
+                // cout<<my_flow.t_val(ni,nf,q_in)<<endl;
+                // cout<<jac_flow<<endl;
+                // cout<<flow_h<<endl;
+                // cout<<"eq"<<endl;
+                // cout<<e_q<<endl;
+                // cout<<"integrands"<<endl;
+                // cout<<integrand_val/constant<<endl;
+                // cout<<"full result"<<endl;
+                // cout<<integrand_val/constant*jac_flow*flow_h<<endl;
+
+                
+
+
+                //NEW STUFF STARTS HERE
+                
+                // if(e_q<2*eCM){
+                //     obs_res.eval=integrand_val;
+                //     obs_res.jac=jac_flow*flow_h;
+                //     obs_res.j1={0,0,0,0};
+                //     obs_res.j2={0,0,0,0};
+                //     obs_res.spin1=0;
+                //     obs_res.spin2=0;
+                //     obs_res.pg={0,0,0,0};
+                // }else{
+                //     obs_res.eval=0;
+                //     obs_res.jac=0;
+                //     obs_res.j1={0,0,0,0};
+                //     obs_res.j2={0,0,0,0};
+                //     obs_res.spin1=0;
+                //     obs_res.spin2=0;
+                //     obs_res.pg={0,0,0,0};
+                // }
+                //NEW STUFF ENDS HERE     
 
                 /*cout<<"------------"<<endl;
                 cout<<obs_res.eval<<endl;
@@ -2991,7 +3413,7 @@ class integrands{
 
             return obs_res_f;
 
-        };
+        };  
 
         observable NLO_t_channel_qq_DrellYan_integrand(vector<double> k, vector<double> l, vector<double> q, double a, int comp){
             
@@ -4579,8 +5001,10 @@ double res_c=0.0;
 double res_s=0.0;
 
 
-double mZ=9.118800e+01;
+//double mZ=9.118800e+01;
+double mZ=200;
 double eCM=13000;
+//double eCM=mZ;
 
 /*double res_c=0.025;
 double res_s=0.025;*/
@@ -4588,7 +5012,8 @@ double res_s=0.025;*/
 //double res_c=1;
 double res_s=1;*/
 
-double MUV=91.188;
+//double MUV=91.188;
+double MUV=200;
 
 double sigma=2.;
 
@@ -4670,6 +5095,16 @@ void NLO_s_channel_DrellYan_eval(double kx, double ky, double kz, double lx, dou
     res=my_integrand.NLO_s_channel_DrellYan_integrand(k,l,q,a,comp);
     };
 
+double test_function(double kx, double ky, double kz, double lx, double ly, double lz, double qx, double qy, double qz, double a, int comp){
+    vector<double> k={kx,ky,kz};
+    vector<double> l={lx,ly,lz};
+    vector<double> q={qx,qy,qz};
+    dcomp res=my_integrand.test_f(k,l,q,a);
+    if(comp==0){return real(res);};
+    if(comp==1){return imag(res);};
+    return 0;
+    };
+
 void set_uv_mass(double uvm){
     my_integrand.set_MUV(uvm);
     };
@@ -4730,234 +5165,5 @@ vector<dreal> qx;
 qx.push_back(-0.22);
 qx.push_back(0.2);
 qx.push_back(0.77);
-
-deformation_field my_def(1.,0.69,1.);
-
-cout<<my_def.get_deformation_dt(k,lx,qx,1,1)<<" "<<my_def.get_deformation_dt(k,lx,qx,1,2)<<" "<<my_def.get_deformation_dt(k,lx,qx,1,3)<<" "<<endl;
-cout<<my_def.jacques_deformation_dt(k,lx,qx,1)<<endl;
-//cout<<my_def.jacques_deformation_dt(k,lx,qx,1)<<" "<<endl;
-
-
-/*
-deformation_field my_def(1.,0.69,1.);
-
-cout<<my_def.get_deformation_dt(k,lx,qx)[0]<<" "<<my_def.get_deformation_dt(k,lx,qx)[1]<<" "<<my_def.get_deformation_dt(k,lx,qx)[2]<<" "<<endl;
-cout<<my_def.jacques_deformation_dt(k,lx,qx,1)<<" "<<endl;
-
-
-
-
-
-vector<dreal> kx;
-kx.push_back(1);
-kx.push_back(0.2);
-kx.push_back(0.3);
-kx.push_back(0.13);
-
-boost_flow mybf;
-rotation_flow myrf;
-causal_flow mycf(10.,1.);
-
-dreal t=mybf.t_val(k,1);
-
-vector<dreal> vec=mybf.perform_flow(kx,1,t);
-vector<dreal> vecz=mybf.perform_jacques(kx,0.5,1);
-
-
-observables my_obs(0.1,0.1,1000,90);
-
-
-
-vector<vector<dreal>> constituents;
-
-constituents.push_back(kx);
-constituents.push_back(lx);
-constituents.push_back(qx);
-
-int spins[3]={1,-1,1};
-
-observable res;
-res=my_obs.b2b_sampling_final(constituents, 3, kx, spins, 0.5);
-
-
-
-integrands my_integrando(91.18, 1000, 1, 1);
-
-vector<dreal> l;
-l.push_back(0.63);
-l.push_back(0.11);
-l.push_back(-0.35);
-vector<dreal> q;
-q.push_back(1);
-q.push_back(0.);
-q.push_back(0.);
-
-
-res=my_integrando.NLO_s_channel_DrellYan_integrand(k,l,q,0.5,1);
-
-cout<<double(res.eval)<<endl;
-
-res=my_integrando.NLO_st_channel_DrellYan_integrand(k,l,q,0.5,1);
-
-cout<<double(res.eval)<<endl;
-
-res=my_integrando.NLO_u_channel_DrellYan_integrand(k,l,q,0.5,1);
-
-cout<<double(res.eval)<<endl;
-
-res=my_integrando.NLO_t_channel_qq_DrellYan_integrand(k,l,q,0.5,1);
-
-cout<<double(res.eval)<<endl;
-
-res=my_integrando.NLO_t_channel_qg_DrellYan_integrand(k,l,q,0.5,1);
-
-cout<<double(res.eval)<<endl;*/
-
-
-
-
-/*vector<double> p={0.1,0.2,0.3};
-vector<double> q={0.4,0.5,0.1};
-
-
-boost_flow bf;
-rotation_flow rf;
-
-vector<double> p12={sqrt(50),4,3,0};
-
-
-deformation_field my_field(0.99,0.1,0.99);
-
-vector<double> kappa=my_field.get_deformation(p,q,1);
-dcomp jac=my_field.jacques_deformation(p,q,1,1);
-
-integrands my_int(9.118800e+01,4,1,1,0.3,0.3);
-
-vector<double> k={0.1, 0.2, 0.3};
-vector<double> l={100, 10, 10};
-vector<double> qn={ 0., 0., 1.};
-
-
-//vector<double> res=my_int.NLO_s_channel_DrellYan_integrand(k,l,qn,0.,1);
-
-
-vector<double> res2=my_int.NLO_se_jj_integrand(k,l,1,1,0);*/
-
-//vector<double> res2=my_int.NLO_t_channel_qg_DrellYan_integrand(k,l,qn,0.,1);
-
-
-/* vector<double> np12=bf.perform_flow(p12,1);
-
-vector<double> nnp12=bf.perform_flow(np12,2);
-
-for(int i=0; i<4; i++){
-    cout<<np12[i]<<" ";
-};
-cout<<endl;
-
-for(int i=0; i<4; i++){
-    cout<<nnp12[i]<<" ";
-};
-cout<<endl;
-*/
-/*vector<double> p12j={1,2,3,4};
-
-vector<double> resj=bf.perform_jacques(p12j, 0.2, 1);
-
-for(int i=0; i<4; i++){
-    cout<<resj[i]<<" ";
-};
-cout<<endl;
-
-cout<<bf.h(0.3)<<endl;*/
-
-/*cout<<"-----"<<endl;
-
-vector<double> p12r={sqrt(50),4,3,0.5};
-
-vector<double> np12r=rf.perform_flow(p12r,1);
-
-vector<double> nnp12r=rf.perform_flow(np12r,2);
-
-for(int i=0; i<4; i++){
-    cout<<np12r[i]<<" ";
-};
-cout<<endl;
-
-for(int i=0; i<4; i++){
-    cout<<nnp12r[i]<<" ";
-};
-cout<<endl;
-
-vector<double> p12jr={1,2,3,4};
-
-vector<double> resjr=rf.perform_jacques(p12jr, 0.2, 1);
-
-for(int i=0; i<4; i++){
-    cout<<resjr[i]<<" ";
-};
-cout<<endl;
-
-cout<<rf.h(0.3)<<endl;
-
-causal_flow cf(1,1);
-
-vector<vector<double>> vi={{4,2.5,0.5},{-1,-0.5,-0.5}};
-vector<vector<double>> vf={};
-vector<double> q={5,3,1};
-
-cout<<cf.t_val(vi,vf,q)<<endl;
-cout<<cf.jacques(vi,vf,q)<<endl;
-cout<<cf.h(0.3)<<endl;*/
-
-
-/*observables my_obs(0.0, 0.0, 1, 1);
-
-vector<vector<double>> constituents={{sqrt(0.04+0.16+0.01),0.2,0.4,0.1},{sqrt(0.25+0.09+0.0),0.5,-0.3,0.0}};
-
-int spins[2]={1,-1};
-
-vector<double> my_obs_res=my_obs.b2b_sampling(constituents,2,spins);
-
-cout<<my_obs_res[0]<<" "<<my_obs_res[1]<<" "<<my_obs_res[2]<<" "<<my_obs_res[3]<<" "<<my_obs_res[4]<<" "<<endl;*/
-
-/*
-vector<double> pn={0.22,0.47,0.111};
-vector<double> qn={0.65,-0.21,0.38};
-
-vector<double> knn={0.2, -0.1, 0.2};
-vector<double> lnn={0.79, 0.22, 0.413};
-vector<double> qnn ={0.5, 0.45, 0.37};
-
-integrands my_integrand(1,1,2,1,0.5,0.5);
-vector<double> res1=my_integrand.NLO_u_channel_DrellYan_integrand(knn,lnn,qnn,0.2,3);
-
-
-//vector<double> res2=my_integrand.NLO_u_channel_DrellYan_integrand(knn,lnn,qnn,0.2,3);
-
-cout<<"res: "<<res1[0]<<" "<<res1[1]<<" "<<res1[2]<<" "<<res1[3]<<" "<<res1[4]<<endl;*/
-/*cout<<"rot res: "<<res2[0]<<" "<<res2[1]<<" "<<res2[2]<<" "<<res2[3]<<" "<<res2[4]<<endl;
-
-
-cout<<"here"<<endl;
-
-vector<vector<double>> my_vecs={{1,0,0,1},{1,1/2.,1/2.,1/Sqrt(2)}};
-
-vector<vector<double>> rot_vecs = rotator_4d(my_vecs);
-
-cout<<rot_vecs[0][0]<<" "<<rot_vecs[0][1]<<" "<<rot_vecs[0][2]<<" "<<rot_vecs[0][3]<<endl;
-cout<<rot_vecs[1][0]<<" "<<rot_vecs[1][1]<<" "<<rot_vecs[1][2]<<" "<<rot_vecs[1][3]<<endl;
-
-vector<double> spat_vec1={rot_vecs[0][1],rot_vecs[0][2],rot_vecs[0][3]};
-vector<double> spat_vec2={rot_vecs[1][1],rot_vecs[1][2],rot_vecs[1][3]};
-
-cout<<norm(spat_vec1)<<" "<<norm(spat_vec2)<<endl;*/
-
-/*vector<double> ks={2, 0.3, 0.1, 0.5};
-vector<double> ls={1, 0.3, 0.7, 0.1};
-vector<double> qs={0.9, 0.3, 0.1, 0.5};
-
-cout<<my_integrand.NLO_DT_DrellYan_numerator(ks,vector_swap(vector_plus(ls,qs)),vector_swap(qs))<<endl;
-vector<double> mys=my_integrand.NLO_st_channel_DrellYan_integrand(ks,vector_swap(vector_plus(ls,qs)),vector_swap(qs),1);*/
 
 };

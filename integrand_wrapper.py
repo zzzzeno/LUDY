@@ -32,6 +32,13 @@ set_defo_parameters.restype = None
 set_uv_mass.argtypes = [c_double]
 set_uv_mass.restype = None
 
+set_observable_tag.argtypes = [c_int]
+set_observable_tag.restypes = None
+
+set_hemisphere_lambda.argtypes = [c_double]
+set_hemisphere_lambda.restype = None
+
+
 
 #########F128########
 
@@ -41,8 +48,8 @@ set_sigma_f128 = cdll.LoadLibrary('./integrand_f128.so').set_sigma
 set_defo_parameters_f128 = cdll.LoadLibrary('./integrand_f128.so').set_defo_parameters
 set_uv_mass_f128 = cdll.LoadLibrary('./integrand_f128.so').set_uv_mass
 
-set_observable_tag_f128 = cdll.LoadLibrary('./integrand.so').set_observable_tag
-set_hemisphere_lambda_f128 = cdll.LoadLibrary('./integrand.so').set_hemisphere_lambda
+set_observable_tag_f128 = cdll.LoadLibrary('./integrand_f128.so').set_observable_tag
+set_hemisphere_lambda_f128 = cdll.LoadLibrary('./integrand_f128.so').set_hemisphere_lambda
 
 
 set_kinematics_f128.argtypes = [c_double, c_double]
@@ -59,6 +66,12 @@ set_defo_parameters_f128.restype = None
 
 set_uv_mass_f128.argtypes = [c_double]
 set_uv_mass_f128.restype = None
+
+set_observable_tag_f128.argtypes = [c_int]
+set_observable_tag_f128.restypes = None
+
+set_hemisphere_lambda_f128.argtypes = [c_double]
+set_hemisphere_lambda_f128.restype = None
 
 
 
@@ -113,6 +126,8 @@ NLO_se_DrellYan_eval = cdll.LoadLibrary('./integrand.so').NLO_se_DrellYan_eval
 get_res_eval = cdll.LoadLibrary('./integrand.so').get_res_eval
 get_res_complex_eval = cdll.LoadLibrary('./integrand.so').get_res_complex_eval
 
+test_f = cdll.LoadLibrary('./integrand.so').test_function
+
 
 
 LO_scalar_eval.argtypes = [c_double, c_double, c_double, c_double, c_double, c_double, c_double]
@@ -153,6 +168,9 @@ get_res_eval.restype = c_double
 
 get_res_complex_eval.argtypes = [c_int, c_int, c_int]
 get_res_complex_eval.restype = c_double
+
+test_f.argtypes = [c_double, c_double, c_double, c_double, c_double, c_double, c_double, c_double, c_double, c_double, c_int]
+test_f.restype = c_double
 
 
 
@@ -242,6 +260,12 @@ class cut_res:
 
         return cls(res,jac,j1,spin1,j2,spin2,pg)
 
+
+def test_function_py(k,l,q,a,phase):
+    if phase=="real":
+        return test_f(k[0],k[1],k[2],l[0],l[1],l[2],q[0],q[1],q[2],a,0)
+    if phase=="imag":
+        return test_f(k[0],k[1],k[2],l[0],l[1],l[2],q[0],q[1],q[2],a,1)
 
 
 

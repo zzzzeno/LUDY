@@ -78,6 +78,12 @@ vector<dreal> vector_times(vector<dreal> a, dreal c){
     return res;    
 };
 
+vector<dual<dreal>> vector_times(vector<dual<dreal>> a, dual<dreal> c){
+    vector<dual<dreal>> res=a;
+    for(int i=0; i<a.size(); i++){res[i]=a[i]*c;};
+    return res;    
+};
+
 
 
 struct observable{
@@ -115,10 +121,12 @@ class causal_flow {
 
         void set_parameters(dreal nm, dreal nsigma){m=nm; sigma=nsigma;};
 
+        void set_mass(dreal nm){m=nm;};
+
         dreal t_val(vector<vector<dreal>> vi, vector<vector<dreal>> vf, vector<dreal> q){
             dreal ni=0;
             dreal nf=0;
-            for(int i=0; i<vi.size(); i++){               
+            for(int i=0; i<vi.size(); i++){      
                 ni=ni+norm(vi[i]);
             };
 
@@ -917,8 +925,8 @@ class observables{
 
             if(size==2){
 
-                dreal tot_spin1=0;
-                dreal tot_spin2=0;
+                int tot_spin1=0;
+                int tot_spin2=0;
 
                 for(int j1=0; j1<my_jets.jet_labels[jet_n[0]].size(); j1++){
                     tot_spin1=tot_spin1+spins[my_jets.jet_labels[jet_n[0]][j1]];
@@ -1056,8 +1064,8 @@ class observables{
                 res_vec.j1=jacques_vecs[0];
                 res_vec.j2=jacques_vecs[4];
                 */
-                res_vec.spin1=double(tot_spin1);
-                res_vec.spin2=double(tot_spin2);
+                res_vec.spin1=tot_spin1;
+                res_vec.spin2=tot_spin2;
                 res_vec.pg=pg;
 
                 if(DEBUG==1){
@@ -1095,11 +1103,11 @@ class observables{
             dreal hardness=0;
             int index=0;
             dreal tote=0;
+            vector<dreal> tot={0,0,0,0};
 
             for(int i=0; i<n_constituents; i++){
-                tote+=constituents[i][0];
-                if(constituents[i][0]>hardness){
-                    hardness=constituents[i][0];
+                if(abs(constituents[i][0])>hardness){
+                    hardness=abs(constituents[i][0]);
                     index=i;
                 };
             };
@@ -1108,9 +1116,130 @@ class observables{
             int total_s=0;
 
             for(int i=0; i<n_constituents; i++){
+                tot={tot[0]+constituents[i][0],tot[1]+constituents[i][1],tot[2]+constituents[i][2],tot[3]+constituents[i][3]};
                 if(i != index){
                     total_p={total_p[0]+constituents[i][0],total_p[1]+constituents[i][1],total_p[2]+constituents[i][2],total_p[3]+constituents[i][3]};
-                    total_s+=spins[i];
+                    total_s+=abs(spins[i]);
+                };
+            };
+
+
+            vector<dreal> j1pj2=tot;
+            vector<dreal> j1mj2={total_p[0]-constituents[index][0],total_p[1]-constituents[index][1],total_p[2]-constituents[index][2],total_p[3]-constituents[index][3]};
+
+
+            dreal total_m=SP(total_p,total_p);
+
+            dreal jac=0;
+
+            //if(total_m<lambda*pow(eCM,2.) && total_s<=1){
+            if(total_m<lambda*pow(eCM,2.)){
+                jac=1;
+
+                vector<vector<dreal>> jacques_vecs={j1pj2,j1pj2,j1pj2,j1pj2,j1mj2,final_parton};
+
+                dreal tLz=b_flow.t_val(jacques_vecs[0],3);
+                jacques_vecs={b_flow.perform_flow(jacques_vecs[0],3,tLz),b_flow.perform_flow(jacques_vecs[1],3,tLz),b_flow.perform_flow(jacques_vecs[2],3,tLz),b_flow.perform_jacques(jacques_vecs[3],tLz,3),b_flow.perform_flow(jacques_vecs[4],3,tLz),b_flow.perform_flow(jacques_vecs[5],3,tLz)};
+
+
+                dreal tLy=b_flow.t_val(jacques_vecs[0],2);
+                jacques_vecs={b_flow.perform_flow(jacques_vecs[0],2,tLy),b_flow.perform_flow(jacques_vecs[1],2,tLy),b_flow.perform_jacques(jacques_vecs[2],tLy,2),b_flow.perform_flow(jacques_vecs[3],2,tLy),b_flow.perform_flow(jacques_vecs[4],2,tLy),b_flow.perform_flow(jacques_vecs[5],2,tLy)};
+
+
+                dreal tLx=b_flow.t_val(jacques_vecs[0],1);
+                jacques_vecs={b_flow.perform_flow(jacques_vecs[0],1,tLx),b_flow.perform_jacques(jacques_vecs[1],tLx,1),b_flow.perform_flow(jacques_vecs[2],1,tLx),b_flow.perform_flow(jacques_vecs[3],1,tLx),b_flow.perform_flow(jacques_vecs[4],1,tLx),b_flow.perform_flow(jacques_vecs[5],1,tLx)};
+
+                jac=Sqrt(SP(jacques_vecs[0],jacques_vecs[0]))*(b_flow.h(tLx)*b_flow.h(tLy)*b_flow.h(tLz))/abs(jacques_vecs[1][1]*jacques_vecs[2][2]*jacques_vecs[3][3]);
+
+                vector<dreal> j1={(jacques_vecs[0][0]+jacques_vecs[4][0])/2,(jacques_vecs[0][1]+jacques_vecs[4][1])/2,(jacques_vecs[0][2]+jacques_vecs[4][2])/2,(jacques_vecs[0][3]+jacques_vecs[4][3])/2};
+                vector<dreal> j2={(jacques_vecs[0][0]-jacques_vecs[4][0])/2,(jacques_vecs[0][1]-jacques_vecs[4][1])/2,(jacques_vecs[0][2]-jacques_vecs[4][2])/2,(jacques_vecs[0][3]-jacques_vecs[4][3])/2};
+                vector<dreal> pg={jacques_vecs[5][0],jacques_vecs[5][1],jacques_vecs[5][2],jacques_vecs[5][3]};
+
+                observable res_vec_n;
+
+                res_vec_n.eval=0;
+                res_vec_n.jac=jac;
+                res_vec_n.j1=j1;
+                res_vec_n.j2=j2;
+                res_vec_n.spin2=spins[index];
+                res_vec_n.spin1=total_s;
+                res_vec_n.pg=pg;
+
+                return res_vec_n;
+
+
+            };
+
+
+            //FLOWWW TO PUT Q=(0,0,0)
+
+            observable res_vec_n;
+
+            res_vec_n.eval=0;
+            res_vec_n.jac=0;
+            res_vec_n.j1={0,0,0,0};
+            res_vec_n.j2={0,0,0,0};
+            res_vec_n.spin2=0;
+            res_vec_n.spin1=0;
+            res_vec_n.pg={0,0,0,0};
+
+            return res_vec_n;
+
+        };
+
+        observable hemisphere_sampling_2(vector<vector<dreal>> constituents, int n_constituents, vector<dreal> final_parton, int* spins, dreal a){
+
+        
+            vector<dreal> tot={0,0,0,0};
+
+            for(int i=0; i<n_constituents; i++){
+                tot={tot[0]+constituents[i][0],tot[1]+constituents[i][1],tot[2]+constituents[i][2],tot[3]+constituents[i][3]};
+            };
+
+
+            vector<dreal> j1pj2=tot;
+
+            vector<vector<dreal>> jacques_vecs={j1pj2,j1pj2,j1pj2,j1pj2,final_parton};
+            vector<vector<dreal>> constituents_boosted=constituents;
+
+            dreal tLz=b_flow.t_val(jacques_vecs[0],3);
+            jacques_vecs={b_flow.perform_flow(jacques_vecs[0],3,tLz),b_flow.perform_flow(jacques_vecs[1],3,tLz),b_flow.perform_flow(jacques_vecs[2],3,tLz),b_flow.perform_jacques(jacques_vecs[3],tLz,3),b_flow.perform_flow(jacques_vecs[4],3,tLz)};
+            for(int i=0; i<n_constituents; i++){
+                constituents_boosted[i]=b_flow.perform_flow(constituents_boosted[i],3,tLz);
+            };
+
+            dreal tLy=b_flow.t_val(jacques_vecs[0],2);
+            jacques_vecs={b_flow.perform_flow(jacques_vecs[0],2,tLy),b_flow.perform_flow(jacques_vecs[1],2,tLy),b_flow.perform_jacques(jacques_vecs[2],tLy,2),b_flow.perform_flow(jacques_vecs[3],2,tLy),b_flow.perform_flow(jacques_vecs[4],2,tLy)};
+            for(int i=0; i<n_constituents; i++){
+                constituents_boosted[i]=b_flow.perform_flow(constituents_boosted[i],2,tLy);
+            };
+
+            dreal tLx=b_flow.t_val(jacques_vecs[0],1);
+            jacques_vecs={b_flow.perform_flow(jacques_vecs[0],1,tLx),b_flow.perform_jacques(jacques_vecs[1],tLx,1),b_flow.perform_flow(jacques_vecs[2],1,tLx),b_flow.perform_flow(jacques_vecs[3],1,tLx),b_flow.perform_flow(jacques_vecs[4],1,tLx)};
+            for(int i=0; i<n_constituents; i++){
+                constituents_boosted[i]=b_flow.perform_flow(constituents_boosted[i],1,tLx);
+            };
+
+            vector<dreal> pg={jacques_vecs[4][0],jacques_vecs[4][1],jacques_vecs[4][2],jacques_vecs[4][3]};
+
+            dreal hardness=0;
+            int index=0;
+
+            for(int i=0; i<n_constituents; i++){
+                if(abs(constituents_boosted[i][0])>hardness){
+                    hardness=abs(constituents_boosted[i][0]);
+                    index=i;
+                };
+            };
+
+            vector<dreal> total_p={0,0,0,0};
+            int total_s=0;
+
+            for(int i=0; i<n_constituents; i++){
+                tot={tot[0]+constituents_boosted[i][0],tot[1]+constituents_boosted[i][1],tot[2]+constituents_boosted[i][2],tot[3]+constituents_boosted[i][3]};
+                if(i != index){
+                    total_p={total_p[0]+constituents_boosted[i][0],total_p[1]+constituents_boosted[i][1],total_p[2]+constituents_boosted[i][2],total_p[3]+constituents_boosted[i][3]};
+                    total_s+=abs(spins[i]);
                 };
             };
 
@@ -1118,20 +1247,81 @@ class observables{
 
             dreal jac=0;
 
-            if(total_m<lambda*pow(eCM,2.) && tote<eCM){
-                jac=1;
-            };
+            // cout<<"*****F128*****"<<endl;
+            // cout<<"HARDEST "<<constituents_boosted[index][0]<<" "<<constituents_boosted[index][1]<<" "<<constituents_boosted[index][2]<<" "<<constituents_boosted[index][3]<<endl;
+            // cout<<"OTHER "<<total_p[0]<<" "<<total_p[1]<<" "<<total_p[2]<<" "<<total_p[3]<<endl;
+            // cout<<"q "<<jacques_vecs[0][0]<<" "<<jacques_vecs[0][1]<<" "<<jacques_vecs[0][2]<<" "<<jacques_vecs[0][3]<<endl;
+            // cout<<"total_m "<<total_m<<endl;
+            // cout<<"eCM "<<eCM<<endl;
 
+            if(total_m<lambda*pow(eCM,2.) && total_s<2){
+                jac=Sqrt(SP(jacques_vecs[0],jacques_vecs[0]))*(b_flow.h(tLx)*b_flow.h(tLy)*b_flow.h(tLz))/abs(jacques_vecs[1][1]*jacques_vecs[2][2]*jacques_vecs[3][3]);
+
+                observable res_vec_n;
+
+                res_vec_n.eval=0;
+                res_vec_n.jac=jac;
+                res_vec_n.j1=total_p;
+                res_vec_n.j2=constituents_boosted[index];
+                res_vec_n.spin1=spins[index];
+                res_vec_n.spin2=total_s;
+                res_vec_n.pg=pg;
+
+                return res_vec_n;
+
+            };
 
             observable res_vec_n;
 
             res_vec_n.eval=0;
+            res_vec_n.jac=0;
+            res_vec_n.j1={0,0,0,0};
+            res_vec_n.j2={0,0,0,0};
+            res_vec_n.spin2=0;
+            res_vec_n.spin1=0;
+            res_vec_n.pg={0,0,0,0};
+
+            return res_vec_n;
+
+        };
+
+        observable jj_sampling(vector<vector<dreal>> constituents, int n_constituents, vector<dreal> final_parton, dreal a){
+
+            vector<dreal> tot={0,0,0,0};
+
+            for(int i=0; i<n_constituents; i++){
+                tot={tot[0]+constituents[i][0],tot[1]+constituents[i][1],tot[2]+constituents[i][2],tot[3]+constituents[i][3]};
+            };
+
+
+            vector<dreal> j1pj2=tot;
+
+            dreal jac=1;
+
+            vector<vector<dreal>> jacques_vecs={j1pj2,j1pj2,j1pj2,j1pj2,final_parton};
+
+            dreal tLz=b_flow.t_val(jacques_vecs[0],3);
+            jacques_vecs={b_flow.perform_flow(jacques_vecs[0],3,tLz),b_flow.perform_flow(jacques_vecs[1],3,tLz),b_flow.perform_flow(jacques_vecs[2],3,tLz),b_flow.perform_jacques(jacques_vecs[3],tLz,3),b_flow.perform_flow(jacques_vecs[4],3,tLz)};
+
+            dreal tLy=b_flow.t_val(jacques_vecs[0],2);
+            jacques_vecs={b_flow.perform_flow(jacques_vecs[0],2,tLy),b_flow.perform_flow(jacques_vecs[1],2,tLy),b_flow.perform_jacques(jacques_vecs[2],tLy,2),b_flow.perform_flow(jacques_vecs[3],2,tLy),b_flow.perform_flow(jacques_vecs[4],2,tLy)};
+
+            dreal tLx=b_flow.t_val(jacques_vecs[0],1);
+            jacques_vecs={b_flow.perform_flow(jacques_vecs[0],1,tLx),b_flow.perform_jacques(jacques_vecs[1],tLx,1),b_flow.perform_flow(jacques_vecs[2],1,tLx),b_flow.perform_flow(jacques_vecs[3],1,tLx),b_flow.perform_flow(jacques_vecs[4],1,tLx)};
+
+            jac=Sqrt(SP(jacques_vecs[0],jacques_vecs[0]))*(b_flow.h(tLx)*b_flow.h(tLy)*b_flow.h(tLz))/abs(jacques_vecs[1][1]*jacques_vecs[2][2]*jacques_vecs[3][3]);
+
+            vector<dreal> pg={jacques_vecs[4][0],jacques_vecs[4][1],jacques_vecs[4][2],jacques_vecs[4][3]};
+
+            observable res_vec_n;
+
+            res_vec_n.eval=0.;
             res_vec_n.jac=jac;
-            res_vec_n.j1={total_p[0],total_p[1],total_p[2],total_p[3]};
-            res_vec_n.j2={constituents[index][0],constituents[index][1],constituents[index][2],constituents[index][3]};
-            res_vec_n.spin1=spins[index];
-            res_vec_n.spin2=total_s;
-            res_vec_n.pg={final_parton[0],final_parton[1],final_parton[2],final_parton[3]};
+            res_vec_n.j1={0.,0.,0.,0.};
+            res_vec_n.j2={0.,0.,0.,0.};
+            res_vec_n.spin2=0;
+            res_vec_n.spin1=0;
+            res_vec_n.pg=pg;
 
             return res_vec_n;
 
@@ -1151,19 +1341,25 @@ class deformation_field{
         dreal lambda;
         dreal mij;
         dreal branch_cut_lambda;
+        dreal m;
 
     public:
 
-        deformation_field(dreal nlambda, dreal nmij, dreal nbranch_cut_lambda){
+        deformation_field(dreal nlambda, dreal nmij, dreal nbranch_cut_lambda, dreal mass){
             lambda=nlambda;
             mij=nmij;
             branch_cut_lambda=nbranch_cut_lambda;
+            m=mass;
         };
 
         void set_hyperparameters(dreal nlambda, dreal nmij, dreal nbranch_cut_lambda){
             lambda=nlambda;
             mij=nmij;
             branch_cut_lambda=nbranch_cut_lambda;
+        };
+
+        void set_mass(dreal my_mass){
+            m=my_mass;
         };
 
 
@@ -1199,7 +1395,74 @@ class deformation_field{
         };*/
 
 
+        dual<dreal> min_dual(vector<dual<dreal>> input){
+
+            dual<dreal> min=input[0];
+            for(int i=0; i<input.size(); i++){
+                if(input[i].rpart()<min.rpart()){
+                    min=input[i];
+                    if(input[i].rpart()<0){
+                        cout<<"negative lambda value reached"<<endl;
+                    };
+                };
+            };
+
+            return min;
+        };
+
+        dual<dreal> expansion_check(vector<dual<dreal>> q1, vector<dual<dreal>> kappa){
+            dual<dreal> a=pow(q1[0],2.)+pow(q1[1],2.)+pow(q1[2],2.);
+            dual<dreal> b=q1[0]*kappa[0]+q1[1]*kappa[1]+q1[2]*kappa[2];
+            dual<dreal> c=pow(kappa[0],2.)+pow(kappa[1],2.)+pow(kappa[2],2.);
+            return 0.25*sqrt(2*pow(a,2.)/(a*c-pow(b,2.)));
+        };
+
+        dual<dreal> complex_pole_check(vector<dual<dreal>> q1, vector<dual<dreal>> q2, dual<dreal> p0, vector<dual<dreal>> kappa){
+            dual<dreal> e_q1=sqrt(pow(q1[0],2.)+pow(q1[1],2.)+pow(q1[2],2.));
+            dual<dreal> e_q2=sqrt(pow(q2[0],2.)+pow(q2[1],2.)+pow(q2[2],2.));
+            dual<dreal> a=e_q1+e_q2-p0;
+
+            dual<dreal> norm_kappa=sqrt(pow(kappa[0],2.)+pow(kappa[1],2.)+pow(kappa[2],2.));
+
+            dual<dreal> b=1./2*((q1[0]/e_q1+q2[0]/e_q2)*kappa[0]+(q1[1]/e_q1+q2[1]/e_q2)*kappa[1]+(q1[2]/e_q1+q2[2]/e_q2)*kappa[2]);
+
+            dual<dreal> c1=(pow(e_q1,2.)*pow(norm_kappa,2.)-pow(q1[0]*kappa[0]+q1[1]*kappa[1]+q1[2]*kappa[2],2.))/pow(e_q1,3.);
+            dual<dreal> c2=(pow(e_q2,2.)*pow(norm_kappa,2.)-pow(q2[0]*kappa[0]+q2[1]*kappa[1]+q2[2]*kappa[2],2.))/pow(e_q2,3.);
+            dual<dreal> c=1./2*(c1+c2);
+
+            if(2*b.rpart()<a.rpart()){return sqrt(a/(4*c));};
+            if(2*b.rpart()>a.rpart() && a.rpart()>0){return sqrt(b/c-a/(4*c));};
+            if(a.rpart()<0){return sqrt(b/c-a/(2*c));};
+
+            dual<dreal> zero{0.,0.};
+            return zero;
+        };
+
+        dual<dreal> branch_cut_check(vector<dual<dreal>> q1, vector<dual<dreal>> kappa){
+            dual<dreal> e_q1=sqrt(pow(q1[0],2.)+pow(q1[1],2.)+pow(q1[2],2.));
+            dual<dreal> norm_kappa=sqrt(pow(kappa[0],2.)+pow(kappa[1],2.)+pow(kappa[2],2.));
+
+            return e_q1/norm_kappa;
+        }
+
+        dual<dreal> pinch_suppression(vector<dual<dreal>> q1, vector<dual<dreal>> q2, dual<dreal> p0){
+            dual<dreal> e_q1=sqrt(pow(q1[0],2.)+pow(q1[1],2.)+pow(q1[2],2.));
+            dual<dreal> e_q2=sqrt(pow(q2[0],2.)+pow(q2[1],2.)+pow(q2[2],2.));
+            dual<dreal> a=e_q1+e_q2-p0;
+
+            return pow(a,2.)/(pow(a,2.)+pow(mij,2.));
+        };
+
+        dual<dreal> soft_suppression(vector<dual<dreal>> q1){
+            dual<dreal> e_q1=sqrt(pow(q1[0],2.)+pow(q1[1],2.)+pow(q1[2],2.));
+
+            return pow(e_q1,3.)/(pow(e_q1,3.)+pow(mij,3.));
+        };
+
+
         dual<dreal> get_deformation_dt(vector<dreal> k, vector<dreal> l, vector<dreal> q, int i, int j){
+
+            //cout<<lambda<<" "<<mij<<" "<<branch_cut_lambda<<endl;
 
             dual<dreal> kx=k[0]; dual<dreal> ky=k[1]; dual<dreal> kz=k[2];
             dreal lx=l[0]; dreal ly=l[1]; dreal lz=l[2];
@@ -1215,38 +1478,56 @@ class deformation_field{
                 kz=k[2]+1_e;
             };
 
+            
 
-            dual<dreal> e_k=sqrt(kx*kx+ky*ky+kz*kz);
-            dual<dreal> e_kl=sqrt((kx-lx)*(kx-lx)+(ky-ly)*(ky-ly)+(kz-lz)*(kz-lz));
-            dreal e_l=norm(l);
-            dual<dreal> e_kq=sqrt((kx-qx)*(kx-qx)+(ky-qy)*(ky-qy)+(kz-qz)*(kz-qz));
-            dreal e_lq=norm(vector_plus(l,vector_swap(q)));
+            // dual<dreal> e_k=sqrt(kx*kx+ky*ky+kz*kz);
+            // dual<dreal> e_kq=sqrt((kx-qx)*(kx-qx)+(ky-qy)*(ky-qy)+(kz-qz)*(kz-qz));
 
-            dual<dreal> pinch1=e_k+e_kl-e_l;
-            dual<dreal> pinch2=e_kq+e_kl-e_lq;
 
-            dual<dreal> tp1=pow(pinch1,2.)/(pow(pinch1,2.)+pow(mij,2.));
-            dual<dreal> tp2=pow(pinch2,2.)/(pow(pinch2,2.)+pow(mij,2.));
+            // vector<dual<dreal>> radial_field={kx/e_k+(kx-qx)/e_kq,ky/e_k+(ky-qy)/e_kq,kz/e_k+(kz-qz)/e_kq};
 
-            if(e_kl/e_k<e_kq/e_k && e_kl/e_k<branch_cut_lambda){
-                if(j==1){return k[0]*tp1*tp2*e_kl/e_k;};
-                if(j==2){return k[1]*tp1*tp2*e_kl/e_k;};
-                if(j==3){return k[2]*tp1*tp2*e_kl/e_k;};
-            }
-            if(e_kq/e_k<e_kl/e_k && e_kq/e_k<branch_cut_lambda){
-                if(j==1){return k[0]*tp1*tp2*e_kq/e_k;};
-                if(j==2){return k[1]*tp1*tp2*e_kq/e_k;};
-                if(j==3){return k[2]*tp1*tp2*e_kq/e_k;};
-            }
-            if(branch_cut_lambda<e_kq/e_k && branch_cut_lambda<e_kl/e_k){
-                if(j==1){return k[0]*tp1*tp2*branch_cut_lambda;};
-                if(j==2){return k[1]*tp1*tp2*branch_cut_lambda;};
-                if(j==3){return k[2]*tp1*tp2*branch_cut_lambda;};
-            }
+            vector<dual<dreal>> kd={kx,ky,kz};
+            vector<dual<dreal>> kqd={kx-qx,ky-qy,kz-qz};
+            vector<dual<dreal>> lqd={lx-qx,ly-qy,lz-qz};
+            vector<dual<dreal>> kld={kx-lx,ky-ly,kz-lz};
 
-            dreal c{0};
 
-            return c;
+            dual<dreal> tp1=pinch_suppression(kd,kld,sqrt(lx*lx+ly*ly+lz*lz));
+            dual<dreal> tp2=pinch_suppression(kqd,kld,norm(vector_plus(l,vector_swap(q))));
+            dual<dreal> tp3=soft_suppression(kld);
+
+
+            vector<dual<dreal>> radial_field={tp1*tp2*tp3*kx,tp1*tp2*tp3*ky,tp1*tp2*tp3*kz};
+
+            dual<dreal> lambda_bc_k=branch_cut_check(kd,radial_field);
+            dual<dreal> lambda_bc_kq=branch_cut_check(kqd,radial_field);
+            dual<dreal> lambda_bc_kl=branch_cut_check(kld,radial_field);
+
+            dual<dreal> lambda_cp_1=complex_pole_check(kd,kld,sqrt(lx*lx+ly*ly+lz*lz),radial_field);
+            dual<dreal> lambda_cp_2=complex_pole_check(kqd,kld,norm(vector_plus(l,vector_swap(q))),radial_field);
+            dual<dreal> lambda_cp_3=complex_pole_check(kd,kqd,sqrt(pow(norm(q),2)+pow(m,2.)),radial_field);
+
+            dual<dreal> lambda_exp_1=expansion_check(kd,radial_field);
+            dual<dreal> lambda_exp_2=expansion_check(kqd,radial_field);
+            dual<dreal> lambda_exp_3=expansion_check(kld,radial_field);
+
+
+            vector<dual<dreal>> lambdas={branch_cut_lambda,lambda_bc_k,lambda_bc_kl,lambda_bc_kq,lambda_cp_1,lambda_cp_2,lambda_cp_3,lambda_exp_1,lambda_exp_2,lambda_exp_3};
+
+
+
+            dual<dreal> UV_suppression=exp(-pow(norm(k),2.)/10.);
+
+            dual<dreal> final_lambda=min_dual(lambdas);
+
+            vector<dual<dreal>> final_kappa={radial_field[0]*final_lambda,radial_field[1]*final_lambda,radial_field[2]*final_lambda};
+
+            if(j==1){return final_kappa[0];};
+            if(j==2){return final_kappa[1];};
+            if(j==3){return final_kappa[2];};
+
+            dual<dreal> id{0,0};
+            return id;
 
         };
 
@@ -1301,7 +1582,7 @@ class integrands{
         deformation_field my_defo;
 
     public:
-        integrands(dreal nm, dreal neCM, dreal nsigma, dreal nMUV):my_obs(0,0,neCM,nm), my_flow(nm,nsigma), my_defo(-1,0,-1){
+        integrands(dreal nm, dreal neCM, dreal nsigma, dreal nMUV):my_obs(0,0,neCM,nm), my_flow(nm,nsigma), my_defo(-1,0,-1,m){
 
             
             eCM=neCM;
@@ -1322,7 +1603,7 @@ class integrands{
             
         }
 
-        integrands(dreal nm, dreal neCM, dreal nsigma, dreal nMUV, dreal res_c, dreal res_s):my_obs(res_c,res_s,neCM,nm), my_flow(nm,nsigma), my_defo(-1,0,-1){
+        integrands(dreal nm, dreal neCM, dreal nsigma, dreal nMUV, dreal res_c, dreal res_s):my_obs(res_c,res_s,neCM,nm), my_flow(nm,nsigma), my_defo(-1,0,-1,m){
             eCM=neCM;
             m=nm;
             /*dreal gV=0.1303037631031056;
@@ -1356,7 +1637,18 @@ class integrands{
 
         void set_MUV(dreal nMUV){MUV=nMUV;};
 
-        void set_kinematics(dreal nm, dreal neCM){my_obs.set_kinematics(nm,neCM); m=nm; eCM=neCM;};
+        void set_kinematics(dreal nm, dreal neCM){my_obs.set_kinematics(nm,neCM); my_flow.set_mass(nm); my_defo.set_mass(nm); m=nm; eCM=neCM;
+        dreal PS_constant=1/(16*pow(M_PI,2.)*neCM*neCM);
+        dreal gV=0.1303037631031056;
+        dreal gs=sqrt(0.118*4*M_PI);
+        int NC=3;
+
+
+        //INTEGER ARITHMETIC TO FIX HERE
+        dreal CF=(NC*NC-1)/(2*NC);
+        dreal spin_norm=2;
+        constant=pow(gV,2)*pow(gs,2)*CF*NC/(pow(spin_norm,2.))*PS_constant*0.389379*pow(10,9);
+            };
 
         void set_res(dreal nres_c, dreal nres_s){my_obs.set_res(nres_c,nres_s);};
 
@@ -1442,7 +1734,8 @@ class integrands{
 
             int spins[2]={1,1};
 
-            vector<dreal> obs_res=my_obs.b2b_sampling(constituents, 2, spins, a);;
+            vector<dreal> obs_res=my_obs.b2b_sampling(constituents, 2, spins, a);
+            //vector<dreal> obs_res=my_obs.jj_sampling(constituents, 2, spins, a);
 
             if(DEBUG==1){
                     vector<dreal> psp={0.0, 0.0, 91.188/2};
@@ -1471,6 +1764,10 @@ class integrands{
         };
 
         dcomp NLO_DT_DrellYan_numerator(vector<dcomp> k, vector<dreal> l, vector<dreal> q){
+            return 128.*(-pow(SP(k, l),2.) + SP(k, l)*SP(k, q) + SP(k, l)*SP(l, q) - SP(k, q)*SP(l, q));
+        };
+
+        dcomp NLO_DT_DrellYan_numerator(vector<dreal> k, vector<dcomp> l, vector<dreal> q){
             return 128.*(-pow(SP(k, l),2.) + SP(k, l)*SP(k, q) + SP(k, l)*SP(l, q) - SP(k, q)*SP(l, q));
         };
 
@@ -1523,13 +1820,12 @@ class integrands{
 
             if(comp==1 || comp==2){
 
-
                 vector<dreal> l_in=l;
                 vector<dreal> k_in=k;
                 vector<dreal> q_in=q;
 
-                dreal defo_sign;
-                dreal jac_sign;
+                int defo_sign;
+                int jac_sign;
 
                 if(comp==1){
                     l_in=l;
@@ -1575,7 +1871,7 @@ class integrands{
                 vector<dreal> kappa={my_defo.get_deformation_dt(ks_real,ls,qs,1,1).rpart(),my_defo.get_deformation_dt(ks_real,ls,qs,1,2).rpart(),my_defo.get_deformation_dt(ks_real,ls,qs,1,3).rpart()};
                 vector<dcomp> ks={ks_real[0]+defo_sign*i*kappa[0],ks_real[1]+defo_sign*i*kappa[1],ks_real[2]+defo_sign*i*kappa[2]};
                 //dcomp defo_jacques=my_defo.jacques_deformation(ks_real,ls,1,jac_sign);
-                dcomp defo_jacques=my_defo.jacques_deformation_dt(ks_real,ls,qs,double(jac_sign));
+                dcomp defo_jacques=my_defo.jacques_deformation_dt(ks_real,ls,qs,jac_sign);
 
                 /*cout<<"k: "<<ks_real[0]<<" "<<ks_real[1]<<" "<<ks_real[2]<<endl;
                 cout<<"l: "<<ls[0]<<" "<<ls[1]<<" "<<ls[2]<<endl;
@@ -1600,6 +1896,7 @@ class integrands{
                 dcomp dt_virtual_left_1=NLO_DT_DrellYan_numerator(ks1,ls,qs)/
                     (2.*e_l*2.*e_k*2.*(-e_l+e_q)*2.*e_q*SP(vector_minus(ks1,ls),vector_minus(ks1,ls))*SP(vector_minus(ks1,qs),vector_minus(ks1,qs)));
 
+
                 vector<dcomp> ks2={e_l+e_kl,ks[0],ks[1],ks[2]};
 
                 dcomp dt_virtual_left_2=NLO_DT_DrellYan_numerator(ks2, ls, qs)/
@@ -1615,6 +1912,16 @@ class integrands{
                 dcomp dt_left_uv=1./(2.*e_l*2.*(-e_l+e_q)*2.*e_q)*(NLO_DT_UV_DrellYan_numeratorA(ksuv, ls, qs)/pow(e_kUV,5.)+
                     NLO_DT_UV_DrellYan_numeratorB(ksuv, ls, qs)/pow(e_kUV,3.)
                     );
+
+                if(comp==8){
+                    cout<<"f128"<<endl;
+                    cout<<double(k[0])<<" "<<double(k[1])<<" "<<double(k[2])<<endl;
+                    cout<<"flow: "<<my_flow.t_val(ni,nf,q_in)<<endl;
+                    cout<<"flow h: "<<flow_h<<endl;
+                    cout<<"flow jacques: "<<jac_flow<<endl;
+                    cout<<dt_virtual_left_1<<" "<<dt_virtual_left_2<<" "<<dt_virtual_left_3<<endl;
+                };
+
 
                 /*if(comp==2){
                     cout<<"scaling"<<endl;
@@ -1647,20 +1954,38 @@ class integrands{
                 vector<dreal> pg={0,0,0,0};
 
                 observable obs_res_n;
+                dreal extra_const=1;
+                //obs_res_n=my_obs.jj_sampling(constituents,2,pg,a);
                 if(tag_obs==0){
                         obs_res_n=my_obs.b2b_sampling_final(constituents, 2, pg, spins, a);
-                    }else{
+                        extra_const=group_average(obs_res_n.spin1,obs_res_n.spin2);
+                    };
+                if(tag_obs==1){
                         obs_res_n=my_obs.hemisphere_sampling(constituents, 2, pg, spins, a);
+                        extra_const=1;//group_average(obs_res_n.spin1,obs_res_n.spin2);
+                    };
+                if(tag_obs==2){
+                        //cout<<"here"<<endl;
+                        extra_const=m*1.3603656066729753663*pow(10,-9)/(8*pow(M_PI,2.));//4*(m/3.)*1.4344473116003848311*pow(10,-8)/(64*pow(M_PI,4.));
+                        obs_res_n=my_obs.jj_sampling(constituents, 2, pg, a);
                     };
 
-                observable_c obs_res;
-                obs_res.eval=obs_res_n.eval;
-                obs_res.jac=obs_res_n.jac;
-                obs_res.j1=obs_res_n.j1;
-                obs_res.j2=obs_res_n.j2;
-                obs_res.spin1=obs_res_n.spin1;
-                obs_res.spin2=obs_res_n.spin2;
-                obs_res.pg=obs_res_n.pg;
+                //obs_res_n=my_obs.jj_sampling(constituents, 2, pg, a);
+                
+                // if(tag_obs==0){
+                //         obs_res_n=my_obs.b2b_sampling_final(constituents, 2, pg, spins, a);
+                //     }else{
+                //         obs_res_n=my_obs.hemisphere_sampling(constituents, 2, pg, spins, a);
+                //     };
+
+                // observable_c obs_res;
+                // obs_res.eval=obs_res_n.eval;
+                // obs_res.jac=obs_res_n.jac;
+                // obs_res.j1=obs_res_n.j1;
+                // obs_res.j2=obs_res_n.j2;
+                // obs_res.spin1=obs_res_n.spin1;
+                // obs_res.spin2=obs_res_n.spin2;
+                // obs_res.pg=obs_res_n.pg;
 
 
                 
@@ -1716,17 +2041,58 @@ class integrands{
                 };
 
                 
-                dreal colour_average=group_average(obs_res.spin1,obs_res.spin2);
+                //NEW
+                observable_c obs_res;
+                //NEW
+                
+                //dreal colour_average=group_average(obs_res.spin1,obs_res.spin2);
 
-                //dcomp integrand_val=constant*colour_average*(dt_virtual_left_1+dt_virtual_left_2+dt_virtual_left_3-dt_left_uv);
-                dcomp integrand_val=constant*defo_jacques*colour_average*(dt_virtual_left_1+dt_virtual_left_2+dt_virtual_left_3-dt_left_uv);
-
-                //obs_res.jac=obs_res_n.jac*jac_flow*flow_h*defo_jacques;
+                //constant=1;
+                //dcomp integrand_val=constant*defo_jacques*colour_average*(dt_virtual_left_1+dt_virtual_left_2+dt_virtual_left_3-dt_left_uv);
+                dcomp integrand_val=extra_const*constant*defo_jacques*(dt_virtual_left_1+dt_virtual_left_2+dt_virtual_left_3-dt_left_uv);
                 obs_res.jac=obs_res_n.jac*jac_flow*flow_h;
+
+                // cout<<"f128"<<endl;
+                // cout<<integrand_val<<" "<<constant<<" "<<defo_jacques<<endl;
+                // cout<<ks[0]<<" "<<ks[1]<<" "<<ks[2]<<endl;
+                //cout<<kappa[0]<<" "<<kappa[1]<<" "<<kappa[2]<<endl;
 
                 obs_res.eval=integrand_val;
 
-                if(comp==5){
+                obs_res.j1=obs_res_n.j1;
+                obs_res.j2=obs_res_n.j2;
+                obs_res.spin1=obs_res_n.spin1;
+                obs_res.spin2=obs_res_n.spin2;
+                obs_res.pg=obs_res_n.pg;
+
+                // obs_res.j1={0,0,0,0};
+                // obs_res.j2={0,0,0,0};
+                // obs_res.spin1=0;
+                // obs_res.spin2=0;
+                // obs_res.pg={0,0,0,0};
+
+                //NEW STUFF STARTS HERE
+                
+                // if(e_q<eCM){
+                //     obs_res.eval=integrand_val;
+                //     obs_res.jac=jac_flow*flow_h;
+                //     obs_res.j1={0,0,0,0};
+                //     obs_res.j2={0,0,0,0};
+                //     obs_res.spin1=0;
+                //     obs_res.spin2=0;
+                //     obs_res.pg={0,0,0,0};
+                // }else{
+                //     obs_res.eval=0;
+                //     obs_res.jac=0;
+                //     obs_res.j1={0,0,0,0};
+                //     obs_res.j2={0,0,0,0};
+                //     obs_res.spin1=0;
+                //     obs_res.spin2=0;
+                //     obs_res.pg={0,0,0,0};
+                // }
+                //NEW STUFF ENDS HERE     
+
+                /*if(comp==5){
                     cout<<"--------------------"<<endl;
                     cout<<"f64"<<endl;
                     cout<<"eCM "<<dreal(eCM)<<"     mZ: "<<dreal(m)<<endl;
@@ -1761,7 +2127,7 @@ class integrands{
                     cout<<obs_res.j1[0]<<""<<obs_res.j1[1]<<""<<obs_res.j1[2]<<""<<obs_res.j1[3]<<endl;
                     cout<<obs_res.j2[0]<<""<<obs_res.j2[1]<<""<<obs_res.j2[2]<<""<<obs_res.j2[3]<<endl;
                     cout<<obs_res.pg[0]<<""<<obs_res.pg[1]<<""<<obs_res.pg[2]<<""<<obs_res.pg[3]<<endl;
-                };
+                };*/
 
                 return obs_res;
 
@@ -1828,20 +2194,38 @@ class integrands{
                 vector<dreal> pg={0,0,0,0};
 
                 observable obs_res_n;
+                dreal extra_const=1;
+                //obs_res_n=my_obs.jj_sampling(constituents,3,pg,0.);
+
                 if(tag_obs==0){
-                        obs_res_n=my_obs.b2b_sampling_final(constituents, 3, pg, spins, a);
-                    }else{
-                        obs_res_n=my_obs.hemisphere_sampling(constituents, 3, pg, spins, a);
+                        obs_res_n=my_obs.b2b_sampling_final(constituents, 3, pg, spins, 0.);
+                        extra_const=group_average(obs_res_n.spin1,obs_res_n.spin2);
+                    };
+                if(tag_obs==1){
+                        obs_res_n=my_obs.hemisphere_sampling(constituents, 3, pg, spins, 0.);
+                        extra_const=1;//group_average(obs_res_n.spin1,obs_res_n.spin2);
+                    };
+                if(tag_obs==2){
+                        extra_const=m*1.3603656066729753663*pow(10,-9)/(8*pow(M_PI,2.));//4*(m/3.)*1.4344473116003848311*pow(10,-8)/(64*pow(M_PI,4.));
+                        obs_res_n=my_obs.jj_sampling(constituents, 3, pg, 0.);
                     };
 
-                observable_c obs_res;
-                obs_res.eval=obs_res_n.eval;
-                obs_res.jac=obs_res_n.jac;
-                obs_res.j1=obs_res_n.j1;
-                obs_res.j2=obs_res_n.j2;
-                obs_res.spin1=obs_res_n.spin1;
-                obs_res.spin2=obs_res_n.spin2;
-                obs_res.pg=obs_res_n.pg;
+                //obs_res_n=my_obs.jj_sampling(constituents, 3, pg, 0.);
+
+                // if(tag_obs==0){
+                //         obs_res_n=my_obs.b2b_sampling_final(constituents, 3, pg, spins, a);
+                //     }else{
+                //         obs_res_n=my_obs.hemisphere_sampling(constituents, 3, pg, spins, a);
+                //     };
+
+                // observable_c obs_res;
+                // obs_res.eval=obs_res_n.eval;
+                // obs_res.jac=obs_res_n.jac;
+                // obs_res.j1=obs_res_n.j1;
+                // obs_res.j2=obs_res_n.j2;
+                // obs_res.spin1=obs_res_n.spin1;
+                // obs_res.spin2=obs_res_n.spin2;
+                // obs_res.pg=obs_res_n.pg;
 
                 if(DEBUG==1){
                     vector<dreal> ksp={0.3, 0.1, 0.5};
@@ -1869,16 +2253,61 @@ class integrands{
 
                 };   
 
-                dreal colour_average=group_average(obs_res.spin1,obs_res.spin2);
+                //NEW
+                observable_c obs_res;
+                //NEW
+
+                //dreal colour_average=group_average(obs_res.spin1,obs_res.spin2);
                     
-                dreal integrand_val=constant*colour_average*(NLO_DT_DrellYan_numerator(ks,ls,qs)/
+                /*dreal integrand_val=constant*colour_average*(NLO_DT_DrellYan_numerator(ks,ls,qs)/
+                    ((2.*e_k*2.*(e_q-e_lq-e_k)*2.*(e_lq)*2*e_q)*
+                    SP(vector_minus(ks,qs),vector_minus(ks,qs))*SP(ls,ls)
+                    ));*/
+
+                //constant=1;
+
+                dreal integrand_val=extra_const*constant*(NLO_DT_DrellYan_numerator(ks,ls,qs)/
                     ((2.*e_k*2.*(e_q-e_lq-e_k)*2.*(e_lq)*2*e_q)*
                     SP(vector_minus(ks,qs),vector_minus(ks,qs))*SP(ls,ls)
                     ));
 
-                obs_res.jac=obs_res.jac*jac_flow*flow_h;
+                obs_res.jac=obs_res_n.jac*jac_flow*flow_h;
 
                 obs_res.eval=integrand_val;
+
+                obs_res.j1=obs_res_n.j1;
+                obs_res.j2=obs_res_n.j2;
+                obs_res.spin1=obs_res_n.spin1;
+                obs_res.spin2=obs_res_n.spin2;
+                obs_res.pg=obs_res_n.pg;
+
+                // obs_res.j1={0,0,0,0};
+                // obs_res.j2={0,0,0,0};
+                // obs_res.spin1=0;
+                // obs_res.spin2=0;
+                // obs_res.pg={0,0,0,0};
+
+
+                //NEW STUFF STARTS HERE
+                
+                // if(e_q<eCM){
+                //     obs_res.eval=integrand_val;
+                //     obs_res.jac=jac_flow*flow_h;
+                //     obs_res.j1={0,0,0,0};
+                //     obs_res.j2={0,0,0,0};
+                //     obs_res.spin1=0;
+                //     obs_res.spin2=0;
+                //     obs_res.pg={0,0,0,0};
+                // }else{
+                //     obs_res.eval=0;
+                //     obs_res.jac=0;
+                //     obs_res.j1={0,0,0,0};
+                //     obs_res.j2={0,0,0,0};
+                //     obs_res.spin1=0;
+                //     obs_res.spin2=0;
+                //     obs_res.pg={0,0,0,0};
+                // }
+                //NEW STUFF ENDS HERE     
 
                 /*cout<<"------------"<<endl;
                 cout<<obs_res.eval<<endl;
@@ -2355,6 +2784,7 @@ class integrands{
                 obs_res.jac=obs_res.jac*jac_flow*flow_h*defo_jacques;
 
                 obs_res.eval=integrand_val;
+
 
                 return obs_res;
 
@@ -4555,12 +4985,14 @@ extern "C" {
 
 /*dreal mZ=9.118800e+01;
 dreal eCM=13000;*/
-dreal res_c=0.0;
-dreal res_s=0.0;
+double res_c=0.0;
+double res_s=0.0;
 
 
-dreal mZ=9.118800e+01;
-dreal eCM=13000;
+//double mZ=9.118800e+01;
+double mZ=200;
+double eCM=13000;
+//dreal eCM=mZ;
 
 /*dreal res_c=0.025;
 dreal res_s=0.025;*/
@@ -4568,13 +5000,12 @@ dreal res_s=0.025;*/
 //dreal res_c=1;
 dreal res_s=1;*/
 
-dreal MUV=91.188;
+double MUV=200;
 
-dreal sigma=2.;
+double sigma=2.;
 
 
-dreal constant_LO=-pow(0.1303037631031056,2)*0.389379*pow(10,9)*3/(3*3*2*2*4*eCM*eCM);
-
+double constant_LO=-pow(0.1303037631031056,2)*0.389379*pow(10,9)*3/(3*3*2*2*4*eCM*eCM);
 
 integrands my_integrand(mZ,eCM,sigma,MUV,res_c,res_s);
 
@@ -4709,233 +5140,5 @@ qx.push_back(-0.22);
 qx.push_back(0.2);
 qx.push_back(0.77);
 
-deformation_field my_def(1.,0.69,1.);
-
-cout<<my_def.get_deformation_dt(k,lx,qx,1,1)<<" "<<my_def.get_deformation_dt(k,lx,qx,1,2)<<" "<<my_def.get_deformation_dt(k,lx,qx,1,3)<<" "<<endl;
-cout<<my_def.jacques_deformation_dt(k,lx,qx,1)<<endl;
-//cout<<my_def.jacques_deformation_dt(k,lx,qx,1)<<" "<<endl;
-
-
-/*
-deformation_field my_def(1.,0.69,1.);
-
-cout<<my_def.get_deformation_dt(k,lx,qx)[0]<<" "<<my_def.get_deformation_dt(k,lx,qx)[1]<<" "<<my_def.get_deformation_dt(k,lx,qx)[2]<<" "<<endl;
-cout<<my_def.jacques_deformation_dt(k,lx,qx,1)<<" "<<endl;
-
-
-
-
-
-vector<dreal> kx;
-kx.push_back(1);
-kx.push_back(0.2);
-kx.push_back(0.3);
-kx.push_back(0.13);
-
-boost_flow mybf;
-rotation_flow myrf;
-causal_flow mycf(10.,1.);
-
-dreal t=mybf.t_val(k,1);
-
-vector<dreal> vec=mybf.perform_flow(kx,1,t);
-vector<dreal> vecz=mybf.perform_jacques(kx,0.5,1);
-
-
-observables my_obs(0.1,0.1,1000,90);
-
-
-
-vector<vector<dreal>> constituents;
-
-constituents.push_back(kx);
-constituents.push_back(lx);
-constituents.push_back(qx);
-
-int spins[3]={1,-1,1};
-
-observable res;
-res=my_obs.b2b_sampling_final(constituents, 3, kx, spins, 0.5);
-
-
-
-integrands my_integrando(91.18, 1000, 1, 1);
-
-vector<dreal> l;
-l.push_back(0.63);
-l.push_back(0.11);
-l.push_back(-0.35);
-vector<dreal> q;
-q.push_back(1);
-q.push_back(0.);
-q.push_back(0.);
-
-
-res=my_integrando.NLO_s_channel_DrellYan_integrand(k,l,q,0.5,1);
-
-cout<<dreal(res.eval)<<endl;
-
-res=my_integrando.NLO_st_channel_DrellYan_integrand(k,l,q,0.5,1);
-
-cout<<dreal(res.eval)<<endl;
-
-res=my_integrando.NLO_u_channel_DrellYan_integrand(k,l,q,0.5,1);
-
-cout<<dreal(res.eval)<<endl;
-
-res=my_integrando.NLO_t_channel_qq_DrellYan_integrand(k,l,q,0.5,1);
-
-cout<<dreal(res.eval)<<endl;
-
-res=my_integrando.NLO_t_channel_qg_DrellYan_integrand(k,l,q,0.5,1);
-
-cout<<dreal(res.eval)<<endl;*/
-
-
-
-
-/*vector<dreal> p={0.1,0.2,0.3};
-vector<dreal> q={0.4,0.5,0.1};
-
-
-boost_flow bf;
-rotation_flow rf;
-
-vector<dreal> p12={sqrt(50),4,3,0};
-
-
-deformation_field my_field(0.99,0.1,0.99);
-
-vector<dreal> kappa=my_field.get_deformation(p,q,1);
-dcomp jac=my_field.jacques_deformation(p,q,1,1);
-
-integrands my_int(9.118800e+01,4,1,1,0.3,0.3);
-
-vector<dreal> k={0.1, 0.2, 0.3};
-vector<dreal> l={100, 10, 10};
-vector<dreal> qn={ 0., 0., 1.};
-
-
-//vector<dreal> res=my_int.NLO_s_channel_DrellYan_integrand(k,l,qn,0.,1);
-
-
-vector<dreal> res2=my_int.NLO_se_jj_integrand(k,l,1,1,0);*/
-
-//vector<dreal> res2=my_int.NLO_t_channel_qg_DrellYan_integrand(k,l,qn,0.,1);
-
-
-/* vector<dreal> np12=bf.perform_flow(p12,1);
-
-vector<dreal> nnp12=bf.perform_flow(np12,2);
-
-for(int i=0; i<4; i++){
-    cout<<np12[i]<<" ";
-};
-cout<<endl;
-
-for(int i=0; i<4; i++){
-    cout<<nnp12[i]<<" ";
-};
-cout<<endl;
-*/
-/*vector<dreal> p12j={1,2,3,4};
-
-vector<dreal> resj=bf.perform_jacques(p12j, 0.2, 1);
-
-for(int i=0; i<4; i++){
-    cout<<resj[i]<<" ";
-};
-cout<<endl;
-
-cout<<bf.h(0.3)<<endl;*/
-
-/*cout<<"-----"<<endl;
-
-vector<dreal> p12r={sqrt(50),4,3,0.5};
-
-vector<dreal> np12r=rf.perform_flow(p12r,1);
-
-vector<dreal> nnp12r=rf.perform_flow(np12r,2);
-
-for(int i=0; i<4; i++){
-    cout<<np12r[i]<<" ";
-};
-cout<<endl;
-
-for(int i=0; i<4; i++){
-    cout<<nnp12r[i]<<" ";
-};
-cout<<endl;
-
-vector<dreal> p12jr={1,2,3,4};
-
-vector<dreal> resjr=rf.perform_jacques(p12jr, 0.2, 1);
-
-for(int i=0; i<4; i++){
-    cout<<resjr[i]<<" ";
-};
-cout<<endl;
-
-cout<<rf.h(0.3)<<endl;
-
-causal_flow cf(1,1);
-
-vector<vector<dreal>> vi={{4,2.5,0.5},{-1,-0.5,-0.5}};
-vector<vector<dreal>> vf={};
-vector<dreal> q={5,3,1};
-
-cout<<cf.t_val(vi,vf,q)<<endl;
-cout<<cf.jacques(vi,vf,q)<<endl;
-cout<<cf.h(0.3)<<endl;*/
-
-
-/*observables my_obs(0.0, 0.0, 1, 1);
-
-vector<vector<dreal>> constituents={{sqrt(0.04+0.16+0.01),0.2,0.4,0.1},{sqrt(0.25+0.09+0.0),0.5,-0.3,0.0}};
-
-int spins[2]={1,-1};
-
-vector<dreal> my_obs_res=my_obs.b2b_sampling(constituents,2,spins);
-
-cout<<my_obs_res[0]<<" "<<my_obs_res[1]<<" "<<my_obs_res[2]<<" "<<my_obs_res[3]<<" "<<my_obs_res[4]<<" "<<endl;*/
-
-/*
-vector<dreal> pn={0.22,0.47,0.111};
-vector<dreal> qn={0.65,-0.21,0.38};
-
-vector<dreal> knn={0.2, -0.1, 0.2};
-vector<dreal> lnn={0.79, 0.22, 0.413};
-vector<dreal> qnn ={0.5, 0.45, 0.37};
-
-integrands my_integrand(1,1,2,1,0.5,0.5);
-vector<dreal> res1=my_integrand.NLO_u_channel_DrellYan_integrand(knn,lnn,qnn,0.2,3);
-
-
-//vector<dreal> res2=my_integrand.NLO_u_channel_DrellYan_integrand(knn,lnn,qnn,0.2,3);
-
-cout<<"res: "<<res1[0]<<" "<<res1[1]<<" "<<res1[2]<<" "<<res1[3]<<" "<<res1[4]<<endl;*/
-/*cout<<"rot res: "<<res2[0]<<" "<<res2[1]<<" "<<res2[2]<<" "<<res2[3]<<" "<<res2[4]<<endl;
-
-
-cout<<"here"<<endl;
-
-vector<vector<dreal>> my_vecs={{1,0,0,1},{1,1/2.,1/2.,1/Sqrt(2)}};
-
-vector<vector<dreal>> rot_vecs = rotator_4d(my_vecs);
-
-cout<<rot_vecs[0][0]<<" "<<rot_vecs[0][1]<<" "<<rot_vecs[0][2]<<" "<<rot_vecs[0][3]<<endl;
-cout<<rot_vecs[1][0]<<" "<<rot_vecs[1][1]<<" "<<rot_vecs[1][2]<<" "<<rot_vecs[1][3]<<endl;
-
-vector<dreal> spat_vec1={rot_vecs[0][1],rot_vecs[0][2],rot_vecs[0][3]};
-vector<dreal> spat_vec2={rot_vecs[1][1],rot_vecs[1][2],rot_vecs[1][3]};
-
-cout<<norm(spat_vec1)<<" "<<norm(spat_vec2)<<endl;*/
-
-/*vector<dreal> ks={2, 0.3, 0.1, 0.5};
-vector<dreal> ls={1, 0.3, 0.7, 0.1};
-vector<dreal> qs={0.9, 0.3, 0.1, 0.5};
-
-cout<<my_integrand.NLO_DT_DrellYan_numerator(ks,vector_swap(vector_plus(ls,qs)),vector_swap(qs))<<endl;
-vector<dreal> mys=my_integrand.NLO_st_channel_DrellYan_integrand(ks,vector_swap(vector_plus(ls,qs)),vector_swap(qs),1);*/
 
 };
