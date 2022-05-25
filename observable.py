@@ -192,14 +192,20 @@ class EventGroup(list):
 
 class Observable(object):
 
-    def __init__(self, *args, **opts):
-        self.histogram_args = args
+    def __init__(self, title, *args, flavours=None, **opts):
+        if flavours is not None:
+            title = '%sF%s%dF%s%d'%(title,'m' if flavours[0]<0 else '',abs(flavours[0]),'m' if flavours[1]<0 else '',abs(flavours[1]))
+        self.flavours = flavours
+        self.histogram_args = tuple([title,]+list(args))
         self.histogram_opts = opts
         self.histogram = Histogram(*self.histogram_args, **self.histogram_opts)
         
         self.histos_current_iteration = {}
         
         super(Observable, self).__init__()
+
+    def is_event_eligible(self, event):
+        return (self.flavours is None or (event.initial_state_jets[0].flavour, event.initial_state_jets[1].flavour) == tuple(self.flavours))
 
     def reset(self,*args,**opts):
         self.histogram = Histogram(*self.histogram_args, **self.histogram_opts)
@@ -211,7 +217,7 @@ class Observable(object):
         if event_group.h_cube not in self.histos_current_iteration.keys():
             self.histos_current_iteration[event_group.h_cube] = Histogram(*self.histogram_args, **self.histogram_opts)
         histogram = self.histos_current_iteration.get(event_group.h_cube)
-        histogram.add_weights( sum([ self(e) for e in event_group ],[]) )
+        histogram.add_weights( sum([ self(e) for e in event_group if self.is_event_eligible(e) ],[]) )
 
     def __call__(self, event):
         raise NotImplementedError("This function must be implemented by the daughter class.")
@@ -292,16 +298,16 @@ class ObservableList(list):
 
 class CrossSection(Observable):
 
-    def __init__(self, title='CrossSection', histogram_type='NLO', **opts):
-        super(CrossSection, self).__init__(title, min_value=0., max_value=3., n_bins=3, histogram_type=histogram_type, x_axis='lin', y_axis='lin', **opts)
+    def __init__(self, title='CrossSection', histogram_type='NLO', flavours=None, **opts):
+        super(CrossSection, self).__init__(title, min_value=0., max_value=3., n_bins=3, histogram_type=histogram_type, x_axis='lin', y_axis='lin', flavours=flavours, **opts) 
 
     def __call__(self, event):
         return [(1.5,event.weight),]
 
 class ptj(Observable):
 
-    def __init__(self, title='ptj', min_value=0., max_value=5000., n_bins=100, histogram_type='NLO', x_axis='lin', y_axis='log', **opts):
-        super(ptj, self).__init__(title, min_value, max_value, n_bins, histogram_type=histogram_type, x_axis=x_axis, y_axis=y_axis, **opts)
+    def __init__(self, title='ptj', min_value=0., max_value=5000., n_bins=100, histogram_type='NLO', x_axis='lin', y_axis='log', flavours=None, **opts):
+        super(ptj, self).__init__(title, min_value, max_value, n_bins, histogram_type=histogram_type, x_axis=x_axis, y_axis=y_axis, flavours=flavours, **opts)
 
     def __call__(self, event):
         # The first and unique final state jets should always be the leading jet; we could verify this if need be
@@ -309,40 +315,58 @@ class ptj(Observable):
 
 class log10ptj(Observable):
 
-    def __init__(self, title='log10ptj', min_value=-1., max_value=4., n_bins=100, histogram_type='NLO', x_axis='lin', y_axis='lin', **opts):
-        super(log10ptj, self).__init__(title, min_value, max_value, n_bins, histogram_type=histogram_type, x_axis=x_axis, y_axis=y_axis, **opts)
+    def __init__(self, title='log10ptj', min_value=-1., max_value=4., n_bins=100, histogram_type='NLO', x_axis='lin', y_axis='lin', flavours=None, **opts):
+        super(log10ptj, self).__init__(title, min_value, max_value, n_bins, histogram_type=histogram_type, x_axis=x_axis, y_axis=y_axis, flavours=flavours, **opts)
 
     def __call__(self, event):
         return [( math.log10(event.final_state_jets[0].p.pt()), event.weight ),] if len(event.final_state_jets)>0 else []
 
 class x1(Observable):
 
-    def __init__(self, title='x1', min_value=0., max_value=1., n_bins=100, histogram_type='NLO', x_axis='lin', y_axis='lin', **opts):
-        super(x1, self).__init__(title, min_value, max_value, n_bins, histogram_type=histogram_type, x_axis=x_axis, y_axis=y_axis, **opts)
+    def __init__(self, title='x1', min_value=0., max_value=1., n_bins=100, histogram_type='NLO', x_axis='lin', y_axis='lin', flavours=None, **opts):
+        super(x1, self).__init__(title, min_value, max_value, n_bins, histogram_type=histogram_type, x_axis=x_axis, y_axis=y_axis, flavours=flavours, **opts)
 
     def __call__(self, event):
         return [(event.x1, event.weight),]
 
 class x2(Observable):
 
-    def __init__(self, title='x2', min_value=0., max_value=1., n_bins=100, histogram_type='NLO', x_axis='lin', y_axis='lin', **opts):
-        super(x2, self).__init__(title, min_value, max_value, n_bins, histogram_type=histogram_type, x_axis=x_axis, y_axis=y_axis, **opts)
+    def __init__(self, title='x2', min_value=0., max_value=1., n_bins=100, histogram_type='NLO', x_axis='lin', y_axis='lin', flavours=None, **opts):
+        super(x2, self).__init__(title, min_value, max_value, n_bins, histogram_type=histogram_type, x_axis=x_axis, y_axis=y_axis, flavours=flavours, **opts)
 
     def __call__(self, event):
         return [(event.x2, event.weight),]
 
 class z(Observable):
 
-    def __init__(self, title='z', min_value=0., max_value=1., n_bins=100, histogram_type='NLO', x_axis='lin', y_axis='lin', **opts):
-        super(z, self).__init__(title, min_value, max_value, n_bins, histogram_type=histogram_type, x_axis=x_axis, y_axis=y_axis, **opts)
+    def __init__(self, title='z', min_value=0., max_value=1., n_bins=100, histogram_type='NLO', x_axis='lin', y_axis='lin', flavours=None, **opts):
+        super(z, self).__init__(title, min_value, max_value, n_bins, histogram_type=histogram_type, x_axis=x_axis, y_axis=y_axis, flavours=flavours, **opts)
 
     def __call__(self, event):
         return [(event.x1*event.x2, event.weight),]
 
+class rap(Observable):
+
+    def __init__(self, title='rap', min_value=0., max_value=1., n_bins=100, histogram_type='NLO', x_axis='lin', y_axis='lin', flavours=None, **opts):
+        super(rap, self).__init__(title, min_value, max_value, n_bins, histogram_type=histogram_type, x_axis=x_axis, y_axis=y_axis, flavours=flavours, **opts)
+
+    def __call__(self, event):
+        return [(event.x1/max(event.x2,1.0e-99), event.weight),]
+
+class log10rap(Observable):
+
+    def __init__(self, title='log10rap', min_value=0., max_value=1., n_bins=100, histogram_type='NLO', x_axis='lin', y_axis='lin', flavours=None, **opts):
+        super(rap, self).__init__(title, min_value, max_value, n_bins, histogram_type=histogram_type, x_axis=x_axis, y_axis=y_axis, flavours=flavours, **opts)
+
+    def __call__(self, event):
+        return [( math.log10(event.x1/max(event.x2,1.0e-99)), event.weight),]
+
 class log10z(Observable):
 
-    def __init__(self, title='z', min_value=0., max_value=1., n_bins=100, histogram_type='NLO', x_axis='lin', y_axis='lin', **opts):
-        super(log10z, self).__init__(title, min_value, max_value, n_bins, histogram_type=histogram_type, x_axis=x_axis, y_axis=y_axis, **opts)
+    def __init__(self, title='z', min_value=0., max_value=1., n_bins=100, histogram_type='NLO', x_axis='lin', y_axis='lin', flavours=None, **opts):
+        if flavours is not None:
+            title = '%sF%s%dF%s%d'%(title,'m' if flavours[0]<0 else '',abs(flavours[0]),'m' if flavours[1]<0 else '',abs(flavours[1]))
+        super(log10z, self).__init__(title, min_value, max_value, n_bins, histogram_type=histogram_type, x_axis=x_axis, y_axis=y_axis, flavours=flavours, **opts)
 
     def __call__(self, event):
         return [( math.log10(event.x1*event.x2), event.weight),]

@@ -108,35 +108,80 @@ class LU_DY(object):
 
         obs_list = obs.ObservableList([ obs.CrossSection(), ])
         if observables is not None:
-            if 'ptj' in observables or 'ALL' in observables:
-                obs_list.append( obs.ptj() )
-                obs_list.append( obs.ptj(title='ptjLogY', min_value=0., max_value=2000., n_bins=100, y_axis='log') )
-                obs_list.append( obs.ptj(title='ptjZoom', min_value=0., max_value=20., n_bins=100) )
-            if 'log10ptj' in observables or 'ALL' in observables:
-                obs_list.append( obs.log10ptj() )
-                obs_list.append( obs.log10ptj(title='log10ptjLogY', min_value=-1., max_value=4., n_bins=100, y_axis='log') )
-            if 'x1' in observables or 'ALL' in observables:
-                obs_list.append( obs.x1() )
-            if 'x2' in observables or 'ALL' in observables:
-                obs_list.append( obs.x2() )
-            if 'z' in observables or 'ALL' in observables:
-                obs_list.append( obs.z(title='z', min_value=0., max_value=1, n_bins=100, y_axis='lin') )
-                obs_list.append( obs.z(title='zLogY', min_value=0., max_value=1, n_bins=100, y_axis='log') )
-                obs_list.append( obs.z(title='zZoomX1e2', min_value=0., max_value=1.0e-2, n_bins=100, y_axis='lin') )
-                obs_list.append( obs.z(title='zZoomX1e2LogY', min_value=0., max_value=1.0e-2, n_bins=100, y_axis='log') )
-                obs_list.append( obs.z(title='zZoomX1e4', min_value=0., max_value=1.0e-4, n_bins=100, y_axis='lin') )
-                obs_list.append( obs.z(title='zZoomX1e4LogY', min_value=0., max_value=1.0e-4, n_bins=100, y_axis='log') )
-            if 'log10z' in observables or 'ALL' in observables:
-                obs_list.append( obs.log10z(title='log10z', min_value=-6., max_value=0., n_bins=100, y_axis='lin') )
-                obs_list.append( obs.log10z(title='log10zLogY', min_value=-6., max_value=0., n_bins=100, y_axis='log') )
-            if ('x1_fixed_flavours' in observables or 'ALL' in observables) and not 'no_x1_fixed_flavours' in observables:
+            if len(observables) == 1 and observables[0] == 'paper':
+                
+                # Start with no observables since the inclusive cross-section will already be added later
+                obs_list = obs.ObservableList([])
+                
+                # Observables summed semi-inclusively over flavours
                 obs_list.append( obs.x1FixedFlav(flavour=0, take_abs=True) )
                 obs_list.append( obs.x1FixedFlav(flavour=1, take_abs=True) )
                 obs_list.append( obs.x1FixedFlav(flavour=2, take_abs=True) )
-            if ('x2_fixed_flavours' in observables or 'ALL' in observables) and not 'no_x2_fixed_flavours' in observables:
                 obs_list.append( obs.x2FixedFlav(flavour=0, take_abs=True) )
                 obs_list.append( obs.x2FixedFlav(flavour=1, take_abs=True) )
                 obs_list.append( obs.x2FixedFlav(flavour=2, take_abs=True) )
+
+                # Observables also declined per specific flavour
+                for flavour_configs in [
+                        None,
+                        (-2,-2),(-2,-1),(-2,0),(-2,1),(-2,2),
+                        (-1,-2),(-1,-1),(-1,0),(-1,1),(-1,2),
+                        (0,-2),(0,-1),(0,0),(0,1),(0,2),
+                        (1,-2),(1,-1),(1,0),(1,1),(1,2),
+                        (2,-2),(2,-1),(2,0),(2,1),(2,2)                    
+                    ]:
+                    obs_list.append( obs.CrossSection(flavours=flavour_configs) )
+                    obs_list.append( obs.x1(flavours=flavour_configs) ) 
+                    obs_list.append( obs.x2(flavours=flavour_configs) )
+                    
+                    obs_list.append( obs.ptj(min_value=0., max_value=300., n_bins=100, flavours=flavour_configs) )
+                    obs_list.append( obs.ptj(title='ptjLogY', min_value=0., max_value=300., n_bins=100, y_axis='log', flavours=flavour_configs) )
+                    obs_list.append( obs.ptj(title='ptjZoom', min_value=0., max_value=20., n_bins=100, flavours=flavour_configs) )
+                    obs_list.append( obs.log10ptj(min_value=-1., max_value=4., n_bins=100, flavours=flavour_configs) )
+                    obs_list.append( obs.log10ptj(title='log10ptjLogY', min_value=-1., max_value=4., n_bins=100, y_axis='log', flavours=flavour_configs) )
+                    
+                    obs_list.append( obs.z(title='z', min_value=0., max_value=1, n_bins=100, y_axis='lin', flavours=flavour_configs) )
+                    obs_list.append( obs.z(title='zLogY', min_value=0., max_value=1, n_bins=100, y_axis='log', flavours=flavour_configs) )
+                    obs_list.append( obs.z(title='zZoomX1e2', min_value=0., max_value=1.0e-2, n_bins=100, y_axis='lin', flavours=flavour_configs) )
+                    obs_list.append( obs.z(title='zZoomX1e2LogY', min_value=0., max_value=1.0e-2, n_bins=100, y_axis='log', flavours=flavour_configs) )
+                    obs_list.append( obs.log10z(title='log10z', min_value=-4., max_value=0., n_bins=100, y_axis='lin', flavours=flavour_configs) )
+                    obs_list.append( obs.log10z(title='log10zLogY', min_value=-4., max_value=0., n_bins=100, y_axis='log', flavours=flavour_configs) )
+                    
+                    obs_list.append( obs.rap(title='rap', min_value=0., max_value=100., n_bins=100, y_axis='lin', flavours=flavour_configs) )
+                    obs_list.append( obs.rap(title='rapLogY', min_value=0., max_value=100., n_bins=100, y_axis='log', flavours=flavour_configs) )
+                    obs_list.append( obs.rap(title='log10rap', min_value=-3., max_value=3., n_bins=100, y_axis='lin', flavours=flavour_configs) )
+                    obs_list.append( obs.rap(title='log10rapLogY', min_value=-3., max_value=3., n_bins=100, y_axis='log', flavours=flavour_configs) )
+
+            else:
+                if 'ptj' in observables or 'ALL' in observables:
+                    obs_list.append( obs.ptj() )
+                    obs_list.append( obs.ptj(title='ptjLogY', min_value=0., max_value=2000., n_bins=100, y_axis='log') )
+                    obs_list.append( obs.ptj(title='ptjZoom', min_value=0., max_value=20., n_bins=100) )
+                if 'log10ptj' in observables or 'ALL' in observables:
+                    obs_list.append( obs.log10ptj() )
+                    obs_list.append( obs.log10ptj(title='log10ptjLogY', min_value=-1., max_value=4., n_bins=100, y_axis='log') )
+                if 'x1' in observables or 'ALL' in observables:
+                    obs_list.append( obs.x1() )
+                if 'x2' in observables or 'ALL' in observables:
+                    obs_list.append( obs.x2() )
+                if 'z' in observables or 'ALL' in observables:
+                    obs_list.append( obs.z(title='z', min_value=0., max_value=1, n_bins=100, y_axis='lin') )
+                    obs_list.append( obs.z(title='zLogY', min_value=0., max_value=1, n_bins=100, y_axis='log') )
+                    obs_list.append( obs.z(title='zZoomX1e2', min_value=0., max_value=1.0e-2, n_bins=100, y_axis='lin') )
+                    obs_list.append( obs.z(title='zZoomX1e2LogY', min_value=0., max_value=1.0e-2, n_bins=100, y_axis='log') )
+                    obs_list.append( obs.z(title='zZoomX1e4', min_value=0., max_value=1.0e-4, n_bins=100, y_axis='lin') )
+                    obs_list.append( obs.z(title='zZoomX1e4LogY', min_value=0., max_value=1.0e-4, n_bins=100, y_axis='log') )
+                if 'log10z' in observables or 'ALL' in observables:
+                    obs_list.append( obs.log10z(title='log10z', min_value=-6., max_value=0., n_bins=100, y_axis='lin') )
+                    obs_list.append( obs.log10z(title='log10zLogY', min_value=-6., max_value=0., n_bins=100, y_axis='log') )
+                if ('x1_fixed_flavours' in observables or 'ALL' in observables) and not 'no_x1_fixed_flavours' in observables:
+                    obs_list.append( obs.x1FixedFlav(flavour=0, take_abs=True) )
+                    obs_list.append( obs.x1FixedFlav(flavour=1, take_abs=True) )
+                    obs_list.append( obs.x1FixedFlav(flavour=2, take_abs=True) )
+                if ('x2_fixed_flavours' in observables or 'ALL' in observables) and not 'no_x2_fixed_flavours' in observables:
+                    obs_list.append( obs.x2FixedFlav(flavour=0, take_abs=True) )
+                    obs_list.append( obs.x2FixedFlav(flavour=1, take_abs=True) )
+                    obs_list.append( obs.x2FixedFlav(flavour=2, take_abs=True) )
         return obs_list
 
     @staticmethod
@@ -490,7 +535,7 @@ if __name__ == '__main__':
                         help='Number of iterations for production (default: %(default)s).')
     parser.add_argument('--n_cores', '-c', dest='n_cores', type=int, default=multiprocessing.cpu_count(),
                         help='Specify number of cores for the parallelisation (default: %(default)s).')
-    parser.add_argument('--observables', '-obs', dest='observables', type=str, nargs='?', default=['ALL'],
+    parser.add_argument('--observables', '-obs', dest='observables', type=str, nargs='*', default=['ALL'],
                         help='List observables to consider. Use keyword "ALL" to select them all (default: %(default)s).')
     parser.add_argument('--tag', '-tag', dest='tag', type=str, default='tqq', choices=('st','tqg','s','tqq','u'),
                         help='Specify which integrand to run (default: %(default)s).')
@@ -516,7 +561,7 @@ if __name__ == '__main__':
         max_x1 = args.max_x1,
         max_x2 = args.max_x2,
     )
-
+    
     lu_dy.integrate(
         observables=args.observables,
         seed = args.seed,
