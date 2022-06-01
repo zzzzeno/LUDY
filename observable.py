@@ -364,8 +364,6 @@ class log10rap(Observable):
 class log10z(Observable):
 
     def __init__(self, title='z', min_value=0., max_value=1., n_bins=100, histogram_type='NLO', x_axis='lin', y_axis='lin', flavours=None, **opts):
-        if flavours is not None:
-            title = '%sF%s%dF%s%d'%(title,'m' if flavours[0]<0 else '',abs(flavours[0]),'m' if flavours[1]<0 else '',abs(flavours[1]))
         super(log10z, self).__init__(title, min_value, max_value, n_bins, histogram_type=histogram_type, x_axis=x_axis, y_axis=y_axis, flavours=flavours, **opts)
 
     def __call__(self, event):
