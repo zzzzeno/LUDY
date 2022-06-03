@@ -274,8 +274,21 @@ class NLO_integrands:
 
         ksnew=rotator(ks)
 
-        resf64=NLO(ks[0],ks[1],ks[2],self.a,self.tag,'f64',self.phase)
-        resnewf64=NLO(ksnew[0],ksnew[1],ksnew[2],self.a,self.tag,'f64',self.phase)
+        resf64=[]
+        resnewf64=[]
+
+        if self.tag=='all_trees':
+            alltags=['st','tqq','tqg','s','u']
+            for tags in alltags:
+                for (v1,v2) in zip(NLO(ks[0],ks[1],ks[2],self.a,tags,'f64',self.phase),NLO(ksnew[0],ksnew[1],ksnew[2],self.a,tags,'f64',self.phase)):
+                    resf64.append(v1)
+                    resnewf64.append(v2)
+        else:
+            resf64=NLO(ks[0],ks[1],ks[2],self.a,self.tag,'f64',self.phase)
+            resnewf64=NLO(ksnew[0],ksnew[1],ksnew[2],self.a,self.tag,'f64',self.phase)
+
+        # resf64=NLO(ks[0],ks[1],ks[2],self.a,self.tag,'f64',self.phase)
+        # resnewf64=NLO(ksnew[0],ksnew[1],ksnew[2],self.a,self.tag,'f64',self.phase)
 
         totresf64=0
         totresnewf64=0
@@ -296,8 +309,21 @@ class NLO_integrands:
             self.n_unstable_f64+=1
             self.unstablef64.append([x, self.x_param(x)])
 
-            resf128=NLO(ks[0],ks[1],ks[2],self.a,self.tag,'f128',self.phase)
-            resnewf128=NLO(ksnew[0],ksnew[1],ksnew[2],self.a,self.tag,'f128',self.phase)
+            resf128=[]
+            resnewf128=[]
+
+            if self.tag=='all_trees':
+                alltags=['st','tqq','tqg','s','u']
+                for tags in alltags:
+                    for (v1,v2) in zip(NLO(ks[0],ks[1],ks[2],self.a,tags,'f128',self.phase),NLO(ksnew[0],ksnew[1],ksnew[2],self.a,tags,'f128',self.phase)):
+                        resf128.append(v1)
+                        resnewf128.append(v2)
+            else:
+                resf128=NLO(ks[0],ks[1],ks[2],self.a,self.tag,'f128',self.phase)
+                resnewf128=NLO(ksnew[0],ksnew[1],ksnew[2],self.a,self.tag,'f128',self.phase)
+
+            # resf128=NLO(ks[0],ks[1],ks[2],self.a,self.tag,'f128',self.phase)
+            # resnewf128=NLO(ksnew[0],ksnew[1],ksnew[2],self.a,self.tag,'f128',self.phase)
 
             totresf128=0
             totresnewf128=0
@@ -363,15 +389,25 @@ class NLO_integrands:
 
         ksnew=rotator(ks)
 
-        resf64=NLO(ks[0],ks[1],ks[2],self.a,self.tag,'f64',self.phase)
-        resnewf64=NLO(ksnew[0],ksnew[1],ksnew[2],self.a,self.tag,'f64',self.phase)
+        resf64=[]
+        resnewf64=[]
+
+        if self.tag=='all_trees':
+            alltags=['st','tqq','tqg','s','u']
+            for tags in alltags:
+                for (v1,v2) in zip(NLO(ks[0],ks[1],ks[2],self.a,tags,'f64',self.phase),NLO(ksnew[0],ksnew[1],ksnew[2],self.a,tags,'f64',self.phase)):
+                    resf64.append(v1)
+                    resnewf64.append(v2)
+        else:
+            resf64=NLO(ks[0],ks[1],ks[2],self.a,self.tag,'f64',self.phase)
+            resnewf64=NLO(ksnew[0],ksnew[1],ksnew[2],self.a,self.tag,'f64',self.phase)
 
         totresf64=0
         totresnewf64=0
         for (r,newr) in zip(resf64,resnewf64):
             totresf64+=r.res*jacques
             totresnewf64+=newr.res*jacques
-            
+          
         c=0
         # print("distance")
         # print(self.n_digits_f64)
@@ -385,8 +421,21 @@ class NLO_integrands:
             self.n_unstable_f64+=1
             self.unstablef64.append([self.x_param(x),x])
 
-            resf128=NLO(ks[0],ks[1],ks[2],self.a,self.tag,'f128',self.phase)
-            resnewf128=NLO(ksnew[0],ksnew[1],ksnew[2],self.a,self.tag,'f128',self.phase)
+            resf128=[]
+            resnewf128=[]
+
+            if self.tag=='all_trees':
+                alltags=['st','tqq','tqg','s','u']
+                for tags in alltags:
+                    for (v1,v2) in zip(NLO(ks[0],ks[1],ks[2],self.a,tags,'f128',self.phase),NLO(ksnew[0],ksnew[1],ksnew[2],self.a,tags,'f128',self.phase)):
+                        resf128.append(v1)
+                        resnewf128.append(v2)
+            else:
+                resf128=NLO(ks[0],ks[1],ks[2],self.a,self.tag,'f128',self.phase)
+                resnewf128=NLO(ksnew[0],ksnew[1],ksnew[2],self.a,self.tag,'f128',self.phase)
+
+            # resf128=NLO(ks[0],ks[1],ks[2],self.a,self.tag,'f128',self.phase)
+            # resnewf128=NLO(ksnew[0],ksnew[1],ksnew[2],self.a,self.tag,'f128',self.phase)
 
             totresf128=0
             totresnewf128=0

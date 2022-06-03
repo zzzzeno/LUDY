@@ -1225,25 +1225,59 @@ class observables{
             dreal hardness=0;
             int index=0;
 
-            for(int i=0; i<n_constituents; i++){
-                if(abs(constituents_boosted[i][0])>hardness){
-                    hardness=abs(constituents_boosted[i][0]);
-                    index=i;
-                };
-            };
-
             vector<dreal> total_p={0,0,0,0};
             int total_s=0;
+            dreal total_m=0;
 
-            for(int i=0; i<n_constituents; i++){
-                tot={tot[0]+constituents_boosted[i][0],tot[1]+constituents_boosted[i][1],tot[2]+constituents_boosted[i][2],tot[3]+constituents_boosted[i][3]};
-                if(i != index){
-                    total_p={total_p[0]+constituents_boosted[i][0],total_p[1]+constituents_boosted[i][1],total_p[2]+constituents_boosted[i][2],total_p[3]+constituents_boosted[i][3]};
-                    total_s+=abs(spins[i]);
+
+
+
+            if(n_constituents==2){
+
+                for(int i=0; i<n_constituents; i++){
+                    if(abs(constituents_boosted[i][0])>hardness){
+                        hardness=abs(constituents_boosted[i][0]);
+                        index=i;
+                    };
                 };
-            };
 
-            dreal total_m=SP(total_p,total_p);
+                for(int i=0; i<n_constituents; i++){
+                    if(i != index){
+                        total_p={total_p[0]+constituents_boosted[i][0],total_p[1]+constituents_boosted[i][1],total_p[2]+constituents_boosted[i][2],total_p[3]+constituents_boosted[i][3]};
+                        total_s+=abs(spins[i]);
+                    };
+                };
+
+                total_m=SP(total_p,total_p);
+
+            }else{
+
+                vector<dreal> p1p2={constituents_boosted[0][0]+constituents_boosted[1][0],constituents_boosted[0][1]+constituents_boosted[1][1],constituents_boosted[0][2]+constituents_boosted[1][2],constituents_boosted[0][3]+constituents_boosted[1][3]};
+                vector<dreal> p1p3={constituents_boosted[0][0]+constituents_boosted[2][0],constituents_boosted[0][1]+constituents_boosted[2][1],constituents_boosted[0][2]+constituents_boosted[2][2],constituents_boosted[0][3]+constituents_boosted[2][3]};
+                vector<dreal> p2p3={constituents_boosted[1][0]+constituents_boosted[2][0],constituents_boosted[1][1]+constituents_boosted[2][1],constituents_boosted[1][2]+constituents_boosted[2][2],constituents_boosted[1][3]+constituents_boosted[2][3]};
+
+                if(SP(p1p2,p1p2)<SP(p1p3,p1p3) && SP(p1p2,p1p2)<SP(p2p3,p2p3)){
+                    total_p=p1p2;
+                    total_s=abs(spins[0])+abs(spins[1]);
+                    total_m=SP(p1p2,p1p2);
+                    index=2;
+                };
+
+                if(SP(p1p3,p1p3)<SP(p1p2,p1p2) && SP(p1p3,p1p3)<SP(p2p3,p2p3)){
+                    total_p=p1p3;
+                    total_s=abs(spins[0])+abs(spins[2]);
+                    total_m=SP(p1p3,p1p3);
+                    index=1;
+                };
+
+                if(SP(p2p3,p2p3)<SP(p1p2,p1p2) && SP(p2p3,p2p3)<SP(p1p3,p1p3)){
+                    total_p=p2p3;
+                    total_s=abs(spins[1])+abs(spins[2]);
+                    total_m=SP(p2p3,p2p3);
+                    index=0;
+                };
+                
+            };
 
             dreal jac=0;
 
@@ -1254,10 +1288,10 @@ class observables{
             // cout<<"total_m "<<total_m<<endl;
             // cout<<"eCM "<<eCM<<endl;
 
+            observable res_vec_n;
+
             if(total_m<lambda*pow(eCM,2.) && total_s<2){
                 jac=Sqrt(SP(jacques_vecs[0],jacques_vecs[0]))*(b_flow.h(tLx)*b_flow.h(tLy)*b_flow.h(tLz))/abs(jacques_vecs[1][1]*jacques_vecs[2][2]*jacques_vecs[3][3]);
-
-                observable res_vec_n;
 
                 res_vec_n.eval=0;
                 res_vec_n.jac=jac;
@@ -1271,7 +1305,115 @@ class observables{
 
             };
 
+            res_vec_n.eval=0;
+            res_vec_n.jac=0;
+            res_vec_n.j1={0,0,0,0};
+            res_vec_n.j2={0,0,0,0};
+            res_vec_n.spin2=0;
+            res_vec_n.spin1=0;
+            res_vec_n.pg={0,0,0,0};
+
+            return res_vec_n;
+
+        };
+
+
+        observable hemisphere_sampling_3(vector<vector<dreal>> constituents, int n_constituents, vector<dreal> final_parton, int* spins, dreal a){
+
+        
+            vector<dreal> tot={0,0,0,0};
+
+            for(int i=0; i<n_constituents; i++){
+                tot={tot[0]+constituents[i][0],tot[1]+constituents[i][1],tot[2]+constituents[i][2],tot[3]+constituents[i][3]};
+            };
+
+            vector<dreal> j1pj2=tot;
+
+            vector<vector<dreal>> jacques_vecs={j1pj2,j1pj2,j1pj2,j1pj2,final_parton};
+            vector<vector<dreal>> constituents_boosted=constituents;
+
+            dreal tLz=b_flow.t_val(jacques_vecs[0],3);
+            jacques_vecs={b_flow.perform_flow(jacques_vecs[0],3,tLz),b_flow.perform_flow(jacques_vecs[1],3,tLz),b_flow.perform_flow(jacques_vecs[2],3,tLz),b_flow.perform_jacques(jacques_vecs[3],tLz,3),b_flow.perform_flow(jacques_vecs[4],3,tLz)};
+            for(int i=0; i<n_constituents; i++){
+                constituents_boosted[i]=b_flow.perform_flow(constituents_boosted[i],3,tLz);
+            };
+
+            dreal tLy=b_flow.t_val(jacques_vecs[0],2);
+            jacques_vecs={b_flow.perform_flow(jacques_vecs[0],2,tLy),b_flow.perform_flow(jacques_vecs[1],2,tLy),b_flow.perform_jacques(jacques_vecs[2],tLy,2),b_flow.perform_flow(jacques_vecs[3],2,tLy),b_flow.perform_flow(jacques_vecs[4],2,tLy)};
+            for(int i=0; i<n_constituents; i++){
+                constituents_boosted[i]=b_flow.perform_flow(constituents_boosted[i],2,tLy);
+            };
+
+            dreal tLx=b_flow.t_val(jacques_vecs[0],1);
+            jacques_vecs={b_flow.perform_flow(jacques_vecs[0],1,tLx),b_flow.perform_jacques(jacques_vecs[1],tLx,1),b_flow.perform_flow(jacques_vecs[2],1,tLx),b_flow.perform_flow(jacques_vecs[3],1,tLx),b_flow.perform_flow(jacques_vecs[4],1,tLx)};
+            for(int i=0; i<n_constituents; i++){
+                constituents_boosted[i]=b_flow.perform_flow(constituents_boosted[i],1,tLx);
+            };
+
+            vector<dreal> pg={jacques_vecs[4][0],jacques_vecs[4][1],jacques_vecs[4][2],jacques_vecs[4][3]};
+
+            dreal hardness=0;
+            int index=0;
+
+            for(int i=0; i<n_constituents; i++){
+                if(abs(constituents_boosted[i][0])>hardness){
+                    hardness=abs(constituents_boosted[i][0]);
+                    index=i;
+                };
+            };
+
+            vector<dreal> total_p={0,0,0,0};
+            int total_s=0;
+
+            for(int i=0; i<n_constituents; i++){
+                if(i != index){
+                    total_p={total_p[0]+constituents_boosted[i][0],total_p[1]+constituents_boosted[i][1],total_p[2]+constituents_boosted[i][2],total_p[3]+constituents_boosted[i][3]};
+                    total_s+=abs(spins[i]);
+                };
+            };
+
+            dreal total_m=SP(total_p,total_p);
+
+            // cout<<"*****F64*****"<<endl;
+            // cout<<"HARDEST "<<constituents_boosted[index][0]<<" "<<constituents_boosted[index][1]<<" "<<constituents_boosted[index][2]<<" "<<constituents_boosted[index][3]<<endl;
+            // cout<<"OTHER "<<total_p[0]<<" "<<total_p[1]<<" "<<total_p[2]<<" "<<total_p[3]<<endl;
+            // cout<<"q "<<jacques_vecs[0][0]<<" "<<jacques_vecs[0][1]<<" "<<jacques_vecs[0][2]<<" "<<jacques_vecs[0][3]<<endl;
+            // cout<<"total_m "<<total_m<<endl;
+            // cout<<"eCM "<<eCM<<endl;
+
+            dreal jac=0;
+
             observable res_vec_n;
+
+            if(total_m<lambda*pow(eCM,2.) && total_s<2){
+
+                vector<dreal> hardest_particle=constituents_boosted[index];
+                vector<dreal> other_jet=total_p;
+
+                vector<vector<dreal>> jets={hardest_particle, hardest_particle, hardest_particle, other_jet};
+
+
+                //cout<<"in obs"<<endl;
+                //cout<<jets[0][0]<<" "<<jets[0][1]<<" "<<jets[0][2]<<" "<<jets[0][3]<<endl;
+                dreal txy=r_flow.t_val(jets[0],1);
+                jets={r_flow.perform_flow(jets[0],1,txy),r_flow.perform_jacques(jets[1],txy,1),r_flow.perform_flow(jets[2],1,txy),r_flow.perform_flow(jets[3],1,txy)};
+                
+                dreal tyz=r_flow.t_val(jets[0],2);
+                jets={r_flow.perform_flow(jets[0],2,tyz),r_flow.perform_flow(jets[1],2,tyz),r_flow.perform_jacques(jets[2],tyz,2),r_flow.perform_flow(jets[3],2,tyz)};
+                
+                jac=(b_flow.h(tLx)*b_flow.h(tLy)*b_flow.h(tLz)*r_flow.h(txy)*r_flow.h(tyz))/abs(jacques_vecs[1][1]*jacques_vecs[2][2]*jacques_vecs[3][3]*jets[1][1]*jets[2][2]);
+
+                res_vec_n.eval=0;
+                res_vec_n.jac=jac;
+                res_vec_n.j1=jets[0];
+                res_vec_n.j2=jets[3];
+                res_vec_n.spin1=spins[index];
+                res_vec_n.spin2=total_s;
+                res_vec_n.pg=pg;
+
+                return res_vec_n;
+
+            };
 
             res_vec_n.eval=0;
             res_vec_n.jac=0;
@@ -1641,7 +1783,7 @@ class integrands{
         dreal PS_constant=1/(16*pow(M_PI,2.)*neCM*neCM);
         dreal gV=0.1303037631031056;
         dreal gs=sqrt(0.118*4*M_PI);
-        int NC=3;
+        dreal NC=3;
 
 
         //INTEGER ARITHMETIC TO FIX HERE
@@ -1961,12 +2103,12 @@ class integrands{
                         extra_const=group_average(obs_res_n.spin1,obs_res_n.spin2);
                     };
                 if(tag_obs==1){
-                        obs_res_n=my_obs.hemisphere_sampling(constituents, 2, pg, spins, a);
-                        extra_const=1;//group_average(obs_res_n.spin1,obs_res_n.spin2);
+                        obs_res_n=my_obs.hemisphere_sampling_2(constituents, 2, pg, spins, a);
+                        extra_const=m*1.3603656066729753663*pow(10,-9)/(8*pow(M_PI,2.))*3./4.;//group_average(obs_res_n.spin1,obs_res_n.spin2);
                     };
                 if(tag_obs==2){
                         //cout<<"here"<<endl;
-                        extra_const=m*1.3603656066729753663*pow(10,-9)/(8*pow(M_PI,2.));//4*(m/3.)*1.4344473116003848311*pow(10,-8)/(64*pow(M_PI,4.));
+                        extra_const=m*1.3603656066729753663*pow(10,-9)/(8*pow(M_PI,2.))*3./4.;//4*(m/3.)*1.4344473116003848311*pow(10,-8)/(64*pow(M_PI,4.));
                         obs_res_n=my_obs.jj_sampling(constituents, 2, pg, a);
                     };
 
@@ -2146,9 +2288,9 @@ class integrands{
                     k_in=k;
                     q_in=q;
                 }else{
-                    l_in=vector_swap(k);
-                    k_in=vector_swap(l);
-                    q_in=vector_swap(q);
+                    l_in=k;//vector_swap(k);
+                    k_in=l;//vector_swap(l);
+                    q_in=q;//vector_swap(q);
                 };
 
                 vector<vector<dreal>> ni={k_in,vector_swap(vector_minus(k_in,l_in)),vector_swap(vector_minus(l_in,q_in))};
@@ -2202,11 +2344,11 @@ class integrands{
                         extra_const=group_average(obs_res_n.spin1,obs_res_n.spin2);
                     };
                 if(tag_obs==1){
-                        obs_res_n=my_obs.hemisphere_sampling(constituents, 3, pg, spins, 0.);
-                        extra_const=1;//group_average(obs_res_n.spin1,obs_res_n.spin2);
+                        obs_res_n=my_obs.hemisphere_sampling_2(constituents, 3, pg, spins, 0.);
+                        extra_const=m*1.3603656066729753663*pow(10,-9)/(8*pow(M_PI,2.))*3./4.;//group_average(obs_res_n.spin1,obs_res_n.spin2);
                     };
                 if(tag_obs==2){
-                        extra_const=m*1.3603656066729753663*pow(10,-9)/(8*pow(M_PI,2.));//4*(m/3.)*1.4344473116003848311*pow(10,-8)/(64*pow(M_PI,4.));
+                        extra_const=m*1.3603656066729753663*pow(10,-9)/(8*pow(M_PI,2.))*3./4.;//4*(m/3.)*1.4344473116003848311*pow(10,-8)/(64*pow(M_PI,4.));
                         obs_res_n=my_obs.jj_sampling(constituents, 3, pg, 0.);
                     };
 
@@ -2281,42 +2423,6 @@ class integrands{
                 obs_res.spin2=obs_res_n.spin2;
                 obs_res.pg=obs_res_n.pg;
 
-                // obs_res.j1={0,0,0,0};
-                // obs_res.j2={0,0,0,0};
-                // obs_res.spin1=0;
-                // obs_res.spin2=0;
-                // obs_res.pg={0,0,0,0};
-
-
-                //NEW STUFF STARTS HERE
-                
-                // if(e_q<eCM){
-                //     obs_res.eval=integrand_val;
-                //     obs_res.jac=jac_flow*flow_h;
-                //     obs_res.j1={0,0,0,0};
-                //     obs_res.j2={0,0,0,0};
-                //     obs_res.spin1=0;
-                //     obs_res.spin2=0;
-                //     obs_res.pg={0,0,0,0};
-                // }else{
-                //     obs_res.eval=0;
-                //     obs_res.jac=0;
-                //     obs_res.j1={0,0,0,0};
-                //     obs_res.j2={0,0,0,0};
-                //     obs_res.spin1=0;
-                //     obs_res.spin2=0;
-                //     obs_res.pg={0,0,0,0};
-                // }
-                //NEW STUFF ENDS HERE     
-
-                /*cout<<"------------"<<endl;
-                cout<<obs_res.eval<<endl;
-                cout<<obs_res.jac<<endl;
-                cout<<obs_res.spin1<<endl;
-                cout<<obs_res_n.j1[0]<<" "<<obs_res_n.j1[1]<<" "<<obs_res_n.j1[2]<<" "<<obs_res_n.j1[3]<<endl;
-                cout<<obs_res.spin2<<endl;
-                cout<<obs_res_n.j2[0]<<" "<<obs_res_n.j2[1]<<" "<<obs_res_n.j2[2]<<" "<<obs_res_n.j2[3]<<endl;
-                cout<<obs_res_n.pg[0]<<" "<<obs_res_n.pg[1]<<" "<<obs_res_n.pg[2]<<" "<<obs_res_n.pg[3]<<endl;*/
 
                 return obs_res;
 
@@ -2622,21 +2728,21 @@ class integrands{
                 vector<dreal> k_in=k;
                 vector<dreal> q_in=q;
 
-                dreal defo_sign;
-                dreal jac_sign;
+                /*double defo_sign;
+                double jac_sign;*/
 
                 if(comp==1){
                     l_in=l;
                     k_in=k;
                     q_in=q;
-                    defo_sign=1;
-                    jac_sign=1;
+                    //defo_sign=1;
+                    //jac_sign=1;
                 }else{
                     l_in=vector_swap(k);
                     k_in=vector_swap(l);
                     q_in=vector_swap(q);
-                    defo_sign=1;
-                    jac_sign=-1;
+                    //defo_sign=1;
+                    //jac_sign=-1;
                 };
 
                 vector<vector<dreal>> ni={k_in,vector_swap(vector_minus(k_in,q_in))};
@@ -2665,9 +2771,11 @@ class integrands{
                 dreal flow_h=my_flow.h(my_flow.t_val(ni,nf,q_in));
 
                 dcomp i(0,1.);
-                vector<dreal> kappa={my_defo.get_deformation_dt(ks,ls_real,qs,1,1).rpart(),my_defo.get_deformation_dt(ks,ls_real,qs,1,2).rpart(),my_defo.get_deformation_dt(ks,ls_real,qs,1,3).rpart()};
-                vector<dcomp> ls={ls_real[0]+defo_sign*i*kappa[0],ls_real[1]+defo_sign*i*kappa[1],ls_real[2]+defo_sign*i*kappa[2]};
-                dcomp defo_jacques=my_defo.jacques_deformation_dt(ls_real,ks,qs,1);
+                //vector<double> kappa={my_defo.get_deformation_dt(ks,ls_real,qs,1,1).rpart(),my_defo.get_deformation_dt(ks,ls_real,qs,1,2).rpart(),my_defo.get_deformation_dt(ks,ls_real,qs,1,3).rpart()};
+                //vector<dcomp> ls={ls_real[0]+defo_sign*i*kappa[0],ls_real[1]+defo_sign*i*kappa[1],ls_real[2]+defo_sign*i*kappa[2]}
+                vector<dcomp> ls={ls_real[0],ls_real[1],ls_real[2],ls_real[3]};
+                //dcomp defo_jacques=my_defo.jacques_deformation_dt(ls_real,ks,qs,1);
+                dcomp defo_jacques(1.,0);
 
                 dreal e_k=norm(ks);
                 dcomp e_kq=norm(vector_minus(ks,qs));
@@ -2708,10 +2816,19 @@ class integrands{
                 vector<dreal> pg={0,0,0,0};
 
                 observable obs_res_n;
+
+                dreal extra_const=1;
                 if(tag_obs==0){
                         obs_res_n=my_obs.b2b_sampling_final(constituents, 2, pg, spins, a);
-                    }else{
-                        obs_res_n=my_obs.hemisphere_sampling(constituents, 2, pg, spins, a);
+                        extra_const=group_average(obs_res_n.spin1,obs_res_n.spin2);
+                    };
+                if(tag_obs==1){
+                        extra_const=m*1.3603656066729753663*pow(10,-9)/(8*pow(M_PI,2.))*3./4.;
+                        obs_res_n=my_obs.hemisphere_sampling_2(constituents, 2, pg, spins, a);
+                    };
+                if(tag_obs==2){
+                        extra_const=m*1.3603656066729753663*pow(10,-9)/(8*pow(M_PI,2.))*3./4.;//4*(m/3.)*1.4344473116003848311*pow(10,-8)/(64*pow(M_PI,4.));//1/(4*m)*1.4344473116003848311*pow(10,-8);
+                        obs_res_n=my_obs.jj_sampling(constituents, 2, pg, 0.);
                     };
 
                 observable_c obs_res;
@@ -2777,9 +2894,7 @@ class integrands{
 
                 };
 
-                dreal colour_average=group_average(obs_res.spin1,obs_res.spin2);
-
-                dcomp integrand_val=constant*colour_average*(se_virtual_1+se_virtual_2+0.5*se_uv);
+                dcomp integrand_val=constant*extra_const*(se_virtual_1+se_virtual_2+0.5*se_uv);
 
                 obs_res.jac=obs_res.jac*jac_flow*flow_h*defo_jacques;
 
@@ -2836,7 +2951,7 @@ class integrands{
                 ls.insert(ls.begin(), e_l);
                 qs.insert(qs.begin(), e_q);
 
-                dcomp integrand_val=NLO_SE_DrellYan_numerator(ks,ls,qs)/(2.*e_l*2.*e_kl*2.*(-e_kl-e_l+e_q)*2*e_q*SP(ks,ks)*SP(ks,ks)); 
+                
                 
                 vector<vector<dreal>> constituents={ls,vector_minus(ks,ls),vector_swap(vector_minus(ks,qs))};
 
@@ -2844,12 +2959,23 @@ class integrands{
 
                 vector<dreal> pg={0,0,0,0};
 
+
+                dreal extra_const=1;
                 observable obs_res_n;
                 if(tag_obs==0){
                         obs_res_n=my_obs.b2b_sampling_final(constituents, 3, pg, spins, a);
-                    }else{
-                        obs_res_n=my_obs.hemisphere_sampling(constituents, 3, pg, spins, a);
+                        extra_const=group_average(obs_res_n.spin1,obs_res_n.spin2);
                     };
+                if(tag_obs==1){
+                        extra_const=m*1.3603656066729753663*pow(10,-9)/(8*pow(M_PI,2.))*3./4.;
+                        obs_res_n=my_obs.hemisphere_sampling_2(constituents, 3, pg, spins, a);
+                    };
+                if(tag_obs==2){
+                        extra_const=m*1.3603656066729753663*pow(10,-9)/(8*pow(M_PI,2.))*3./4.;//4*(m/3.)*1.4344473116003848311*pow(10,-8)/(64*pow(M_PI,4.));//1/(4*m)*1.4344473116003848311*pow(10,-8);
+                        obs_res_n=my_obs.jj_sampling(constituents, 3, pg, 0.);
+                    };
+
+                dcomp integrand_val=constant*extra_const*NLO_SE_DrellYan_numerator(ks,ls,qs)/(2.*e_l*2.*e_kl*2.*(-e_kl-e_l+e_q)*2*e_q*SP(ks,ks)*SP(ks,ks)); 
 
 
                 observable_c obs_res;
@@ -2888,7 +3014,7 @@ class integrands{
 
                 dreal colour_average=group_average(obs_res.spin1,obs_res.spin2);
 
-                obs_res.eval=constant*colour_average*integrand_val;
+                obs_res.eval=integrand_val;
 
                 return obs_res;
 
@@ -3269,7 +3395,7 @@ class integrands{
 
                 dreal colour_average=group_average(obs_res.spin1,obs_res.spin2);
 
-                obs_res.eval=colour_average*integrand_val;
+                obs_res.eval=2*colour_average*integrand_val;
 
                 if(DEBUG==2){
                     cout<<"final"<<endl;
@@ -3381,7 +3507,7 @@ class integrands{
 
                 dreal colour_average=group_average(obs_res.spin1,obs_res.spin2);
 
-                obs_res.eval=colour_average*integrand_val;
+                obs_res.eval=2*colour_average*integrand_val;
 
                 return obs_res;
 
@@ -3556,7 +3682,7 @@ class integrands{
 
                 dreal colour_average=group_average(obs_res.spin1,obs_res.spin2);
 
-                obs_res.eval=colour_average*integrand_val;
+                obs_res.eval=2*colour_average*integrand_val;
 
                 //cout<<"res:    "<<integrand_val*obs_res[1]<<endl;
 
@@ -3720,7 +3846,7 @@ class integrands{
 
                 dreal colour_average=group_average(obs_res.spin1,obs_res.spin2);
 
-                obs_res.eval=colour_average*integrand_val;
+                obs_res.eval=2*colour_average*integrand_val;
 
                 return obs_res;
 
@@ -4170,7 +4296,7 @@ class integrands{
 
                 dreal colour_average=group_average(obs_res.spin1,obs_res.spin2);
 
-                obs_res.eval=colour_average*integrand_val;
+                obs_res.eval=-colour_average*integrand_val;
 
                 return obs_res;
 
@@ -4300,7 +4426,7 @@ class integrands{
 
                 dreal colour_average=group_average(obs_res.spin1,obs_res.spin2);
 
-                obs_res.eval=colour_average*integrand_val;
+                obs_res.eval=-colour_average*integrand_val;
 
                 return obs_res;
 
@@ -4432,7 +4558,7 @@ class integrands{
 
                 dreal colour_average=group_average(obs_res.spin1,obs_res.spin2);
 
-                obs_res.eval=colour_average*integrand_val;
+                obs_res.eval=-colour_average*integrand_val;
 
                 return obs_res;
 
@@ -4561,7 +4687,7 @@ class integrands{
 
                 dreal colour_average=group_average(obs_res.spin1,obs_res.spin2);
 
-                obs_res.eval=colour_average*integrand_val;
+                obs_res.eval=-colour_average*integrand_val;
 
                 return obs_res;
 
@@ -4690,7 +4816,7 @@ class integrands{
 
                 dreal colour_average=group_average(obs_res.spin1,obs_res.spin2);
 
-                obs_res.eval=colour_average*integrand_val;
+                obs_res.eval=-colour_average*integrand_val;
 
                 return obs_res;
 
@@ -4819,7 +4945,7 @@ class integrands{
 
                 dreal colour_average=group_average(obs_res.spin1,obs_res.spin2);
 
-                obs_res.eval=colour_average*integrand_val;
+                obs_res.eval=-colour_average*integrand_val;
 
                 return obs_res;
 

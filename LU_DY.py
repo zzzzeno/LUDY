@@ -66,7 +66,7 @@ def finalize_obs_helper(args):
 class LU_DY(object):
 
     def __init__(self, *args, 
-                    mZ=91.188, eCM=13000., resolution_coll=0., resolution_soft=0., h_sigma=2, 
+                    mZ=91.188, eCM=300., resolution_coll=0., resolution_soft=0., h_sigma=2, 
                     initial_state_a=0., min_pt=10., max_pt=2000., max_x1=1., max_x2=1., n_bins=1, basis=None, tag="tqq", mode='min_pt', phase='real',
                     verbosity = 0, n_cores=None, separate_h_cube_errors=True, digits_f64=8, digits_f128=4, **opts 
                 ):
@@ -87,7 +87,7 @@ class LU_DY(object):
         self.integrand = [ NLO_integrands(
             mZ, eCM, resolution_coll, resolution_soft, h_sigma, 
             initial_state_a, min_pt, max_pt, n_bins, basis, 
-            tag=tag, debug=(self.verbosity>2), mode=mode, phase=phase
+            tag=tag, debug=(self.verbosity>2), mode=mode, phase=phase, obs_tag='JADE'
         ) for _ in range(self.n_cores) ]
         for itg in self.integrand:
             itg.set_digits( digits_f64, digits_f128 )
@@ -537,7 +537,7 @@ if __name__ == '__main__':
                         help='Specify number of cores for the parallelisation (default: %(default)s).')
     parser.add_argument('--observables', '-obs', dest='observables', type=str, nargs='*', default=['ALL'],
                         help='List observables to consider. Use keyword "ALL" to select them all (default: %(default)s).')
-    parser.add_argument('--tag', '-tag', dest='tag', type=str, default='tqq', choices=('st','tqg','s','tqq','u'),
+    parser.add_argument('--tag', '-tag', dest='tag', type=str, default='tqq', choices=('st','tqg','s','tqq','u', 'all_trees'),
                         help='Specify which integrand to run (default: %(default)s).')
     parser.add_argument('--vegas_grid', '-vg', dest='vegas_grid', type=str, default='./vegas_grid.pkl',
                         help='Specify path to save/load VEGAS grid. Specify "none" to disable that and use keyword "clean" to forcefully remove default one at "vegas_grid.pkl". (default: %(default)s).')
