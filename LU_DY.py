@@ -14,6 +14,7 @@ from integrand_wrapper import set_r, set_kin, set_sig, set_defo, set_MUV
 import time
 import copy
 import math
+import progressbar
 
 from pprint import pprint, pformat
 
@@ -103,23 +104,20 @@ class LU_DY(object):
         self.timings = None
 
     @staticmethod
-    def build_observables(observables):
+    def build_observables(observables, histogram_type='LUDY'):
         """ Helper function to centralise where observables are defined."""
 
-        obs_list = obs.ObservableList([ obs.CrossSection(), ])
+        obs_list = obs.ObservableList([ obs.CrossSection(histogram_type=histogram_type), ])
         if observables is not None:
             if len(observables) == 1 and observables[0] == 'paper':
                 
-                # Start with no observables since the inclusive cross-section will already be added later
-                obs_list = obs.ObservableList([])
-                
                 # Observables summed semi-inclusively over flavours
-                obs_list.append( obs.x1FixedFlav(flavour=0, take_abs=True) )
-                obs_list.append( obs.x1FixedFlav(flavour=1, take_abs=True) )
-                obs_list.append( obs.x1FixedFlav(flavour=2, take_abs=True) )
-                obs_list.append( obs.x2FixedFlav(flavour=0, take_abs=True) )
-                obs_list.append( obs.x2FixedFlav(flavour=1, take_abs=True) )
-                obs_list.append( obs.x2FixedFlav(flavour=2, take_abs=True) )
+                obs_list.append( obs.x1FixedFlav(flavour=0, take_abs=True, histogram_type=histogram_type) )
+                obs_list.append( obs.x1FixedFlav(flavour=1, take_abs=True, histogram_type=histogram_type) )
+                obs_list.append( obs.x1FixedFlav(flavour=2, take_abs=True, histogram_type=histogram_type) )
+                obs_list.append( obs.x2FixedFlav(flavour=0, take_abs=True, histogram_type=histogram_type) )
+                obs_list.append( obs.x2FixedFlav(flavour=1, take_abs=True, histogram_type=histogram_type) )
+                obs_list.append( obs.x2FixedFlav(flavour=2, take_abs=True, histogram_type=histogram_type) )
 
                 # Observables also declined per specific flavour
                 for flavour_configs in [
@@ -130,58 +128,59 @@ class LU_DY(object):
                         (1,-2),(1,-1),(1,0),(1,1),(1,2),
                         (2,-2),(2,-1),(2,0),(2,1),(2,2)                    
                     ]:
-                    obs_list.append( obs.CrossSection(flavours=flavour_configs) )
-                    obs_list.append( obs.x1(flavours=flavour_configs) ) 
-                    obs_list.append( obs.x2(flavours=flavour_configs) )
+                    if flavour_configs is not None:
+                        obs_list.append( obs.CrossSection(flavours=flavour_configs, histogram_type=histogram_type) )
+                    obs_list.append( obs.x1(flavours=flavour_configs, histogram_type=histogram_type) ) 
+                    obs_list.append( obs.x2(flavours=flavour_configs, histogram_type=histogram_type) )
                     
-                    obs_list.append( obs.ptj(min_value=0., max_value=300., n_bins=100, flavours=flavour_configs) )
-                    obs_list.append( obs.ptj(title='ptjLogY', min_value=0., max_value=300., n_bins=100, y_axis='log', flavours=flavour_configs) )
-                    obs_list.append( obs.ptj(title='ptjZoom', min_value=0., max_value=20., n_bins=100, flavours=flavour_configs) )
-                    obs_list.append( obs.log10ptj(min_value=-1., max_value=4., n_bins=100, flavours=flavour_configs) )
-                    obs_list.append( obs.log10ptj(title='log10ptjLogY', min_value=-1., max_value=4., n_bins=100, y_axis='log', flavours=flavour_configs) )
+                    obs_list.append( obs.ptj(min_value=0., max_value=300., n_bins=100, flavours=flavour_configs, histogram_type=histogram_type) )
+                    obs_list.append( obs.ptj(title='ptjLogY', min_value=0., max_value=300., n_bins=100, y_axis='log', flavours=flavour_configs, histogram_type=histogram_type) )
+                    obs_list.append( obs.ptj(title='ptjZoom', min_value=0., max_value=20., n_bins=100, flavours=flavour_configs, histogram_type=histogram_type) )
+                    obs_list.append( obs.log10ptj(min_value=-1., max_value=4., n_bins=100, flavours=flavour_configs, histogram_type=histogram_type) )
+                    obs_list.append( obs.log10ptj(title='log10ptjLogY', min_value=-1., max_value=4., n_bins=100, y_axis='log', flavours=flavour_configs, histogram_type=histogram_type) )
                     
-                    obs_list.append( obs.z(title='z', min_value=0., max_value=1, n_bins=100, y_axis='lin', flavours=flavour_configs) )
-                    obs_list.append( obs.z(title='zLogY', min_value=0., max_value=1, n_bins=100, y_axis='log', flavours=flavour_configs) )
-                    obs_list.append( obs.z(title='zZoomX1e2', min_value=0., max_value=1.0e-2, n_bins=100, y_axis='lin', flavours=flavour_configs) )
-                    obs_list.append( obs.z(title='zZoomX1e2LogY', min_value=0., max_value=1.0e-2, n_bins=100, y_axis='log', flavours=flavour_configs) )
-                    obs_list.append( obs.log10z(title='log10z', min_value=-4., max_value=0., n_bins=100, y_axis='lin', flavours=flavour_configs) )
-                    obs_list.append( obs.log10z(title='log10zLogY', min_value=-4., max_value=0., n_bins=100, y_axis='log', flavours=flavour_configs) )
+                    obs_list.append( obs.z(title='z', min_value=0., max_value=1, n_bins=100, y_axis='lin', flavours=flavour_configs, histogram_type=histogram_type) )
+                    obs_list.append( obs.z(title='zLogY', min_value=0., max_value=1, n_bins=100, y_axis='log', flavours=flavour_configs, histogram_type=histogram_type) )
+                    obs_list.append( obs.z(title='zZoomX1e2', min_value=0., max_value=1.0e-2, n_bins=100, y_axis='lin', flavours=flavour_configs, histogram_type=histogram_type) )
+                    obs_list.append( obs.z(title='zZoomX1e2LogY', min_value=0., max_value=1.0e-2, n_bins=100, y_axis='log', flavours=flavour_configs, histogram_type=histogram_type) )
+                    obs_list.append( obs.log10z(title='log10z', min_value=-4., max_value=0., n_bins=100, y_axis='lin', flavours=flavour_configs, histogram_type=histogram_type) )
+                    obs_list.append( obs.log10z(title='log10zLogY', min_value=-4., max_value=0., n_bins=100, y_axis='log', flavours=flavour_configs, histogram_type=histogram_type) )
                     
-                    obs_list.append( obs.rap(title='rap', min_value=0., max_value=100., n_bins=100, y_axis='lin', flavours=flavour_configs) )
-                    obs_list.append( obs.rap(title='rapLogY', min_value=0., max_value=100., n_bins=100, y_axis='log', flavours=flavour_configs) )
-                    obs_list.append( obs.rap(title='log10rap', min_value=-3., max_value=3., n_bins=100, y_axis='lin', flavours=flavour_configs) )
-                    obs_list.append( obs.rap(title='log10rapLogY', min_value=-3., max_value=3., n_bins=100, y_axis='log', flavours=flavour_configs) )
+                    obs_list.append( obs.rap(title='rap', min_value=0., max_value=100., n_bins=100, y_axis='lin', flavours=flavour_configs, histogram_type=histogram_type) )
+                    obs_list.append( obs.rap(title='rapLogY', min_value=0., max_value=100., n_bins=100, y_axis='log', flavours=flavour_configs, histogram_type=histogram_type) )
+                    obs_list.append( obs.rap(title='log10rap', min_value=-3., max_value=3., n_bins=100, y_axis='lin', flavours=flavour_configs, histogram_type=histogram_type) )
+                    obs_list.append( obs.rap(title='log10rapLogY', min_value=-3., max_value=3., n_bins=100, y_axis='log', flavours=flavour_configs, histogram_type=histogram_type) )
 
             else:
                 if 'ptj' in observables or 'ALL' in observables:
-                    obs_list.append( obs.ptj() )
-                    obs_list.append( obs.ptj(title='ptjLogY', min_value=0., max_value=2000., n_bins=100, y_axis='log') )
-                    obs_list.append( obs.ptj(title='ptjZoom', min_value=0., max_value=20., n_bins=100) )
+                    obs_list.append( obs.ptj(histogram_type=histogram_type) )
+                    obs_list.append( obs.ptj(title='ptjLogY', min_value=0., max_value=2000., n_bins=100, y_axis='log', histogram_type=histogram_type) )
+                    obs_list.append( obs.ptj(title='ptjZoom', min_value=0., max_value=20., n_bins=100, histogram_type=histogram_type) )
                 if 'log10ptj' in observables or 'ALL' in observables:
-                    obs_list.append( obs.log10ptj() )
-                    obs_list.append( obs.log10ptj(title='log10ptjLogY', min_value=-1., max_value=4., n_bins=100, y_axis='log') )
+                    obs_list.append( obs.log10ptj(histogram_type=histogram_type) )
+                    obs_list.append( obs.log10ptj(title='log10ptjLogY', min_value=-1., max_value=4., n_bins=100, y_axis='log', histogram_type=histogram_type) )
                 if 'x1' in observables or 'ALL' in observables:
-                    obs_list.append( obs.x1() )
+                    obs_list.append( obs.x1(histogram_type=histogram_type) )
                 if 'x2' in observables or 'ALL' in observables:
-                    obs_list.append( obs.x2() )
+                    obs_list.append( obs.x2(histogram_type=histogram_type) )
                 if 'z' in observables or 'ALL' in observables:
-                    obs_list.append( obs.z(title='z', min_value=0., max_value=1, n_bins=100, y_axis='lin') )
-                    obs_list.append( obs.z(title='zLogY', min_value=0., max_value=1, n_bins=100, y_axis='log') )
-                    obs_list.append( obs.z(title='zZoomX1e2', min_value=0., max_value=1.0e-2, n_bins=100, y_axis='lin') )
-                    obs_list.append( obs.z(title='zZoomX1e2LogY', min_value=0., max_value=1.0e-2, n_bins=100, y_axis='log') )
-                    obs_list.append( obs.z(title='zZoomX1e4', min_value=0., max_value=1.0e-4, n_bins=100, y_axis='lin') )
-                    obs_list.append( obs.z(title='zZoomX1e4LogY', min_value=0., max_value=1.0e-4, n_bins=100, y_axis='log') )
+                    obs_list.append( obs.z(title='z', min_value=0., max_value=1, n_bins=100, y_axis='lin', histogram_type=histogram_type) )
+                    obs_list.append( obs.z(title='zLogY', min_value=0., max_value=1, n_bins=100, y_axis='log', histogram_type=histogram_type) )
+                    obs_list.append( obs.z(title='zZoomX1e2', min_value=0., max_value=1.0e-2, n_bins=100, y_axis='lin', histogram_type=histogram_type) )
+                    obs_list.append( obs.z(title='zZoomX1e2LogY', min_value=0., max_value=1.0e-2, n_bins=100, y_axis='log', histogram_type=histogram_type) )
+                    obs_list.append( obs.z(title='zZoomX1e4', min_value=0., max_value=1.0e-4, n_bins=100, y_axis='lin', histogram_type=histogram_type) )
+                    obs_list.append( obs.z(title='zZoomX1e4LogY', min_value=0., max_value=1.0e-4, n_bins=100, y_axis='log', histogram_type=histogram_type) )
                 if 'log10z' in observables or 'ALL' in observables:
-                    obs_list.append( obs.log10z(title='log10z', min_value=-6., max_value=0., n_bins=100, y_axis='lin') )
-                    obs_list.append( obs.log10z(title='log10zLogY', min_value=-6., max_value=0., n_bins=100, y_axis='log') )
+                    obs_list.append( obs.log10z(title='log10z', min_value=-6., max_value=0., n_bins=100, y_axis='lin', histogram_type=histogram_type) )
+                    obs_list.append( obs.log10z(title='log10zLogY', min_value=-6., max_value=0., n_bins=100, y_axis='log', histogram_type=histogram_type) )
                 if ('x1_fixed_flavours' in observables or 'ALL' in observables) and not 'no_x1_fixed_flavours' in observables:
-                    obs_list.append( obs.x1FixedFlav(flavour=0, take_abs=True) )
-                    obs_list.append( obs.x1FixedFlav(flavour=1, take_abs=True) )
-                    obs_list.append( obs.x1FixedFlav(flavour=2, take_abs=True) )
+                    obs_list.append( obs.x1FixedFlav(flavour=0, take_abs=True, histogram_type=histogram_type) )
+                    obs_list.append( obs.x1FixedFlav(flavour=1, take_abs=True, histogram_type=histogram_type) )
+                    obs_list.append( obs.x1FixedFlav(flavour=2, take_abs=True, histogram_type=histogram_type) )
                 if ('x2_fixed_flavours' in observables or 'ALL' in observables) and not 'no_x2_fixed_flavours' in observables:
-                    obs_list.append( obs.x2FixedFlav(flavour=0, take_abs=True) )
-                    obs_list.append( obs.x2FixedFlav(flavour=1, take_abs=True) )
-                    obs_list.append( obs.x2FixedFlav(flavour=2, take_abs=True) )
+                    obs_list.append( obs.x2FixedFlav(flavour=0, take_abs=True, histogram_type=histogram_type) )
+                    obs_list.append( obs.x2FixedFlav(flavour=1, take_abs=True, histogram_type=histogram_type) )
+                    obs_list.append( obs.x2FixedFlav(flavour=2, take_abs=True, histogram_type=histogram_type) )
         return obs_list
 
     @staticmethod
@@ -305,6 +304,106 @@ class LU_DY(object):
             
             return sum([all_res[k] for k in sorted(list(all_res.keys()))],[])
 
+    def process_events(self, event_file, observables, hwu_path=None, n_evt_to_process=None, n_events_in_evt_file=None, use_process_bar = True):
+        import lhe_parser
+
+        if hwu_path is None:
+            hwu_path = 'histograms_%s_MG.HwU'%self.tag
+        else:
+            if not hwu_path.endswith('HwU'):
+                hwu_path = '%s.HwU'%hwu_path
+
+        # Build observables
+        self.observables = LU_DY.build_observables(observables,histogram_type='MG')
+        self.worker_observables = [copy.deepcopy(self.observables),]
+        for w_o in self.worker_observables:
+            w_o.reset()
+
+        _FLAVOUR_CONVENTIONS = { 21: 21, -1: -1, -2: -2, 1: 1, 2: 2 }
+        _PARTONS = [21,]+list(range(-5,0))+list(range(1,6))
+        _Z_BOSON_PDG = 23
+
+        evt_file = lhe_parser.EventFile(event_file)
+        if n_events_in_evt_file is None:
+            logger.info("Counting number of events in file '%s'..."%event_file)
+            n_tot_events = len(evt_file)
+        else:
+            n_tot_events = n_events_in_evt_file
+        cross_section = evt_file.get_banner().get_cross()
+        n_evt_processed = 0
+        run_card = evt_file.get_banner().get_detail('run_card')
+        E_cm = run_card['ebeam1']+run_card['ebeam2']
+
+        if n_evt_to_process is None:
+            logger.info("About to process all %d events of event file '%s'. Detected E_cm = %.5g."%(n_tot_events,event_file, E_cm))
+        else:
+            logger.info("About to process %d events out of %d of event file '%s'. Detected E_cm = %.5g."%(n_evt_to_process, n_tot_events,event_file, E_cm))
+
+        processing_start = time.time()
+        with progressbar.ProgressBar(
+                prefix="Processing event #{variables.n_evt}/{variables.n_tot_evt}", 
+                max_value=(n_evt_to_process if n_evt_to_process is not None else n_tot_events),
+                variables={
+                    'n_evt':0, 'n_tot_evt': (n_evt_to_process if n_evt_to_process is not None else n_tot_events)
+                }
+            ) as bar:
+
+            for i_evt, evt in enumerate(evt_file):
+                if n_evt_to_process is not None and n_evt_processed >= n_evt_to_process:
+                    break
+
+                n_evt_processed +=1
+                if use_process_bar: bar.update(n_evt=n_evt_processed)
+
+                initial_state_parts = [p for p in evt if p.status < 0. and p.pdg in _PARTONS]
+                final_stat_parts = [p for p in evt if p.status > 0. and p.pdg in _PARTONS]
+                z_part = [p for p in evt if p.status > 0. and p.pdg==_Z_BOSON_PDG]
+                evt_group = obs.EventGroup([
+                    obs.Event(
+                        initial_state_jets = obs.JetList( [ obs.Jet([p.E,p.px,p.py,p.pz], flavour=_FLAVOUR_CONVENTIONS[p.pdg]) for p in initial_state_parts ] ), 
+                        final_state_jets = obs.JetList( [ obs.Jet([p.E,p.px,p.py,p.pz], flavour=_FLAVOUR_CONVENTIONS[p.pdg]) for p in final_stat_parts ] ),
+                        weight = evt.wgt,
+                        E_com = E_cm
+                    ),
+                ], h_cube=1 )
+                
+                evt_group.compute_derived_quantities()
+
+                # Filter events to apply selector
+                evt_group = obs.EventGroup([ e for e in evt_group if LU_DY.cuts(e, self.selector_variables)])
+
+                # Useful printout of all events passing by
+                #print(evt_group)
+                self.worker_observables[0].accumulate_event_group(evt_group)
+                if use_process_bar: bar.update(bar.value+1)
+
+        self.observables.finalize_iteration(worker_observable=obs.ObservableList.merge(self.worker_observables))
+        self.observables.clean_up(normalisation_factor= 1./float(n_evt_processed) )
+
+        logger.info("Final processing results: %.5g +/- %.3g vs %.5g from event file (n_selected_events = %d, n_events = %d, n_lhe_events_tot = %d)"%(
+            self.observables[0].histogram.bins[1].integral,
+            self.observables[0].histogram.bins[1].variance**0.5,
+            cross_section,
+            self.observables[0].histogram.bins[1].n_entries,
+            self.observables[0].histogram.n_total_samples,
+            n_tot_events
+        ))
+        # Consistency check (of course will correspond to the inclusive only if range sufficiently inclusive)
+        # logger.info("Final production results from ptj plot: %.5g +/- %.3g (n_events = %d, n_samples = %d)"%(
+        #     self.observables[1].histogram.norm()[0],
+        #     self.observables[1].histogram.norm()[1],
+        #     self.observables[1].histogram.n_total_entries,
+        #     self.observables[1].histogram.n_total_samples
+        # ))
+        wall_time = time.time()-processing_start
+        logger.info("Processing wall time %.0f s."%(wall_time))
+
+        with open(hwu_path,'w') as f:
+            f.write(self.observables.format_to_HwU())
+        logger.info("A total of %d histograms are output to file '%s'. They can be rendered using the madgraph/various/histograms.py script."%(
+            len(self.observables),hwu_path)
+        )        
+
     def integrate(self, n_iterations_training=10, n_iterations_production=3, n_evals_training=10000, n_evals_production=10000, vegas_grid='./vegas_grid.pkl', 
             alpha=0.5, beta=0.75, nhcube_batch=1000, seed=None, target_relative_error=0., target_absolute_error=0., 
             observables=None, hwu_path=None, use_checkpoints=True, parallelise_final_combination = True, **opts
@@ -374,7 +473,7 @@ class LU_DY(object):
                 self.timings = obs.Timings()
 
                 # Enable observables
-                self.observables = LU_DY.build_observables(observables)
+                self.observables = LU_DY.build_observables(observables, histogram_type='LUDY')
 
                 self.worker_observables = [copy.deepcopy(self.observables) for _ in range(self.n_cores)]
 
@@ -513,6 +612,8 @@ if __name__ == '__main__':
                         help='Minimum pt imposed to the sum of final state jets (default: %(default)s).')
     parser.add_argument('--max_pt', '-max_pt', dest='max_pt', type=float, default=2000.,
                         help='Maximum pt imposed to the sum of final state jets (default: %(default)s).')
+    parser.add_argument('--E_cm', '-E_cm', dest='E_cm', type=float, default=300.,
+                        help='Center of mass energy to consider (default: %(default)s).')
     parser.add_argument('--max_x1', '-max_x1', dest='max_x1', type=float, default=1.,
                         help='Maximum value of Bjorken x1 (default: %(default)s).')
     parser.add_argument('--max_x2', '-max_x2', dest='max_x2', type=float, default=1.,
@@ -539,15 +640,28 @@ if __name__ == '__main__':
                         help='List observables to consider. Use keyword "ALL" to select them all (default: %(default)s).')
     parser.add_argument('--tag', '-tag', dest='tag', type=str, default='tqq', choices=('st','tqg','s','tqq','u', 'all_trees'),
                         help='Specify which integrand to run (default: %(default)s).')
-    parser.add_argument('--vegas_grid', '-vg', dest='vegas_grid', type=str, default='./vegas_grid.pkl',
+    parser.add_argument('--event_file', '-event_file', dest='event_file', type=str, default=None,
+                        help='Process an unweighted event file (default: %(default)s).')
+    parser.add_argument('--n_events_in_evt_file', '-n_events_in_evt_file', dest='n_events_in_evt_file', type=int, default=None,
+                        help='Specify the number of events in event file so as to not having to read it all (default: read the complete file to determine this).')
+    parser.add_argument('--n_events_to_process', '-n_events_to_process', dest='n_events_to_process', type=int, default=None,
+                        help='Specify a maximum number of events to process (default: run on all events on file).')
+    parser.add_argument('--vegas_grid', '-vg', dest='vegas_grid', type=str, default=None,
                         help='Specify path to save/load VEGAS grid. Specify "none" to disable that and use keyword "clean" to forcefully remove default one at "vegas_grid.pkl". (default: %(default)s).')
     args = parser.parse_args()
+    
+    clean_grid = (args.vegas_grid == 'clean' and args.event_file is None)
 
-    if args.vegas_grid == 'clean':
-        if os.path.isfile('./vegas_grid.pkl'):
-            logger.info("Removing existing grid 'vegas_grid.pkl' to start a fresh new integration.")
-            os.remove('./vegas_grid.pkl')
-        args.vegas_grid = './vegas_grid.pkl'
+    if args.vegas_grid in ['clean',None]:
+        args.vegas_grid = './vegas_grid_%s.pkl'%args.tag
+
+    if clean_grid:
+        if os.path.isfile(args.vegas_grid):
+            logger.info("Removing existing grid '%s' to start a fresh new integration."%args.vegas_grid)
+            os.remove(args.vegas_grid)
+   
+    if os.path.isfile(args.vegas_grid) and args.event_file is None:
+       logger.warning("Re-using vegas grid '%s'"%args.vegas_grid)
 
     lu_dy = LU_DY(
         verbosity=args.verbosity,
@@ -560,17 +674,27 @@ if __name__ == '__main__':
         max_pt = args.max_pt,
         max_x1 = args.max_x1,
         max_x2 = args.max_x2,
+        eCM = args.E_cm
     )
     
-    lu_dy.integrate(
-        observables=args.observables,
-        seed = args.seed,
-        use_checkpoints = args.use_checkpoints,
-        vegas_grid = args.vegas_grid,
-        nhcube_batch = args.batch_size,
-        hwu_path = args.hwu_path,
-        n_evals_training = args.n_evals_training,
-        n_iterations_training = args.n_iterations_training,
-        n_iterations_production = args.n_iterations_production,
-        n_evals_production = args.n_evals_production
-    )
+    if args.event_file is None:
+        lu_dy.integrate(
+            observables=args.observables,
+            seed = args.seed,
+            use_checkpoints = args.use_checkpoints,
+            vegas_grid = args.vegas_grid,
+            nhcube_batch = args.batch_size,
+            hwu_path = args.hwu_path,
+            n_evals_training = args.n_evals_training,
+            n_iterations_training = args.n_iterations_training,
+            n_iterations_production = args.n_iterations_production,
+            n_evals_production = args.n_evals_production
+        )
+    else:
+        lu_dy.process_events(
+            args.event_file, 
+            observables = args.observables,
+            hwu_path = args.hwu_path,
+            n_evt_to_process=args.n_events_to_process,
+            n_events_in_evt_file = args.n_events_in_evt_file
+        )

@@ -74,7 +74,6 @@ class Histogram(object):
             b.variance *= normalisation_factor**2
 
     def add_weights(self, xs_and_wgts):
-
         wgts = {}
         self.n_total_samples += 1
         self.n_total_entries += len(xs_and_wgts)
