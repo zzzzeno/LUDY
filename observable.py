@@ -138,10 +138,15 @@ class JetList(list):
     def __init__(self, *args, **opts):
         super(JetList, self).__init__(*args, **opts)
 
-
 class Event(object):
 
     def __init__(self, initial_state_jets, final_state_jets, E_com, weight):
+        # Make sure to sort the initial-state jets so that the first one has positive z component
+        if len(initial_state_jets) not in [1,2]:
+            raise ObservableError("Events must have either one or two initial-state jets, not %d."%len(initial_state_jets))
+        if len(initial_state_jets) == 2:
+            if initial_state_jets[0].p[3] < 0.:
+                initial_state_jets = list(reversed(initial_state_jets))
         self.initial_state_jets = initial_state_jets
         self.final_state_jets = final_state_jets
         self.weight = weight
@@ -178,6 +183,22 @@ class EventGroup(list):
     def __init__(self, *args, h_cube=None, **opts):
         self.h_cube =h_cube
         super(EventGroup, self).__init__(*args, **opts)
+
+    def symmetrize_beams(self):
+
+        symmetrized_group = []
+        for evt in self:
+            sym_evt = copy.deepcopy(evt)
+            sym_evt.initial_state_jets = list(reversed(sym_evt.initial_state_jets))
+            for j in sym_evt.initial_state_jets:
+                j.p[3] = -j.p[3]
+            for j in sym_evt.final_state_jets:
+                j.p[3] = -j.p[3]
+            symmetrized_group.append(sym_evt)
+        
+        self[:] = self[:]+symmetrized_group
+        for evt in self:
+            evt.weight /= 2.
 
     def compute_derived_quantities(self, *args, **opts):
         for e in self:

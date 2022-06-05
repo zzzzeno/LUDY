@@ -27,7 +27,7 @@ logger.setLevel(logging.INFO)
 FORMAT = '%(asctime)s %(message)s'
 logging.basicConfig(format=FORMAT)
 
-_CONVERT_TO_FLAV = { 0: 21, -1: -1, -2: -2, 1: 1, 2: 2 }
+_CONVERT_TO_FLAV = { 0: 0, -1: -1, -2: -2, 1: 1, 2: 2 }
 
 class MockUpRes(object):
     def __init__(self, res, jac=1., j1=None, j2=None, pg=None, spin1=0, spin2=0):
@@ -220,7 +220,7 @@ class LU_DY(object):
             integrand.set_a(ap)
             all_res = integrand.safe_eval(x)
             for r in all_res:
-               r.jac *= a_jac
+                r.jac *= a_jac
             # The mockup function below is useful for validation
             # all_res = [ MockUpRes( sum(xi**2 for xi in x) ), ]
 
@@ -239,6 +239,9 @@ class LU_DY(object):
                 ) for r in all_res if abs(r.res*r.jac*(1. if integrator_wgt is None else integrator_wgt))!=0.0
             ], h_cube=(h_cube if separate_h_cube_errors else 1) )
             
+            # Symmetrize initial-states due to current issue in Lorentz-flow implementation only working for symmetric beams for now
+            evt_group.symmetrize_beams()
+
             evt_group.compute_derived_quantities()
 
             # Filter events to apply selector
@@ -319,7 +322,7 @@ class LU_DY(object):
         for w_o in self.worker_observables:
             w_o.reset()
 
-        _FLAVOUR_CONVENTIONS = { 21: 21, -1: -1, -2: -2, 1: 1, 2: 2 }
+        _FLAVOUR_CONVENTIONS = { 21: 0, -1: -1, -2: -1, 1: 1, 2: 1 }
         _PARTONS = [21,]+list(range(-5,0))+list(range(1,6))
         _Z_BOSON_PDG = 23
 
@@ -358,11 +361,20 @@ class LU_DY(object):
                 initial_state_parts = [p for p in evt if p.status < 0. and p.pdg in _PARTONS]
                 final_stat_parts = [p for p in evt if p.status > 0. and p.pdg in _PARTONS]
                 z_part = [p for p in evt if p.status > 0. and p.pdg==_Z_BOSON_PDG]
+                # Symmetrize initial_states
+                initial_state_parts_reversed = list(reversed(initial_state_parts))
+
                 evt_group = obs.EventGroup([
                     obs.Event(
                         initial_state_jets = obs.JetList( [ obs.Jet([p.E,p.px,p.py,p.pz], flavour=_FLAVOUR_CONVENTIONS[p.pdg]) for p in initial_state_parts ] ), 
                         final_state_jets = obs.JetList( [ obs.Jet([p.E,p.px,p.py,p.pz], flavour=_FLAVOUR_CONVENTIONS[p.pdg]) for p in final_stat_parts ] ),
-                        weight = evt.wgt,
+                        weight = evt.wgt/2.,
+                        E_com = E_cm
+                    ),
+                    obs.Event(
+                        initial_state_jets = obs.JetList( [ obs.Jet([p.E,p.px,p.py,-p.pz], flavour=_FLAVOUR_CONVENTIONS[p.pdg]) for p in initial_state_parts_reversed ] ), 
+                        final_state_jets = obs.JetList( [ obs.Jet([p.E,p.px,p.py,-p.pz], flavour=_FLAVOUR_CONVENTIONS[p.pdg]) for p in final_stat_parts ] ),
+                        weight = evt.wgt/2.,
                         E_com = E_cm
                     ),
                 ], h_cube=1 )
